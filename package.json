@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "organize": "node scripts/organize-project.js"
   },
   "dependencies": {
     "framer-motion": "^13.2.0",
