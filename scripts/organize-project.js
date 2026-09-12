@@ -103,7 +103,7 @@ const emptyFiles = [
 
   // Global types & middleware
   path.join(SRC_DIR, 'types', 'roles.ts'),
-  path.join(SRC_DIR, 'middleware.ts'),
+  path.join(SRC_DIR, 'proxy.ts'),
 ];
 
 console.log('🚀 Iniciando organização do projeto...');

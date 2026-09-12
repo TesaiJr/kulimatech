@@ -112,7 +112,7 @@ src/
 |-- theme/                       # Constantes de tema e paleta de cores
 |-- types/                       # Definicoes globais de tipos TypeScript
 |-- utils/                       # Utilitarios puros, formatadores, mascaras e validadores
-`-- middleware.ts                # Middleware de interceptacao e protecao de rotas Next.js
+`-- proxy.ts                     # Proxy de interceptacao e protecao de rotas (Next.js 16)
 ```
 
 ---
@@ -188,7 +188,7 @@ No diretorio do projeto, estao configurados os seguintes comandos npm:
 - **Separacao de Responsabilidades**: O diretorio `app/` deve conter apenas componentes de pagina e definicoes de rota. Logicas de negocio, chamadas a servicos e validacoes de formulario residem exclusivamente em `features/`.
 - **Tipagem Forte**: Todo novo modulo deve declarar suas interfaces em arquivos `types.ts` dedicados, evitando o uso de `any`.
 - **Componentes Compartilhados**: Elementos visuais sem acoplamento a regras de negocio especificas pertencem a `components/ui/`.
-- **Roteamento e Permissoes**: Novas rotas no painel administrativo devem ser mapeadas de acordo com as politicas definidas em `src/lib/rbac/permissions.ts` e protegidas no `middleware.ts`.
+- **Roteamento e Permissoes**: Novas rotas no painel administrativo devem ser mapeadas de acordo com as politicas definidas em `src/lib/rbac/permissions.ts` e protegidas no `proxy.ts`.
 
 ---
 

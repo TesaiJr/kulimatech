@@ -103,7 +103,7 @@ $emptyFiles = @(
 
     # Global types & middleware
     (Join-Path $SrcDir "types\roles.ts"),
-    (Join-Path $SrcDir "middleware.ts")
+    (Join-Path $SrcDir "proxy.ts")
 )
 
 Write-Host "🚀 Iniciando organização do projeto..." -ForegroundColor Cyan
