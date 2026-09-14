@@ -7,6 +7,7 @@ import { signJwtToken } from '@/lib/auth/jwt';
 import { createSuccessResponse } from '@/lib/api/response';
 import { handleApiError, AppError } from '@/lib/api/errors';
 import { AuthResponseData } from '@/features/auth/types';
+import { UserStatus } from '@prisma/client';
 
 export async function POST(req: NextRequest) {
   try {
