@@ -9,6 +9,8 @@
     "lint": "eslint",
     "db:test": "node scripts/test-db.mjs",
     "db:generate": "prisma generate",
+    "db:seed": "node scripts/seed.mjs",
+    "backend:verify": "node scripts/verify-backend.mjs",
     "organize": "node scripts/organize-project.js",
     "postinstall": "prisma skills sync || exit 0"
   },

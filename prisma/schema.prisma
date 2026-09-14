@@ -1,5 +1,5 @@
-// Prisma Schema para iMunda
-// Docs: https://pris.ly/d/prisma-schema
+// Prisma Schema para o Sistema iMunda (SDAE Nhamatanda)
+// Engenharia de Backend Senior: Relacoes robustas, constraints, indices e integridade referencial
 
 generator client {
   provider = "prisma-client-js"
@@ -7,4 +7,242 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+}
+
+// ---------------------------------------------------------------------------
+// ENUMS DO DOMINIO
+// ---------------------------------------------------------------------------
+
+enum UserRole {
+  ADMIN
+  TECNICO
+  AGRICULTOR
+}
+
+enum UserStatus {
+  ATIVO
+  INATIVO
+  BLOQUEADO
+}
+
+enum TipoSolo {
+  ARENOSO
+  ARGILOSO
+  FRANCO
+  MISTO
+  OUTRO
+}
+
+enum SeveridadePraga {
+  BAIXA
+  MEDIA
+  ALTA
+  CRITICA
+}
+
+enum StatusOcorrencia {
+  ABERTA
+  EM_ANALISE
+  RESOLVIDA
+}
+
+enum StatusRecomendacao {
+  PENDENTE
+  APLICADA
+  ARQUIVADA
+}
+
+enum AlertaTipo {
+  HUMIDADE_CRITICA
+  PRAGA_REPORTADA
+  NOVA_MENSAGEM
+  NOVA_RECOMENDACAO
+  SISTEMA
+}
+
+// ---------------------------------------------------------------------------
+// MODELOS PRINCIPAIS
+// ---------------------------------------------------------------------------
+
+/// Utilizador do sistema (Administrador, Tecnico SDAE ou Agricultor)
+model User {
+  id           String     @id @default(cuid())
+  nome         String
+  email        String     @unique
+  passwordHash String
+  telefone     String?
+  role         UserRole   @default(AGRICULTOR)
+  status       UserStatus @default(ATIVO)
+  zonaAtuacao  String?    // Zona de residencia (Agricultor) ou Area de cobertura (Tecnico)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  // Relacionamentos operacionais
+  parcelas              Parcela[]
+  recomendacoesEmitidas Recomendacao[]    @relation("TecnicoRecomendacao")
+  ocorrenciasReportadas OcorrenciaPraga[]
+  mensagensEnviadas     Mensagem[]        @relation("RemetenteMensagem")
+  mensagensRecebidas    Mensagem[]        @relation("DestinatarioMensagem")
+  alertas               Alerta[]
+
+  // Associacoes Tecnico <-> Agricultores acompanhados
+  agricultoresAcompanhados TecnicoAgricultor[] @relation("TecnicoVinculo")
+  tecnicosResponsaveis     TecnicoAgricultor[] @relation("AgricultorVinculo")
+
+  @@index([email])
+  @@index([role, status])
+}
+
+/// Associacao explicita entre Tecnicos do SDAE e Agricultores acompanhados
+model TecnicoAgricultor {
+  tecnicoId    String
+  agricultorId String
+  dataVinculo  DateTime @default(now())
+
+  tecnico    User @relation("TecnicoVinculo", fields: [tecnicoId], references: [id], onDelete: Cascade)
+  agricultor User @relation("AgricultorVinculo", fields: [agricultorId], references: [id], onDelete: Cascade)
+
+  @@id([tecnicoId, agricultorId])
+  @@index([tecnicoId])
+  @@index([agricultorId])
+}
+
+/// Parcela agricola de um agricultor
+model Parcela {
+  id           String   @id @default(cuid())
+  nome         String   // Nome identificador (ex: "Talhao do Rio")
+  areaHectares Float    // Dimensao em hectares
+  tipoSolo     TipoSolo @default(FRANCO)
+  localizacao  String?  // Descricao textual da localizacao em Nhamatanda
+  latitude     Float?
+  longitude    Float?
+  agricultorId String
+  agricultor   User     @relation(fields: [agricultorId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  leituras      LeituraSolo[]
+  recomendacoes Recomendacao[]
+  ocorrencias   OcorrenciaPraga[]
+
+  @@index([agricultorId])
+}
+
+/// Registos de leitura de humidade e condicoes do solo da parcela
+model LeituraSolo {
+  id             String   @id @default(cuid())
+  parcelaId      String
+  parcela        Parcela  @relation(fields: [parcelaId], references: [id], onDelete: Cascade)
+  humidade       Float    // Valor medido em percentual (0 a 100)
+  temperatura    Float?   // Temperatura medida (opcional)
+  statusHumidade String?  // "CRITICA", "BAIXA", "OPTIMA", "EXCESSIVA"
+  observacoes    String?
+  dataLeitura    DateTime @default(now())
+  createdAt      DateTime @default(now())
+
+  @@index([parcelaId, dataLeitura])
+}
+
+/// Catalogo de referencia de culturas agricolas
+model Cultura {
+  id             String   @id @default(cuid())
+  nome           String   @unique
+  nomeCientifico String?
+  descricao      String
+  humidadeMin    Float    // Limiar minimo de humidade ideal (%)
+  humidadeMax    Float    // Limiar maximo de humidade ideal (%)
+  cicloDias      Int?     // Duracao do ciclo vegetativo em dias
+  epocaPlantio   String?  // Ex: "Outubro a Dezembro"
+  cuidados       String?  // Recomendacoes tecnicas gerais de cultivo
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  recomendacoes Recomendacao[]
+}
+
+/// Recomendacao tecnica emitida por um Tecnico para uma parcela
+model Recomendacao {
+  id          String             @id @default(cuid())
+  parcelaId   String
+  parcela     Parcela            @relation(fields: [parcelaId], references: [id], onDelete: Cascade)
+  tecnicoId   String
+  tecnico     User               @relation("TecnicoRecomendacao", fields: [tecnicoId], references: [id], onDelete: Restrict)
+  culturaId   String?
+  cultura     Cultura?           @relation(fields: [culturaId], references: [id], onDelete: SetNull)
+  parecer     String             // Texto detalhado da recomendacao tecnica
+  status      StatusRecomendacao @default(PENDENTE)
+  dataEmissao DateTime           @default(now())
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  @@index([parcelaId])
+  @@index([tecnicoId])
+}
+
+/// Catalogo de referencia de pragas e doencas agricolas
+model Praga {
+  id               String          @id @default(cuid())
+  nome             String          @unique
+  nomeCientifico   String?
+  descricao        String
+  sintomas         String          // Sintomas visiveis na planta/folhas
+  metodosCombate   String          // Medidas culturais, biologicas e quimicas
+  severidadePadrao SeveridadePraga @default(MEDIA)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  ocorrencias OcorrenciaPraga[]
+}
+
+/// Reporte de ocorrencia de praga numa parcela especifica
+model OcorrenciaPraga {
+  id             String           @id @default(cuid())
+  parcelaId      String
+  parcela        Parcela          @relation(fields: [parcelaId], references: [id], onDelete: Cascade)
+  pragaId        String?
+  praga          Praga?           @relation(fields: [pragaId], references: [id], onDelete: SetNull)
+  agricultorId   String
+  agricultor     User             @relation(fields: [agricultorId], references: [id], onDelete: Cascade)
+  descricao      String
+  severidade     SeveridadePraga  @default(MEDIA)
+  status         StatusOcorrencia @default(ABERTA)
+  fotoUrl        String?
+  dataReporte    DateTime         @default(now())
+  parecerTecnico String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@index([parcelaId])
+  @@index([agricultorId])
+  @@index([status])
+}
+
+/// Mensagens trocadas diretamente entre Tecnico e Agricultor
+model Mensagem {
+  id             String   @id @default(cuid())
+  remetenteId    String
+  remetente      User     @relation("RemetenteMensagem", fields: [remetenteId], references: [id], onDelete: Cascade)
+  destinatarioId String
+  destinatario   User     @relation("DestinatarioMensagem", fields: [destinatarioId], references: [id], onDelete: Cascade)
+  conteudo       String
+  lida           Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  @@index([remetenteId, destinatarioId])
+  @@index([destinatarioId, lida])
+}
+
+/// Notificacoes e alertas disparados pelo sistema para os utilizadores
+model Alerta {
+  id        String     @id @default(cuid())
+  userId    String
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tipo      AlertaTipo @default(SISTEMA)
+  titulo    String
+  mensagem  String
+  link      String?    // Rota de atalho para resolucao (ex: "/parcelas/xyz")
+  lido      Boolean    @default(false)
+  createdAt DateTime   @default(now())
+
+  @@index([userId, lido])
 }
