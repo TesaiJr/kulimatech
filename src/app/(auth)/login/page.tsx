@@ -76,9 +76,9 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-white">
       {/* ========================================================================= */}
-      {/* PAINEL ESQUERDO: FOTOGRAFIA FULL-BLEED + TESTEMUNHO + CARROSSEL (65%)      */}
+      {/* PAINEL ESQUERDO: FOTOGRAFIA FULL-BLEED + TESTEMUNHO + CARROSSEL (DESKTOP)  */}
       {/* ========================================================================= */}
-      <div className="relative w-full lg:w-[62%] xl:w-[65%] min-h-[420px] lg:min-h-screen bg-slate-900 overflow-hidden flex flex-col justify-between p-6 sm:p-10 lg:p-14">
+      <div className="hidden lg:flex relative w-full lg:w-[62%] xl:w-[65%] min-h-screen bg-slate-900 overflow-hidden flex-col justify-between p-6 sm:p-10 lg:p-14">
         {/* Imagem de Fundo Fotográfica */}
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-all duration-700 scale-105"
@@ -153,7 +153,7 @@ export default function LoginPage() {
       {/* ========================================================================= */}
       {/* PAINEL DIREITO: FORMULÁRIO LIMPO & MINIMALISTA (35% - 38%)                 */}
       {/* ========================================================================= */}
-      <div className="w-full lg:w-[38%] xl:w-[35%] flex flex-col justify-center items-center p-8 sm:p-12 lg:p-14 relative bg-white">
+      <div className="w-full lg:w-[38%] xl:w-[35%] min-h-screen flex flex-col justify-center items-center p-6 sm:p-12 lg:p-14 relative bg-white">
         <div className="w-full max-w-sm space-y-7">
           {/* Logo Oficial KulimaTech Circular */}
           <div className="text-center flex flex-col items-center space-y-3">

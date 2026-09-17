@@ -44,17 +44,32 @@ export function handleApiError(error: unknown): NextResponse {
     );
   }
 
-  // 3. Erro do Prisma (ex: Violacao de chave unica P2002)
-  if (typeof error === 'object' && error !== null && 'code' in error) {
-    const prismaError = error as { code: string; meta?: { target?: string[] } };
-    if (prismaError.code === 'P2002') {
-      const field = prismaError.meta?.target?.join(', ') || 'campo';
+  // 3. Erro do Prisma / Conexao a Base de Dados
+  if (typeof error === 'object' && error !== null) {
+    const errObj = error as { code?: string; message?: string; meta?: { target?: string[] } };
+    if (errObj.code === 'P2002') {
+      const field = errObj.meta?.target?.join(', ') || 'campo';
       return createErrorResponse(
         `Ja existe um registo com este ${field}.`,
         409,
         'DUPLICATE_RESOURCE'
       );
     }
+    if (errObj.code === 'ECONNREFUSED' || (errObj.message && (errObj.message.includes('ECONNREFUSED') || errObj.message.includes('Can\'t reach database server')))) {
+      return createErrorResponse(
+        'Nao foi possivel conectar a base de dados (PostgreSQL/Supabase). Verifique se o servidor de banco de dados esta ativo e a variavel DATABASE_URL esta correta no ficheiro .env.',
+        503,
+        'DATABASE_CONNECTION_ERROR'
+      );
+    }
+  }
+
+  if (error instanceof Error && (error.message.includes('ECONNREFUSED') || error.message.includes('Can\'t reach database server'))) {
+    return createErrorResponse(
+      'Nao foi possivel conectar a base de dados (PostgreSQL/Supabase). Verifique se o servidor de banco de dados esta ativo e a variavel DATABASE_URL esta correta no ficheiro .env.',
+      503,
+      'DATABASE_CONNECTION_ERROR'
+    );
   }
 
   // 4. Erro de JSON Web Token
