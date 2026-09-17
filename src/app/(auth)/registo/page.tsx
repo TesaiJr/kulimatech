@@ -230,20 +230,18 @@ export default function RegisterPage() {
               <button
                 type="button"
                 onClick={() => handleRoleChange('AGRICULTOR')}
-                className={`p-3.5 rounded-2xl border text-left transition-all flex flex-col justify-between ${
-                  role === 'AGRICULTOR'
+                className={`p-3.5 rounded-2xl border text-left transition-all flex flex-col justify-between ${role === 'AGRICULTOR'
                     ? 'bg-[#002626] text-[#FEFAE0] border-[#002626] shadow-md ring-2 ring-[#95C623]'
                     : 'bg-white text-[#002626] border-[#8EB69B]/40 hover:border-[#0E4749]'
-                }`}
+                  }`}
               >
                 <div className="flex items-center justify-between w-full">
                   <span className="text-sm font-bold">Agricultor</span>
                   <Sprout className={`w-4 h-4 ${role === 'AGRICULTOR' ? 'text-[#95C623]' : 'text-[#0E4749]'}`} />
                 </div>
                 <span
-                  className={`text-[11px] mt-2 block ${
-                    role === 'AGRICULTOR' ? 'text-[#8EB69B]' : 'text-[#0E4749]/70'
-                  }`}
+                  className={`text-[11px] mt-2 block ${role === 'AGRICULTOR' ? 'text-[#8EB69B]' : 'text-[#0E4749]/70'
+                    }`}
                 >
                   Produtor familiar no distrito
                 </span>
@@ -252,20 +250,18 @@ export default function RegisterPage() {
               <button
                 type="button"
                 onClick={() => handleRoleChange('TECNICO')}
-                className={`p-3.5 rounded-2xl border text-left transition-all flex flex-col justify-between ${
-                  role === 'TECNICO'
+                className={`p-3.5 rounded-2xl border text-left transition-all flex flex-col justify-between ${role === 'TECNICO'
                     ? 'bg-[#002626] text-[#FEFAE0] border-[#002626] shadow-md ring-2 ring-[#95C623]'
                     : 'bg-white text-[#002626] border-[#8EB69B]/40 hover:border-[#0E4749]'
-                }`}
+                  }`}
               >
                 <div className="flex items-center justify-between w-full">
                   <span className="text-sm font-bold">Técnico SDAE</span>
                   <Briefcase className={`w-4 h-4 ${role === 'TECNICO' ? 'text-[#95C623]' : 'text-[#0E4749]'}`} />
                 </div>
                 <span
-                  className={`text-[11px] mt-2 block ${
-                    role === 'TECNICO' ? 'text-[#8EB69B]' : 'text-[#0E4749]/70'
-                  }`}
+                  className={`text-[11px] mt-2 block ${role === 'TECNICO' ? 'text-[#8EB69B]' : 'text-[#0E4749]/70'
+                    }`}
                 >
                   Extensionista e validador
                 </span>
@@ -428,9 +424,8 @@ export default function RegisterPage() {
                 </div>
                 <div className="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden flex gap-1">
                   <div
-                    className={`h-full transition-all duration-300 ${
-                      passwordStrength.score >= 1 ? passwordStrength.color : 'bg-transparent'
-                    } ${passwordStrength.score === 1 ? 'w-1/4' : passwordStrength.score === 2 ? 'w-2/4' : passwordStrength.score === 3 ? 'w-3/4' : 'w-full'}`}
+                    className={`h-full transition-all duration-300 ${passwordStrength.score >= 1 ? passwordStrength.color : 'bg-transparent'
+                      } ${passwordStrength.score === 1 ? 'w-1/4' : passwordStrength.score === 2 ? 'w-2/4' : passwordStrength.score === 3 ? 'w-3/4' : 'w-full'}`}
                   />
                 </div>
               </div>

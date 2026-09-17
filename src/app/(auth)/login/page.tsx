@@ -155,23 +155,21 @@ export default function LoginPage() {
       {/* ========================================================================= */}
       <div className="w-full lg:w-[38%] xl:w-[35%] flex flex-col justify-center items-center p-8 sm:p-12 lg:p-14 relative bg-white">
         <div className="w-full max-w-sm space-y-7">
-          {/* Logo / Emblema Central Circular */}
+          {/* Logo Oficial iMunda Circular */}
           <div className="text-center flex flex-col items-center space-y-3">
-            <div className="w-16 h-16 rounded-full border-2 border-[#0E4749]/20 bg-white p-1.5 shadow-sm flex items-center justify-center">
-              <div className="w-full h-full rounded-full bg-[#0E4749] text-white flex flex-col items-center justify-center">
-                <span className="text-[10px] font-black tracking-widest uppercase text-[#95C623]">UZ</span>
-                <span className="text-[8px] tracking-wider uppercase font-semibold text-white/90">SDAE</span>
+            <Link href="/" className="inline-flex flex-col items-center gap-2.5 group" title="Voltar à Página Inicial">
+              <div className="w-14 h-14 rounded-full bg-[#95C623] text-[#002626] flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
+                <Sprout className="w-7 h-7 text-[#002626] stroke-[2.5]" />
               </div>
-            </div>
-
-            <div className="space-y-1">
-              <h1 className="text-2xl font-bold tracking-tight text-[#0f1f38]">
-                Iniciar Sessão
-              </h1>
-              <p className="text-xs text-gray-500 font-normal">
-                Entre com as suas credenciais institucionais.
-              </p>
-            </div>
+              <div className="flex flex-col items-center">
+                <span className="text-2xl font-black tracking-tight text-[#002626] leading-none">
+                  iMunda
+                </span>
+                <span className="text-[11px] text-gray-500 font-medium tracking-wide mt-1">
+                  Entre com as suas credenciais
+                </span>
+              </div>
+            </Link>
           </div>
 
           {/* Banner de Erros */}
@@ -193,7 +191,7 @@ export default function LoginPage() {
             {/* Campo: Email Institucional */}
             <div className="space-y-1.5">
               <label htmlFor="login-email" className="block text-xs font-normal text-gray-700">
-                Email institucional
+                Email pessoal:
               </label>
               <input
                 id="login-email"
@@ -210,7 +208,7 @@ export default function LoginPage() {
             {/* Campo: Palavra-passe */}
             <div className="space-y-1.5">
               <label htmlFor="login-password" className="block text-xs font-normal text-gray-700">
-                Palavra-passe
+                Palavra-passe:
               </label>
               <div className="relative">
                 <input
@@ -275,15 +273,6 @@ export default function LoginPage() {
 
           {/* Links de Rodapé */}
           <div className="space-y-3 pt-2 text-center text-xs text-gray-600">
-            <div>
-              Problemas de acesso?{' '}
-              <Link
-                href="/recuperar-senha"
-                className="font-semibold text-[#0f1f38] hover:underline"
-              >
-                Contacte o suporte técnico
-              </Link>
-            </div>
 
             <div className="pt-2 border-t border-gray-100">
               Ainda não tem conta?{' '}
@@ -295,17 +284,6 @@ export default function LoginPage() {
               </Link>
             </div>
           </div>
-        </div>
-
-        {/* Botão Flutuante de Suporte / Chat no Canto Inferior Direito */}
-        <div className="absolute bottom-6 right-6">
-          <Link
-            href="/recuperar-senha"
-            className="w-11 h-11 rounded-xl bg-[#0066ff] hover:bg-[#0052cc] text-white flex items-center justify-center shadow-lg hover:shadow-xl transition-all hover:scale-105"
-            title="Suporte Técnico"
-          >
-            <MessageSquareText className="w-5 h-5" />
-          </Link>
         </div>
       </div>
     </div>

@@ -3,9 +3,7 @@ import type { Metadata } from 'next';
 import {
   LandingNavbar,
   HeroSection,
-  StatsSection,
   HowItWorksSection,
-  ProductShowcase,
   InstitutionalSection,
   CallToActionSection,
 } from '@/components/landing';
@@ -36,17 +34,11 @@ export default function LandingPage() {
 
       {/* 2. Conteúdo Principal Estruturado em Módulos */}
       <main className="flex-1">
-        {/* Hero Section com Proposta de Valor e Demonstração */}
+        {/* Hero Section em Tela Cheia */}
         <HeroSection />
 
-        {/* Prova de Valor e Métricas de Impacto em Nhamatanda */}
-        <StatsSection />
-
-        {/* Ciclo Operacional em 4 Passos */}
+        {/* Ciclo Operacional em 4 Passos: Fluxo Operacional de Campo */}
         <HowItWorksSection />
-
-        {/* Demonstração Realista da Plataforma */}
-        <ProductShowcase />
 
         {/* Cooperação Institucional: UniZambeze & SDAE Nhamatanda */}
         <InstitutionalSection />

@@ -15,16 +15,16 @@ export function Footer({ variant = 'dashboard', className = '' }: FooterProps) {
 
   if (variant === 'landing') {
     return (
-      <footer className={`bg-primary text-surface border-t border-secondary/20 pt-16 pb-12 px-4 sm:px-6 lg:px-10 xl:px-12 ${className}`}>
-        <div className="max-w-7xl mx-auto space-y-12">
+      <footer className={`bg-primary text-surface border-t border-secondary/20 pt-16 pb-12 px-6 sm:px-10 lg:px-16 xl:px-20 2xl:px-24 ${className}`}>
+        <div className="w-full space-y-12">
           
-          {/* Grade Principal com 4 Colunas Proporcionais */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-10">
+          {/* Grade Principal com 4 Colunas Proporcionais em Largura Total */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-12 xl:gap-16">
             
             {/* Coluna 1: Identidade do Projecto e Descrição (5 colunas) */}
             <div className="lg:col-span-5 space-y-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-accent text-primary flex items-center justify-center font-black text-xl shadow-md">
+                <div className="w-10 h-10 rounded-md bg-accent text-primary flex items-center justify-center font-black text-xl shadow-md">
                   <Sprout className="w-5 h-5 text-primary" />
                 </div>
                 <div>
@@ -32,7 +32,7 @@ export function Footer({ variant = 'dashboard', className = '' }: FooterProps) {
                     <h3 className="font-extrabold text-lg tracking-tight text-surface">
                       {APP_CONFIG.NAME}
                     </h3>
-                    <span className="text-[10px] font-mono font-bold bg-accent/20 text-accent px-2 py-0.5 rounded">
+                    <span className="text-[10px] font-mono font-bold bg-accent/20 text-accent px-2 py-0.5 rounded-sm">
                       MZ (+258)
                     </span>
                   </div>
@@ -42,7 +42,7 @@ export function Footer({ variant = 'dashboard', className = '' }: FooterProps) {
                 </div>
               </div>
 
-              <p className="text-xs sm:text-sm text-surface/80 max-w-md leading-relaxed">
+              <p className="text-xs sm:text-sm text-surface/80 leading-relaxed">
                 Sistema Integrado de Apoio à Decisão Agrícola desenvolvido para fortalecer a extensão agrária em Nhamatanda,
                 conectando produtores familiares e os técnicos do SDAE com base na monitorização da humidade do solo.
               </p>
@@ -77,7 +77,7 @@ export function Footer({ variant = 'dashboard', className = '' }: FooterProps) {
             {/* Coluna 3: Acesso ao Sistema & Navegação (2 colunas) */}
             <div className="lg:col-span-2 space-y-3">
               <h4 className="font-bold text-xs uppercase tracking-wider text-accent">
-                Plataforma
+                Navegação
               </h4>
               <ul className="space-y-2 text-xs text-surface/80">
                 <li>
@@ -89,11 +89,6 @@ export function Footer({ variant = 'dashboard', className = '' }: FooterProps) {
                 <li>
                   <a href="#como-funciona" className="hover:text-accent transition-colors">
                     Como Funciona
-                  </a>
-                </li>
-                <li>
-                  <a href="#plataforma" className="hover:text-accent transition-colors">
-                    Interface de Campo
                   </a>
                 </li>
                 <li>
