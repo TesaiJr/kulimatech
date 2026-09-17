@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
         select: { agricultorId: true },
       });
 
-      const agricultoresPermitidos = vinculos.map((v) => v.agricultorId);
+      const agricultoresPermitidos = vinculos.map((v: { agricultorId: string }) => v.agricultorId);
 
       // Se passou filtro de agricultor especifico, validar se o tecnico realmente o acompanha
       if (agricultorIdParam) {

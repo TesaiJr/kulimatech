@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { requireRole } from '@/lib/rbac/guard';
 import { createSuccessResponse } from '@/lib/api/response';
 import { handleApiError } from '@/lib/api/errors';
-import { UserRole, UserStatus } from '@/features/auth/types';
+import { UserRole, UserStatus } from '@prisma/client';
 
 export async function GET(req: NextRequest) {
   try {

@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DashboardLayout } from '@/components/layout';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, Badge, Button, Alert } from '@/components/ui';
 import { AuthUser, USER_ROLES_INFO, UserRole } from '@/types/auth';
 import { can } from '@/utils/permissions';
+import { authService } from '@/features/auth/services/authService';
 import Link from 'next/link';
 
 // Usuários de demonstração para simulação dos 3 perfis F1 (Distrito de Nhamatanda / Sofala)
@@ -41,8 +42,28 @@ export default function DashboardPage() {
   const [activeRole, setActiveRole] = useState<UserRole>('ADMIN');
   const [activeNavId, setActiveNavId] = useState<string>('dashboard');
   const [validationSuccess, setValidationSuccess] = useState<string | null>(null);
+  const [authenticatedName, setAuthenticatedName] = useState<string | null>(null);
 
-  const currentUser = DEMO_USERS[activeRole];
+  // Sincronizar com a sessão real do utilizador autenticado
+  useEffect(() => {
+    const stored = authService.getStoredUser();
+    if (stored) {
+      setAuthenticatedName(stored.nome);
+      if (stored.role === 'TECNICO') {
+        setActiveRole('TECNICO_SDAE');
+      } else if (stored.role === 'ADMIN') {
+        setActiveRole('ADMIN');
+      } else if (stored.role === 'AGRICULTOR') {
+        setActiveRole('AGRICULTOR');
+      }
+    }
+  }, []);
+
+  const baseUser = DEMO_USERS[activeRole];
+  const currentUser: AuthUser = {
+    ...baseUser,
+    name: authenticatedName && baseUser.role === activeRole ? authenticatedName : baseUser.name,
+  };
   const roleInfo = USER_ROLES_INFO[activeRole];
 
   const handleRoleChange = (role: UserRole) => {

@@ -10,10 +10,7 @@ export const createParcelaSchema = z.object({
     .min(3, 'O nome da parcela deve ter no minimo 3 caracteres.')
     .max(100, 'O nome da parcela nao pode exceder 100 caracteres.'),
   areaHectares: z
-    .number({
-      required_error: 'A area em hectares e obrigatoria.',
-      invalid_type_error: 'A area deve ser um valor numerico.',
-    })
+    .number()
     .positive('A area deve ser um numero maior que zero.')
     .max(10000, 'A area informada e excessiva (maximo 10.000 hectares).'),
   tipoSolo: z

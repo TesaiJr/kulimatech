@@ -13,6 +13,15 @@ Orientador: Christian Coulon
 
 Beira, 2026
 
+agricultor.lamego@imunda.mz
+Agri@2026
+
+tecnico.nhamatanda@sdae.gov.mz
+Tecnico@2026
+
+admin@imunda.gov.mz
+Admin@2026
+
 # **1\. INTRODUÇÃO**
 
 Este documento especifica as interfaces web do sistema de informação e apoio à tomada de decisão para agricultores do SDAE no distrito de Nhamatanda, desenvolvendo, ao nível de interface, as seis funcionalidades (F1 a F6) definidas no Documento de Especificação de Funcionalidades e Plano de Execução. Ao contrário da previsão inicial de uma aplicação móvel em Flutter, optou-se por concentrar o desenvolvimento numa aplicação totalmente web, pelo que todas as telas aqui descritas correspondem a páginas web, acedidas por browser, mantendo-se válida a arquitectura cliente-servidor já definida (frontend, servidor API REST e base de dados).
