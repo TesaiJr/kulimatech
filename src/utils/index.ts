@@ -1,5 +1,5 @@
 /**
- * Exportação central de todos os utilitários do sistema iMunda
+ * Exportação central de todos os utilitários do sistema KulimaTech
  */
 
 export * from './constants';

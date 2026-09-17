@@ -9,7 +9,7 @@ export interface JwtUserPayload {
   nome: string;
 }
 
-const JWT_SECRET = process.env.JWT_SECRET || 'imunda_secure_jwt_token_secret_nhamatanda_2026';
+const JWT_SECRET = process.env.JWT_SECRET || 'kulimatech_secure_jwt_token_secret_nhamatanda_2026';
 const JWT_EXPIRES_IN = '8h';
 
 /**

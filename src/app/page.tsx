@@ -10,11 +10,11 @@ import {
 import { Footer } from '@/components/layout';
 
 export const metadata: Metadata = {
-  title: 'iMunda • Apoio à Decisão Agrícola em Nhamatanda',
+  title: 'KulimaTech • Apoio à Decisão Agrícola em Nhamatanda',
   description:
     'Sistema integrado de apoio à decisão agrícola para o Distrito de Nhamatanda (Sofala, Moçambique), ligando agricultores e técnicos do SDAE com base na humidade do solo e recomendações técnicas.',
   keywords: [
-    'iMunda',
+    'KulimaTech',
     'Nhamatanda',
     'Sofala',
     'Moçambique',

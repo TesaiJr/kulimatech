@@ -17,13 +17,13 @@ import { loginSchema } from '@/features/auth/schemas/authSchemas';
 const TESTIMONIALS = [
   {
     quote:
-      'O iMunda tornou o acompanhamento da humidade do solo e a emissão de recomendações técnicas muito mais simples. Tudo num só lugar.',
+      'O KulimaTech tornou o acompanhamento da humidade do solo e a emissão de recomendações técnicas muito mais simples. Tudo num só lugar.',
     author: 'Eng. António Langa',
     role: 'Técnico Extensionista — SDAE Nhamatanda (Posto de Tica)',
   },
   {
     quote:
-      'Com o iMunda sei exatamente o momento ideal para regar o milho e as hortícolas, protegendo as colheitas contra a estiagem em Sofala.',
+      'Com o KulimaTech sei exatamente o momento ideal para regar o milho e as hortícolas, protegendo as colheitas contra a estiagem em Sofala.',
     author: 'Mateus Cossa',
     role: 'Agricultor Familiar — Associação de Regantes de Lamego',
   },
@@ -95,7 +95,7 @@ export default function LoginPage() {
               <Sprout className="w-5 h-5 text-[#0E4749] stroke-[2.5]" />
             </div>
             <div className="hidden sm:block">
-              <span className="text-xl font-bold tracking-tight text-white drop-shadow">iMunda</span>
+              <span className="text-xl font-bold tracking-tight text-white drop-shadow">KulimaTech</span>
               <span className="block text-[10px] font-medium tracking-wide uppercase text-white/80 drop-shadow">
                 SDAE Nhamatanda • Sofala
               </span>
@@ -155,7 +155,7 @@ export default function LoginPage() {
       {/* ========================================================================= */}
       <div className="w-full lg:w-[38%] xl:w-[35%] flex flex-col justify-center items-center p-8 sm:p-12 lg:p-14 relative bg-white">
         <div className="w-full max-w-sm space-y-7">
-          {/* Logo Oficial iMunda Circular */}
+          {/* Logo Oficial KulimaTech Circular */}
           <div className="text-center flex flex-col items-center space-y-3">
             <Link href="/" className="inline-flex flex-col items-center gap-2.5 group" title="Voltar à Página Inicial">
               <div className="w-14 h-14 rounded-full bg-[#95C623] text-[#002626] flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
@@ -163,7 +163,7 @@ export default function LoginPage() {
               </div>
               <div className="flex flex-col items-center">
                 <span className="text-2xl font-black tracking-tight text-[#002626] leading-none">
-                  iMunda
+                  KulimaTech
                 </span>
                 <span className="text-[11px] text-gray-500 font-medium tracking-wide mt-1">
                   Entre com as suas credenciais
@@ -200,7 +200,7 @@ export default function LoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="exemplo@imunda.gov.mz"
+                placeholder="exemplo@kulimatech.gov.mz"
                 className="w-full px-3.5 py-2.5 rounded-md bg-[#eef3f9] border border-[#d6e0ea] text-gray-900 placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-[#0f1f38]/20 focus:border-[#0f1f38] transition-all"
               />
             </div>

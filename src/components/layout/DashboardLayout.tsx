@@ -27,7 +27,7 @@ export function DashboardLayout({
   onSelectNavId,
   user = {
     name: 'Marcelo Silva',
-    email: 'marcelo@imunda.co.mz',
+    email: 'marcelo@kulimatech.co.mz',
     role: 'Administrador do Sistema',
   },
 }: DashboardLayoutProps) {

@@ -13,7 +13,7 @@ const DEMO_USERS: Record<UserRole, AuthUser> = {
   ADMIN: {
     id: 'usr-admin-01',
     name: 'Alberto Nhantumbo',
-    email: 'alberto.nhantumbo@imunda.gov.mz',
+    email: 'alberto.nhantumbo@kulimatech.gov.mz',
     role: 'ADMIN',
     province: 'Sofala',
     district: 'Sede Provincial (Beira / Nhamatanda)',
@@ -90,12 +90,12 @@ export default function DashboardPage() {
                 ← Voltar à Landing Page
               </Link>
               <span className="text-surface/40">•</span>
-              <span className="text-xs font-mono font-bold uppercase tracking-wider text-accent">
+              <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#95C623]">
                 F1 • Perfis de Acesso (RBAC)
               </span>
             </div>
             <h1 className="text-xl sm:text-2xl font-black text-surface tracking-tight">
-              Ambiente Operacional iMunda • Nhamatanda
+              Ambiente Operacional KulimaTech • Nhamatanda
             </h1>
             <p className="text-xs sm:text-sm text-surface/80">
               Alterne o perfil ativo para experimentar a segregação de permissões e navegação contextualizada.

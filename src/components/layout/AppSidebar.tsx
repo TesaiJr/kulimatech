@@ -317,7 +317,7 @@ export function AppSidebar({
   onToggleCollapse,
   user = {
     name: 'Marcelo Silva',
-    email: 'marcelo@imunda.co.mz',
+    email: 'marcelo@kulimatech.co.mz',
     role: 'ADMIN',
   },
   className = '',
@@ -333,12 +333,12 @@ export function AppSidebar({
         <div className="flex items-center justify-between px-2 py-1.5 border-b border-muted/20 pb-4">
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-10 h-10 rounded-xl bg-accent text-primary flex items-center justify-center font-black text-xl shadow-md flex-shrink-0">
-              iM
+              KT
             </div>
             {!isCollapsed && (
               <div className="truncate">
                 <h2 className="font-extrabold text-lg tracking-wide text-surface leading-tight">
-                  iMunda
+                  KulimaTech
                 </h2>
                 <span className="text-[10px] text-muted uppercase font-mono tracking-wider">
                   Moçambique

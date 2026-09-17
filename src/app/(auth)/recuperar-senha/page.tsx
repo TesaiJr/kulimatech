@@ -28,7 +28,7 @@ export default function RecuperarSenhaPage() {
               <Sprout className="w-5 h-5 stroke-[2.5]" />
             </div>
             <div className="text-left">
-              <span className="text-xl font-bold tracking-tight text-[#002626] block">iMunda</span>
+              <span className="text-xl font-bold tracking-tight text-[#002626] block">KulimaTech</span>
               <span className="text-[10px] font-medium tracking-wide uppercase text-[#0E4749] block">
                 SDAE Nhamatanda
               </span>
@@ -43,7 +43,7 @@ export default function RecuperarSenhaPage() {
               <div className="space-y-2">
                 <h1 className="text-2xl font-bold text-[#002626]">Recuperar Palavra-passe</h1>
                 <p className="text-xs text-[#0E4749]/80 leading-relaxed">
-                  Introduza o e-mail associado à sua conta do iMunda. Enviaremos as instruções
+                  Introduza o e-mail associado à sua conta do KulimaTech. Enviaremos as instruções
                   para redefinir a sua senha.
                 </p>
               </div>
@@ -63,7 +63,7 @@ export default function RecuperarSenhaPage() {
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="seu.email@imunda.gov.mz"
+                      placeholder="seu.email@kulimatech.gov.mz"
                       className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-[#8EB69B]/40 text-[#002626] placeholder-[#0E4749]/40 text-sm focus:outline-none focus:ring-2 focus:ring-[#95C623] focus:border-[#0E4749] transition-all shadow-sm"
                     />
                   </div>

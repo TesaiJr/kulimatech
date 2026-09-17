@@ -22,7 +22,7 @@ export class ApiError extends Error {
 }
 
 /**
- * Cliente HTTP unificado para chamadas à API do iMunda.
+ * Cliente HTTP unificado para chamadas à API do KulimaTech.
  * Trata o formato padronizado de ApiResponse<T> e gerencia headers comuns (JWT).
  */
 export async function apiClient<T>(
@@ -50,7 +50,7 @@ export async function apiClient<T>(
   let authToken: string | null = null;
   if (typeof window !== 'undefined') {
     try {
-      authToken = localStorage.getItem('imunda_token');
+      authToken = localStorage.getItem('kulimatech_token');
     } catch {
       // Ignora erro em ambientes com restrição de storage
     }

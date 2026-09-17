@@ -1,44 +1,31 @@
-// src/features/parcelas/schemas/parcelaSchemas.ts
 import { z } from 'zod';
 
-export const tiposSoloValidos = ['ARENOSO', 'ARGILOSO', 'FRANCO', 'MISTO', 'OUTRO'] as const;
-
-export const createParcelaSchema = z.object({
+export const parcelaFormSchema = z.object({
   nome: z
     .string()
-    .trim()
-    .min(3, 'O nome da parcela deve ter no minimo 3 caracteres.')
-    .max(100, 'O nome da parcela nao pode exceder 100 caracteres.'),
+    .min(3, 'O nome da parcela deve ter pelo menos 3 caracteres')
+    .max(100, 'O nome da parcela não pode ter mais de 100 caracteres'),
   areaHectares: z
     .number()
-    .positive('A area deve ser um numero maior que zero.')
-    .max(10000, 'A area informada e excessiva (maximo 10.000 hectares).'),
-  tipoSolo: z
-    .enum(tiposSoloValidos, {
-      error: 'Tipo de solo invalido. Escolha entre: ARENOSO, ARGILOSO, FRANCO, MISTO ou OUTRO.',
-    })
-    .default('FRANCO'),
-  localizacao: z
-    .string()
-    .trim()
-    .max(255, 'A descricao da localizacao nao pode exceder 255 caracteres.')
-    .optional()
-    .nullable(),
+    .positive('A área deve ser maior que zero')
+    .max(10000, 'Área excede o limite máximo permitido'),
+  tipoSolo: z.enum(['ARENOSO', 'ARGILOSO', 'FRANCO', 'MISTO', 'OUTRO']),
+  localizacao: z.string().optional().nullable(),
   latitude: z
     .number()
-    .min(-90, 'A latitude deve estar entre -90 e 90.')
-    .max(90, 'A latitude deve estar entre -90 e 90.')
+    .min(-90, 'Latitude inválida')
+    .max(90, 'Latitude inválida')
     .optional()
     .nullable(),
   longitude: z
     .number()
-    .min(-180, 'A longitude deve estar entre -180 e 180.')
-    .max(180, 'A longitude deve estar entre -180 e 180.')
+    .min(-180, 'Longitude inválida')
+    .max(180, 'Longitude inválida')
     .optional()
     .nullable(),
 });
 
-export const updateParcelaSchema = createParcelaSchema.partial();
+export const createParcelaSchema = parcelaFormSchema;
+export const updateParcelaSchema = parcelaFormSchema.partial();
 
-export type CreateParcelaSchema = z.infer<typeof createParcelaSchema>;
-export type UpdateParcelaSchema = z.infer<typeof updateParcelaSchema>;
+export type ParcelaFormData = z.infer<typeof parcelaFormSchema>;

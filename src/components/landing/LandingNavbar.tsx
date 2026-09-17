@@ -53,7 +53,7 @@ export function LandingNavbar() {
             <div className="flex flex-col">
               <div className="flex items-center gap-2">
                 <span className="font-extrabold text-xl text-white tracking-tight leading-none drop-shadow">
-                  iMunda
+                  KulimaTech
                 </span>
               </div>
               <span className="text-[11px] text-white/80 font-medium tracking-wide drop-shadow">
@@ -93,7 +93,7 @@ export function LandingNavbar() {
       <MobileMenuDrawer
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
-        title="iMunda"
+        title="KulimaTech"
         subtitle="Distrito de Nhamatanda • Sofala"
         footer={
           <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)}>

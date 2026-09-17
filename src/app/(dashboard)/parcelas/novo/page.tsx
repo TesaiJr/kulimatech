@@ -1,10 +1,49 @@
-﻿import React from 'react';
+// src/app/(dashboard)/parcelas/novo/page.tsx
+'use client';
 
-export default function novoPage() {
+import React from 'react';
+import { useRouter } from 'next/navigation';
+import { DashboardLayout } from '@/components/layout/DashboardLayout';
+import { PageHeader } from '@/components/layout/PageHeader';
+import { Card } from '@/components/ui/Card';
+import { useAuth } from '@/features/auth/hooks/useAuth';
+import { ParcelaForm } from '@/features/parcelas/components/ParcelaForm';
+
+export default function NovaParcelaPage() {
+  const router = useRouter();
+  const { user } = useAuth();
+
+  const layoutUser = user
+    ? {
+        name: user.nome,
+        email: user.email,
+        role: user.role === 'TECNICO' ? 'TECNICO_SDAE' : user.role,
+      }
+    : undefined;
+
   return (
-    <div className="p-6">
-      <h1 className="text-xl font-bold">Modulo em Desenvolvimento: novo</h1>
-      <p className="text-sm text-gray-500 mt-2">Esta funcionalidade estara disponivel na respectiva fase do projeto.</p>
-    </div>
+    <DashboardLayout activeNavId="parcelas" user={layoutUser}>
+      {/* Cabeçalho */}
+      <PageHeader
+        title="Registar Nova Parcela Agrícola"
+        description="Registe as informações topográficas, tipo de solo e localização GPS do terreno em Nhamatanda."
+        breadcrumbs={[
+          { label: 'Dashboard', href: '/dashboard' },
+          { label: 'Parcelas', href: '/parcelas' },
+          { label: 'Nova Parcela', href: '/parcelas/novo' },
+        ]}
+      />
+
+      {/* Card do Formulário */}
+      <div className="max-w-3xl mx-auto">
+        <Card variant="surface" className="border border-[#8eb69b]/40 shadow-md">
+          <ParcelaForm
+            agricultorId={user?.id || 'usr-farm-01'}
+            onCancel={() => router.push('/parcelas')}
+            onSuccess={() => router.push('/parcelas')}
+          />
+        </Card>
+      </div>
+    </DashboardLayout>
   );
 }

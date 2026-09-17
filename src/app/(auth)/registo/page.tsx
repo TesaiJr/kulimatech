@@ -139,7 +139,7 @@ export default function RegisterPage() {
               <Sprout className="w-6 h-6 stroke-[2.5]" />
             </div>
             <div>
-              <span className="text-2xl font-bold tracking-tight text-[#FEFAE0]">iMunda</span>
+              <span className="text-2xl font-bold tracking-tight text-[#FEFAE0]">KulimaTech</span>
               <span className="block text-[11px] font-medium tracking-wide uppercase text-[#8EB69B]">
                 SDAE Nhamatanda • Sofala
               </span>
@@ -200,7 +200,7 @@ export default function RegisterPage() {
           {/* Cabeçalho */}
           <div className="space-y-1.5">
             <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#002626]">
-              Criar Conta no iMunda
+              Criar Conta no KulimaTech
             </h2>
             <p className="text-sm text-[#0E4749]/80">
               Preencha os dados abaixo para iniciar o seu cadastro na plataforma.

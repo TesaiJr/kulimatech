@@ -20,7 +20,7 @@ export function Header({
   onToggleSidebar,
   user = {
     name: 'Marcelo Silva',
-    email: 'marcelo@imunda.co.mz',
+    email: 'marcelo@kulimatech.co.mz',
     role: 'Administrador',
   },
   unreadNotificationsCount = 3,
@@ -48,7 +48,7 @@ export function Header({
 
         <div className="flex items-center gap-2">
           <span className="font-extrabold text-lg text-primary tracking-tight hidden sm:inline-block">
-            iMunda
+            KulimaTech
           </span>
           <Badge variant="accent" size="sm" className="font-mono text-[10px]">
             MZ (+258)

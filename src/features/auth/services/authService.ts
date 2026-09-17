@@ -3,15 +3,15 @@ import { api, ApiError } from '@/lib/api/client';
 import { AuthResponseData, AuthUser, UserRole } from '@/features/auth/types';
 import { LoginInput, RegisterInput } from '@/features/auth/schemas/authSchemas';
 
-const TOKEN_KEY = 'imunda_token';
-const USER_KEY = 'imunda_user';
+const TOKEN_KEY = 'kulimatech_token';
+const USER_KEY = 'kulimatech_user';
 
 export const DEMO_CREDENTIALS: Record<
   UserRole,
   { email: string; pass: string; label: string; roleDescription: string }
 > = {
   ADMIN: {
-    email: 'admin@imunda.gov.mz',
+    email: 'admin@kulimatech.gov.mz',
     pass: 'Admin@2026',
     label: 'Administrador do Sistema',
     roleDescription: 'Gestão de utilizadores e catálogos gerais',
@@ -23,7 +23,7 @@ export const DEMO_CREDENTIALS: Record<
     roleDescription: 'Acompanhamento agronómico e validações',
   },
   AGRICULTOR: {
-    email: 'agricultor.lamego@imunda.mz',
+    email: 'agricultor.lamego@kulimatech.mz',
     pass: 'Agri@2026',
     label: 'Agricultor Familiar (Lamego)',
     roleDescription: 'Gestão de parcelas e leituras de solo',

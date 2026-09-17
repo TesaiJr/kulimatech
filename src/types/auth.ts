@@ -1,6 +1,6 @@
 /**
  * Tipos e interfaces de Autenticação e Perfis de Acesso (RBAC)
- * Especificação F1 - Sistema iMunda (Moçambique)
+ * Especificação F1 - Sistema KulimaTech (Moçambique)
  */
 
 export type UserRole = 'ADMIN' | 'TECNICO_SDAE' | 'AGRICULTOR';

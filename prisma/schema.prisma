@@ -1,4 +1,4 @@
-// Prisma Schema para o Sistema iMunda (SDAE Nhamatanda)
+// Prisma Schema para o Sistema KulimaTech (SDAE Nhamatanda)
 // Engenharia de Backend Senior: Relacoes robustas, constraints, indices e integridade referencial
 
 generator client {

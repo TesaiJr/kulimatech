@@ -46,7 +46,7 @@ export function HowItWorksSection() {
             Fluxo Operacional de Campo
           </span>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-primary tracking-tight">
-            Como o iMunda Funciona no Terreno
+            Como o KulimaTech Funciona no Terreno
           </h2>
           <p className="text-sm sm:text-base text-secondary/80 leading-relaxed">
             Processo direto e adaptado às condições de conectividade e trabalho dos técnicos e agricultores no distrito de Nhamatanda.

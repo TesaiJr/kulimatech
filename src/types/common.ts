@@ -1,5 +1,5 @@
 /**
- * Tipos comuns e compartilhados em todo o projeto iMunda
+ * Tipos comuns e compartilhados em todo o projeto KulimaTech
  */
 
 export type ID = string | number;

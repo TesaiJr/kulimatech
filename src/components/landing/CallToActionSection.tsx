@@ -22,7 +22,7 @@ export function CallToActionSection() {
             </h2>
 
             <p className="text-sm sm:text-base text-[#FEFAE0]/85 max-w-2xl mx-auto leading-relaxed">
-              Aceda ao ambiente interativo da plataforma iMunda e explore o fluxo de trabalho entre os agricultores familiares e a equipa técnica do SDAE.
+              Aceda ao ambiente interativo da plataforma KulimaTech e explore o fluxo de trabalho entre os agricultores familiares e a equipa técnica do SDAE.
             </p>
           </div>
 
