@@ -1,5 +1,5 @@
 /**
- * Regras e Matriz de Permissões (RBAC) do Sistema iMunda
+ * Regras e Matriz de Permissões (RBAC) do Sistema KulimaTech
  * Especificação F1 - Segregação estrita de perfis
  */
 

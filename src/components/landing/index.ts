@@ -1,5 +1,5 @@
 /**
- * Exportação centralizada dos componentes modulares da Landing Page do iMunda
+ * Exportação centralizada dos componentes modulares da Landing Page do KulimaTech
  */
 
 export * from './LandingNavbar';

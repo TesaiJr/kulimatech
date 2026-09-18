@@ -1,5 +1,5 @@
 /**
- * Exportação central de componentes de layout do sistema iMunda
+ * Exportação central de componentes de layout do sistema KulimaTech
  */
 
 export * from './Breadcrumbs';

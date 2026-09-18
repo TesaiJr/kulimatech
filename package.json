@@ -9,12 +9,15 @@
     "lint": "eslint",
     "db:test": "node scripts/test-db.mjs",
     "db:generate": "prisma generate",
+    "db:seed": "node scripts/seed.mjs",
+    "backend:verify": "node scripts/verify-backend.mjs",
     "organize": "node scripts/organize-project.js",
     "postinstall": "prisma skills sync || exit 0"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",
     "@prisma/client": "^7.10.0",
+    "@supabase/supabase-js": "^2.116.0",
     "@types/pg": "^8.23.1",
     "bcryptjs": "^3.0.3",
     "framer-motion": "^13.2.0",

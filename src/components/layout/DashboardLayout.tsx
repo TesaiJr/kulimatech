@@ -7,6 +7,7 @@ import { Footer } from './Footer';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { STORAGE_KEYS } from '@/utils/constants';
 import { AuthUser } from '@/types/auth';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 
 export interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -20,17 +21,19 @@ export interface DashboardLayoutProps {
   };
 }
 
-
 export function DashboardLayout({
   children,
   activeNavId = 'dashboard',
   onSelectNavId,
-  user = {
-    name: 'Marcelo Silva',
-    email: 'marcelo@imunda.co.mz',
-    role: 'Administrador do Sistema',
-  },
+  user: userProp,
 }: DashboardLayoutProps) {
+  const { user: authUser } = useAuth();
+
+  const user = userProp || (authUser ? {
+    name: authUser.nome,
+    email: authUser.email,
+    role: authUser.role,
+  } : undefined);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useLocalStorage<boolean>(
     STORAGE_KEYS.SIDEBAR_COLLAPSED,

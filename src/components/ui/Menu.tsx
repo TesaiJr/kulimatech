@@ -136,7 +136,7 @@ export interface MobileMenuDrawerProps {
 export function MobileMenuDrawer({
   isOpen,
   onClose,
-  title = 'iMunda',
+  title = 'KulimaTech',
   subtitle = 'Nhamatanda • Sofala',
   children,
   footer,

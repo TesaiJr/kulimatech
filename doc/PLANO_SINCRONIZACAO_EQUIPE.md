@@ -144,7 +144,7 @@ A execucao deve seguir a ordem de dependencia estabelecida no documento de espec
 
 ### Fase 2: F2 - Gestao de Parcelas
 * **Paulo**: Model `Parcela` associado ao agricultor; endpoints `GET /api/parcelas` e `POST /api/parcelas`; filtro para que agricultor veja apenas suas parcelas e tecnico veja parcelas associadas.
-* **Amancio**: Tela de listagem de parcelas; formulario de cadastro/edicao de parcela; componente de exibicao em card ou tabela.
+* **Amancio**: Tela de listagem de parcelas; formulario de cadastro/edicao de parcela; componente de exibicao em card ou listas.
 
 ### Fase 3: F3 - Registo de Leitura do Solo
 * **Paulo**: Model `LeituraSolo`; endpoints para registo e consulta de historico; validacao dos limites de humidade.

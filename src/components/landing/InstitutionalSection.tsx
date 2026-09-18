@@ -5,8 +5,8 @@ import { GraduationCap, Landmark } from 'lucide-react';
 
 export function InstitutionalSection() {
   return (
-    <section id="institucional" className="py-16 md:py-24 lg:py-28 bg-surface text-primary border-t border-secondary/10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 xl:px-12 space-y-12">
+    <section id="institucional" className="pt-5 sm:pt-6 lg:pt-7 pb-5 sm:pb-6 lg:pb-7 bg-surface text-primary">
+      <div className="w-full px-6 sm:px-10 lg:px-16 xl:px-20 2xl:px-24 space-y-5 sm:space-y-6">
         
         {/* Cabeçalho da Secção com Fundo Padronizado */}
         <div className="max-w-3xl text-left space-y-2">
@@ -21,18 +21,18 @@ export function InstitutionalSection() {
           </p>
         </div>
 
-        {/* Blocos das Duas Entidades Parceiras */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10 w-full">
+        {/* Blocos das Duas Entidades Parceiras com Separação Padronizada (gap-5 lg:gap-6) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 lg:gap-6 w-full">
           
           {/* Entidade 1: Universidade Zambeze */}
-          <div className="p-7 sm:p-9 lg:p-10 rounded-3xl border border-secondary/20 bg-white shadow-sm space-y-5 flex flex-col justify-between">
-            <div className="space-y-4">
-              <div className="w-12 h-12 rounded-2xl bg-secondary/10 text-secondary flex items-center justify-center">
-                <GraduationCap className="w-6 h-6 stroke-[2]" />
+          <div className="p-6 sm:p-7 lg:p-8 rounded-lg border border-[#0e4749]/20 bg-[#e4ede6] shadow-sm space-y-4 flex flex-col justify-between">
+            <div className="space-y-3.5">
+              <div className="w-11 h-11 rounded-md bg-[#0e4749] text-white flex items-center justify-center shadow-sm">
+                <GraduationCap className="w-5 h-5 stroke-[2]" />
               </div>
 
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-secondary block">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#0e4749] block">
                   Pesquisa & Inovação Tecnológica
                 </span>
                 <h3 className="text-xl sm:text-2xl font-bold text-primary mt-1">
@@ -48,20 +48,20 @@ export function InstitutionalSection() {
               </p>
             </div>
 
-            <div className="pt-4 border-t border-secondary/10 text-xs font-semibold text-secondary/70">
+            <div className="pt-3.5 border-t border-[#0e4749]/15 text-xs font-semibold text-secondary/70">
               • Cooperação em Pesquisa e Validação Científica
             </div>
           </div>
 
           {/* Entidade 2: SDAE Nhamatanda */}
-          <div className="p-7 sm:p-9 lg:p-10 rounded-3xl border border-secondary/20 bg-white shadow-sm space-y-5 flex flex-col justify-between">
+          <div className="p-6 sm:p-7 lg:p-8 rounded-lg border border-[#002626]/20 bg-[#e4ede6] shadow-sm space-y-4 flex flex-col justify-between">
             <div className="space-y-4">
-              <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
+              <div className="w-12 h-12 rounded-md bg-[#002626] text-[#95c623] flex items-center justify-center shadow-sm">
                 <Landmark className="w-6 h-6 stroke-[2]" />
               </div>
 
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-primary block">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#002626] block">
                   Implementação & Extensão no Terreno
                 </span>
                 <h3 className="text-xl sm:text-2xl font-bold text-primary mt-1">
@@ -77,7 +77,7 @@ export function InstitutionalSection() {
               </p>
             </div>
 
-            <div className="pt-4 border-t border-secondary/10 text-xs font-semibold text-primary/70">
+            <div className="pt-4 border-t border-[#002626]/15 text-xs font-semibold text-primary/70">
               • Coordenação da Rede de Extensão Agrária Distrital
             </div>
           </div>

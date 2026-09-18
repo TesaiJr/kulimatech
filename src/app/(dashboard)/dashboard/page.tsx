@@ -1,231 +1,197 @@
+// src/app/(dashboard)/dashboard/page.tsx
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { DashboardLayout } from '@/components/layout';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, Badge, Button, Alert } from '@/components/ui';
-import { AuthUser, USER_ROLES_INFO, UserRole } from '@/types/auth';
-import { can } from '@/utils/permissions';
+import { USER_ROLES_INFO, UserRole } from '@/types/auth';
+import { useAuth } from '@/features/auth/hooks/useAuth';
+import { api, ApiError } from '@/lib/api/client';
 import Link from 'next/link';
+import { Sprout, Activity, User, ShieldCheck, CheckCircle2 } from 'lucide-react';
 
-// Usuários de demonstração para simulação dos 3 perfis F1 (Distrito de Nhamatanda / Sofala)
-const DEMO_USERS: Record<UserRole, AuthUser> = {
-  ADMIN: {
-    id: 'usr-admin-01',
-    name: 'Alberto Nhantumbo',
-    email: 'alberto.nhantumbo@imunda.gov.mz',
-    role: 'ADMIN',
-    province: 'Sofala',
-    district: 'Sede Provincial (Beira / Nhamatanda)',
-  },
-  TECNICO_SDAE: {
-    id: 'usr-tech-01',
-    name: 'Eng. António Langa',
-    email: 'antonio.langa@sdae.gov.mz',
-    role: 'TECNICO_SDAE',
-    province: 'Sofala',
-    district: 'Nhamatanda (Posto de Tica)',
-    assignedFarmerIds: ['usr-farm-01', 'usr-farm-02'],
-  },
-  AGRICULTOR: {
-    id: 'usr-farm-01',
-    name: 'Mateus Cossa',
-    email: 'mateus.cossa@agri.mz',
-    role: 'AGRICULTOR',
-    province: 'Sofala',
-    district: 'Nhamatanda (Lamego)',
-    assignedTechnicianId: 'usr-tech-01',
-  },
-};
+interface DashboardResponse {
+  role: 'ADMIN' | 'TECNICO_SDAE' | 'AGRICULTOR';
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  user: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  stats: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  parcelas?: any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  recomendacoesRecentes?: any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  agricultores?: any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  leiturasRecentes?: any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ocorrenciasPragas?: any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  tecnicos?: any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  culturas?: any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  pragas?: any[];
+}
 
 export default function DashboardPage() {
-  const [activeRole, setActiveRole] = useState<UserRole>('ADMIN');
+  const router = useRouter();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+
   const [activeNavId, setActiveNavId] = useState<string>('dashboard');
+  const [dashboardData, setDashboardData] = useState<DashboardResponse | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const [validationSuccess, setValidationSuccess] = useState<string | null>(null);
 
-  const currentUser = DEMO_USERS[activeRole];
-  const roleInfo = USER_ROLES_INFO[activeRole];
+  // Estados do formulário de leitura (Agricultor)
+  const [selectedParcelaId, setSelectedParcelaId] = useState<string>('');
+  const [humidadeValor, setHumidadeValor] = useState<number>(38);
+  const [temperaturaValor, setTemperaturaValor] = useState<number>(26);
+  const [submittingLeitura, setSubmittingLeitura] = useState<boolean>(false);
 
-  const handleRoleChange = (role: UserRole) => {
-    setActiveRole(role);
-    setActiveNavId('dashboard');
-    setValidationSuccess(null);
+  // Buscar dados reais do dashboard no backend
+  const fetchDashboardData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await api.get<DashboardResponse>('/api/dashboard');
+      setDashboardData(data);
+      if (data.parcelas && data.parcelas.length > 0 && !selectedParcelaId) {
+        setSelectedParcelaId(data.parcelas[0].id);
+      }
+    } catch (err: unknown) {
+      if (err instanceof ApiError) {
+        setError(err.message);
+      } else {
+        setError('Não foi possível carregar os dados operacionais do painel.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedParcelaId]);
+
+  useEffect(() => {
+    if (!authLoading) {
+      if (!isAuthenticated) {
+        router.push('/auth?mode=login');
+      } else {
+        fetchDashboardData();
+      }
+    }
+  }, [authLoading, isAuthenticated, router, fetchDashboardData]);
+
+  // Submissão real de leitura de solo
+  const handleSubmeterLeitura = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedParcelaId) {
+      setError('Por favor, selecione uma parcela agrícola.');
+      return;
+    }
+
+    setSubmittingLeitura(true);
+    setError(null);
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const res = await api.post<any>('/api/leituras', {
+        parcelaId: selectedParcelaId,
+        humidade: Number(humidadeValor),
+        temperatura: Number(temperaturaValor),
+        observacoes: 'Leitura registada via Painel do Agricultor',
+      });
+
+      setValidationSuccess(
+        `Leitura de ${res.humidade}% (${res.statusHumidade}) registada com sucesso na parcela!`
+      );
+
+      // Recarregar dados para refletir medição mais recente
+      await fetchDashboardData();
+    } catch (err: unknown) {
+      if (err instanceof ApiError) {
+        setError(err.message);
+      } else {
+        setError('Falha ao registar a leitura de humidade no sistema.');
+      }
+    } finally {
+      setSubmittingLeitura(false);
+    }
   };
+
+  if (authLoading || (loading && !dashboardData)) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#FEFAE0]/30">
+        <div className="text-center space-y-3">
+          <div className="w-10 h-10 border-4 border-[#0E4749]/30 border-t-[#0E4749] rounded-full animate-spin mx-auto" />
+          <p className="text-xs font-bold text-[#002626]">A carregar dados operacionais...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const role: UserRole =
+    user?.role === 'TECNICO'
+      ? 'TECNICO_SDAE'
+      : user?.role === 'ADMIN'
+      ? 'ADMIN'
+      : 'AGRICULTOR';
+
+  const roleInfo = USER_ROLES_INFO[role];
+
+  const layoutUser = user
+    ? {
+        name: user.nome,
+        email: user.email,
+        role: roleInfo.label,
+      }
+    : undefined;
 
   return (
     <DashboardLayout
-      user={currentUser}
+      user={layoutUser}
       activeNavId={activeNavId}
       onSelectNavId={setActiveNavId}
     >
-      {/* Barra de Navegação Rápida & Simulador de Perfis (F1) */}
-      <div className="bg-gradient-to-r from-secondary to-primary p-4 sm:p-5 rounded-3xl shadow-xl text-surface border border-accent/20">
+      {/* Banner Principal de Boas-Vindas Contextualizado com Sessão Real */}
+      <div className="bg-gradient-to-r from-[#002626] to-[#0E4749] p-5 sm:p-6 rounded-3xl shadow-xl text-[#FEFAE0] border border-[#95C623]/25">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <Link
-                href="/"
-                className="text-[11px] font-bold text-accent hover:underline flex items-center gap-1"
-              >
-                ← Voltar à Landing Page
-              </Link>
-              <span className="text-surface/40">•</span>
-              <span className="text-xs font-mono font-bold uppercase tracking-wider text-accent">
-                F1 • Perfis de Acesso (RBAC)
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1 text-[11px] font-mono font-bold uppercase tracking-wider text-[#95C623] bg-black/30 px-2.5 py-0.5 rounded-full border border-white/10">
+                <ShieldCheck className="w-3.5 h-3.5" />
+                Sessão Ativa: {user?.email}
+              </span>
+              <span className="text-white/40">•</span>
+              <span className="text-xs font-bold text-white/80">
+                {user?.zonaAtuacao || 'Distrito de Nhamatanda • Sofala'}
               </span>
             </div>
-            <h1 className="text-xl sm:text-2xl font-black text-surface tracking-tight">
-              Ambiente Operacional iMunda • Nhamatanda
+            <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+              Olá, {user?.nome}
             </h1>
-            <p className="text-xs sm:text-sm text-surface/80">
-              Alterne o perfil ativo para experimentar a segregação de permissões e navegação contextualizada.
+            <p className="text-xs sm:text-sm text-white/80">
+              Ambiente operacional KulimaTech com dados em tempo real para a rede agrária de Nhamatanda.
             </p>
           </div>
 
-          {/* Botões de Seleção de Perfil */}
-          <div className="flex flex-wrap items-center gap-2 bg-black/25 p-1.5 rounded-2xl border border-white/10">
-            {(['ADMIN', 'TECNICO_SDAE', 'AGRICULTOR'] as UserRole[]).map((r) => {
-              const info = USER_ROLES_INFO[r];
-              const isSelected = activeRole === r;
-
-              return (
-                <button
-                  key={r}
-                  type="button"
-                  onClick={() => handleRoleChange(r)}
-                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 ${
-                    isSelected
-                      ? 'bg-accent text-primary shadow-lg scale-105'
-                      : 'text-surface/80 hover:text-surface hover:bg-white/10'
-                  }`}
-                >
-                  <span className={`w-2 h-2 rounded-full ${isSelected ? 'bg-primary' : 'bg-surface/40'}`} />
-                  {info.label}
-                </button>
-              );
-            })}
+          <div className="flex items-center gap-3">
+            <div className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/15 text-right">
+              <span className="text-[10px] text-white/60 uppercase block font-semibold">Perfil Atual</span>
+              <span className="text-sm font-black text-[#FEFAE0] flex items-center gap-1.5 justify-end">
+                <Badge variant={roleInfo.badgeVariant} size="sm">
+                  {roleInfo.label}
+                </Badge>
+              </span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Banner de Contexto do Perfil Atual */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-        <div className="lg:col-span-2">
-          <Card variant="surface" className="h-full border-l-4 border-l-accent">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
-              <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-secondary/70">
-                  Perfil em Execução
-                </span>
-                <div className="flex items-center gap-2.5 mt-0.5">
-                  <h2 className="text-2xl font-black text-primary">{roleInfo.label}</h2>
-                  <Badge variant={roleInfo.badgeVariant} size="sm">
-                    {activeRole}
-                  </Badge>
-                </div>
-              </div>
-              <div className="text-right sm:text-right">
-                <span className="text-xs text-secondary/60">Território / Jurisdição</span>
-                <p className="text-sm font-bold text-primary">
-                  {currentUser.district} • {currentUser.province}
-                </p>
-              </div>
-            </div>
-
-            <p className="text-sm text-secondary/90 leading-relaxed mb-4">
-              {roleInfo.description}
-            </p>
-
-            {/* Alerta de Restrição Estrita de Acordo com F1 */}
-            {activeRole === 'ADMIN' && (
-              <Alert variant="warning" title="Isolamento de Dados Operacionais (F1)">
-                O Administrador <strong>não intervém nem visualiza directamente</strong> dados operacionais
-                de parcelas agrícolas, leituras diárias de humidade, recomendações agronómicas ou mensagens entre técnicos e agricultores.
-              </Alert>
-            )}
-
-            {activeRole === 'TECNICO_SDAE' && (
-              <Alert variant="info" title="Escopo Distrital Restrito (SDAE Nhamatanda)">
-                O Técnico SDAE acompanha <strong>exclusivamente</strong> os agricultores e parcelas formalmente
-                associados à sua carteira técnica ({currentUser.assignedFarmerIds?.length || 0} agricultores na zona de {currentUser.district}).
-              </Alert>
-            )}
-
-            {activeRole === 'AGRICULTOR' && (
-              <Alert variant="success" title="Autonomia & Suporte Técnico">
-                O Agricultor gere as suas próprias parcelas e leituras de solo, recebendo acompanhamento direto do técnico responsável credenciado ({DEMO_USERS.TECNICO_SDAE.name}).
-              </Alert>
-            )}
-          </Card>
-        </div>
-
-        {/* Resumo da Matriz RBAC em Tempo Real */}
-        <div>
-          <Card variant="dark" className="h-full flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between mb-3 border-b border-white/10 pb-2">
-                <h3 className="font-bold text-sm text-surface uppercase tracking-wider">
-                  Auditoria de Permissões
-                </h3>
-                <span className="text-[10px] font-mono text-accent">Motor can()</span>
-              </div>
-
-              <div className="space-y-2 text-xs">
-                <div className="flex items-center justify-between py-1 border-b border-white/5">
-                  <span className="text-surface/80">Gerir Contas & Utilizadores</span>
-                  {can(currentUser, 'create', 'users') ? (
-                    <Badge variant="accent" size="sm">Permitido</Badge>
-                  ) : (
-                    <Badge variant="muted" size="sm">Bloqueado</Badge>
-                  )}
-                </div>
-
-                <div className="flex items-center justify-between py-1 border-b border-white/5">
-                  <span className="text-surface/80">Editar Catálogos Mestres</span>
-                  {can(currentUser, 'create', 'catalogs') ? (
-                    <Badge variant="accent" size="sm">Permitido</Badge>
-                  ) : (
-                    <Badge variant="muted" size="sm">Apenas Consulta</Badge>
-                  )}
-                </div>
-
-                <div className="flex items-center justify-between py-1 border-b border-white/5">
-                  <span className="text-surface/80">Gerir Parcelas Agrícolas</span>
-                  {can(currentUser, 'create', 'parcels') ? (
-                    <Badge variant="accent" size="sm">Permitido (Próprias)</Badge>
-                  ) : can(currentUser, 'read', 'parcels') ? (
-                    <Badge variant="secondary" size="sm">Consulta (Associados)</Badge>
-                  ) : (
-                    <Badge variant="muted" size="sm">Bloqueado</Badge>
-                  )}
-                </div>
-
-                <div className="flex items-center justify-between py-1 border-b border-white/5">
-                  <span className="text-surface/80">Validar Leituras de Humidade</span>
-                  {can(currentUser, 'validate', 'moisture_readings') ? (
-                    <Badge variant="accent" size="sm">Permitido</Badge>
-                  ) : (
-                    <Badge variant="muted" size="sm">Bloqueado</Badge>
-                  )}
-                </div>
-
-                <div className="flex items-center justify-between py-1">
-                  <span className="text-surface/80">Emitir Recomendações</span>
-                  {can(currentUser, 'create', 'recommendations') ? (
-                    <Badge variant="accent" size="sm">Permitido</Badge>
-                  ) : (
-                    <Badge variant="muted" size="sm">Bloqueado</Badge>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-4 pt-3 border-t border-white/10 text-[11px] text-surface/60 flex items-center justify-between">
-              <span>Status RBAC:</span>
-              <span className="font-mono text-accent">F1 Conforme</span>
-            </div>
-          </Card>
-        </div>
-      </div>
+      {error && (
+        <Alert variant="error" onClose={() => setError(null)}>
+          {error}
+        </Alert>
+      )}
 
       {validationSuccess && (
         <Alert variant="success" onClose={() => setValidationSuccess(null)}>
@@ -233,36 +199,54 @@ export default function DashboardPage() {
         </Alert>
       )}
 
-      {/* 1. VISÃO DO ADMINISTRADOR */}
-      {activeRole === 'ADMIN' && (
+      {/* ===================================================================== */}
+      {/* 1. VISÃO DO ADMINISTRADOR                                             */}
+      {/* ===================================================================== */}
+      {role === 'ADMIN' && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <Card variant="surface">
               <span className="text-xs font-bold text-secondary/70 uppercase">Contas no Sistema</span>
-              <p className="text-3xl font-black text-primary mt-1">48</p>
+              <p className="text-3xl font-black text-primary mt-1">
+                {dashboardData?.stats?.totalUsuarios ?? 0}
+              </p>
               <div className="mt-2 flex items-center gap-1.5 text-xs text-secondary/80">
-                <span className="font-bold text-accent bg-primary px-1.5 py-0.5 rounded">12</span> Técnicos SDAE
+                <span className="font-bold text-accent bg-primary px-1.5 py-0.5 rounded">
+                  {dashboardData?.stats?.totalTecnicos ?? 0}
+                </span>{' '}
+                Técnicos SDAE
                 <span className="mx-1">•</span>
-                <span className="font-bold text-accent bg-primary px-1.5 py-0.5 rounded">34</span> Agricultores
+                <span className="font-bold text-accent bg-primary px-1.5 py-0.5 rounded">
+                  {dashboardData?.stats?.totalAgricultores ?? 0}
+                </span>{' '}
+                Agricultores
               </div>
             </Card>
 
             <Card variant="surface">
+              <span className="text-xs font-bold text-secondary/70 uppercase">Parcelas Registadas</span>
+              <p className="text-3xl font-black text-primary mt-1">
+                {dashboardData?.stats?.totalParcelas ?? 0}
+              </p>
+              <p className="mt-2 text-xs text-secondary/80">
+                Monitoradas no Distrito de Nhamatanda
+              </p>
+            </Card>
+
+            <Card variant="surface">
               <span className="text-xs font-bold text-secondary/70 uppercase">Catálogo de Culturas</span>
-              <p className="text-3xl font-black text-primary mt-1">18</p>
-              <p className="mt-2 text-xs text-secondary/80">Milho, Feijão Bóer, Mandioca, Tomate...</p>
+              <p className="text-3xl font-black text-primary mt-1">
+                {dashboardData?.stats?.totalCulturas ?? 0}
+              </p>
+              <p className="mt-2 text-xs text-secondary/80">Culturas parametrizadas para Sofala</p>
             </Card>
 
             <Card variant="surface">
               <span className="text-xs font-bold text-secondary/70 uppercase">Catálogo de Pragas</span>
-              <p className="text-3xl font-black text-primary mt-1">26</p>
-              <p className="mt-2 text-xs text-secondary/80">Fichas com sintomas e profilaxia</p>
-            </Card>
-
-            <Card variant="surface">
-              <span className="text-xs font-bold text-secondary/70 uppercase">Distrito Alvo</span>
-              <p className="text-3xl font-black text-primary mt-1">Nhamatanda</p>
-              <p className="mt-2 text-xs text-secondary/80">Província de Sofala • Moçambique</p>
+              <p className="text-3xl font-black text-primary mt-1">
+                {dashboardData?.stats?.totalPragas ?? 0}
+              </p>
+              <p className="mt-2 text-xs text-secondary/80">Fichas técnicas com medidas de controlo</p>
             </Card>
           </div>
 
@@ -271,39 +255,42 @@ export default function DashboardPage() {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle>Gestão de Utilizadores & Vínculos</CardTitle>
+                    <CardTitle>Técnicos SDAE & Carteiras Técnicas</CardTitle>
                     <CardDescription>
-                      Atribuição de agricultores aos técnicos distritais do SDAE Nhamatanda
+                      Extensão rural e agricultores atribuídos no distrito
                     </CardDescription>
                   </div>
-                  <Button size="sm" variant="primary">
-                    + Novo Utilizador
-                  </Button>
+                  <Link href="/parcelas">
+                    <Button size="sm" variant="primary">
+                      Ver Parcelas
+                    </Button>
+                  </Link>
                 </div>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  <div className="p-3.5 rounded-xl border border-secondary/20 bg-surface/50 flex items-center justify-between">
-                    <div>
-                      <p className="font-bold text-sm text-primary">Eng. António Langa</p>
-                      <p className="text-xs text-secondary/70">Técnico SDAE • Posto de Tica / Nhamatanda</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="secondary" size="sm">2 Agricultores Vinculados</Badge>
-                      <Button size="sm" variant="outline">Gerir Vínculo</Button>
-                    </div>
-                  </div>
-
-                  <div className="p-3.5 rounded-xl border border-secondary/20 bg-surface/50 flex items-center justify-between">
-                    <div>
-                      <p className="font-bold text-sm text-primary">Dra. Amélia Sitoe</p>
-                      <p className="text-xs text-secondary/70">Técnica SDAE • Lamego / Nhamatanda</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="secondary" size="sm">4 Agricultores Vinculados</Badge>
-                      <Button size="sm" variant="outline">Gerir Vínculo</Button>
-                    </div>
-                  </div>
+                  {dashboardData?.tecnicos && dashboardData.tecnicos.length > 0 ? (
+                    dashboardData.tecnicos.map((tec: any) => (
+                      <div
+                        key={tec.id}
+                        className="p-3.5 rounded-xl border border-secondary/20 bg-surface/50 flex items-center justify-between"
+                      >
+                        <div>
+                          <p className="font-bold text-sm text-primary">{tec.nome}</p>
+                          <p className="text-xs text-secondary/70">
+                            {tec.zonaAtuacao || 'Posto Administrativo de Nhamatanda'} • {tec.email}
+                          </p>
+                        </div>
+                        <Badge variant="secondary" size="sm">
+                          {tec.agricultoresCount} Agricultor(es)
+                        </Badge>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-xs text-slate-500 py-3 text-center">
+                      Nenhum técnico registado ainda no sistema.
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -312,33 +299,38 @@ export default function DashboardPage() {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle>Catálogos de Referência Agronómica</CardTitle>
+                    <CardTitle>Catálogo Mestre de Culturas</CardTitle>
                     <CardDescription>
-                      Parametrização mestra de culturas e catálogo fitossanitário de Sofala
+                      Culturas agrícolas de referência para Nhamatanda
                     </CardDescription>
                   </div>
-                  <Button size="sm" variant="secondary">
-                    + Adicionar Item
-                  </Button>
                 </div>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  <div className="p-3.5 rounded-xl border border-secondary/20 bg-surface/50 flex items-center justify-between">
-                    <div>
-                      <p className="font-bold text-sm text-primary">Milho (Zea mays)</p>
-                      <p className="text-xs text-secondary/70">Necessidade hídrica: 500 - 800 mm • Ciclo: 120 dias</p>
-                    </div>
-                    <Badge variant="accent" size="sm">Cultura Base</Badge>
-                  </div>
-
-                  <div className="p-3.5 rounded-xl border border-secondary/20 bg-surface/50 flex items-center justify-between">
-                    <div>
-                      <p className="font-bold text-sm text-primary">Lagarta-do-funil (Spodoptera frugiperda)</p>
-                      <p className="text-xs text-secondary/70">Ficha técnica fitossanitária com medidas integradas</p>
-                    </div>
-                    <Badge variant="secondary" size="sm">Praga Crítica</Badge>
-                  </div>
+                  {dashboardData?.culturas && dashboardData.culturas.length > 0 ? (
+                    dashboardData.culturas.map((cult: any) => (
+                      <div
+                        key={cult.id}
+                        className="p-3.5 rounded-xl border border-secondary/20 bg-surface/50 flex items-center justify-between"
+                      >
+                        <div>
+                          <p className="font-bold text-sm text-primary">{cult.nome}</p>
+                          <p className="text-xs text-secondary/70">
+                            Ciclo: {cult.cicloDias ? `${cult.cicloDias} dias` : 'Variável'} •
+                            Humidade ideal: {cult.humidadeMin}% a {cult.humidadeMax}%
+                          </p>
+                        </div>
+                        <Badge variant="accent" size="sm">
+                          Ativa
+                        </Badge>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-xs text-slate-500 py-3 text-center">
+                      Nenhuma cultura registada.
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -346,110 +338,128 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* 2. VISÃO DO TÉCNICO SDAE */}
-      {activeRole === 'TECNICO_SDAE' && (
+      {/* ===================================================================== */}
+      {/* 2. VISÃO DO TÉCNICO SDAE                                              */}
+      {/* ===================================================================== */}
+      {role === 'TECNICO_SDAE' && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <Card variant="surface">
-              <span className="text-xs font-bold text-secondary/70 uppercase">Agricultores Associados</span>
-              <p className="text-3xl font-black text-primary mt-1">2</p>
-              <p className="mt-2 text-xs text-secondary/80">Distrito de Nhamatanda</p>
+              <span className="text-xs font-bold text-secondary/70 uppercase">Agricultores Vinculados</span>
+              <p className="text-3xl font-black text-primary mt-1">
+                {dashboardData?.stats?.totalAgricultores ?? 0}
+              </p>
+              <p className="mt-2 text-xs text-secondary/80">Carteira técnica em Nhamatanda</p>
             </Card>
 
             <Card variant="surface">
               <span className="text-xs font-bold text-secondary/70 uppercase">Parcelas Monitoradas</span>
-              <p className="text-3xl font-black text-primary mt-1">4</p>
-              <p className="mt-2 text-xs text-secondary/80">Área total: 6.8 hectares</p>
+              <p className="text-3xl font-black text-primary mt-1">
+                {dashboardData?.stats?.totalParcelas ?? 0}
+              </p>
+              <p className="mt-2 text-xs text-secondary/80">
+                Área total: {dashboardData?.stats?.totalHectares ?? 0} hectares
+              </p>
             </Card>
 
             <Card variant="surface">
-              <span className="text-xs font-bold text-secondary/70 uppercase">Validações Pendentes</span>
-              <p className="text-3xl font-black text-accent mt-1">1</p>
-              <p className="mt-2 text-xs text-secondary/80">Leitura de humidade do solo</p>
+              <span className="text-xs font-bold text-secondary/70 uppercase">Leituras Recentes</span>
+              <p className="text-3xl font-black text-accent mt-1">
+                {dashboardData?.stats?.validacoesPendentes ?? 0}
+              </p>
+              <p className="mt-2 text-xs text-secondary/80">Medições de solo reportadas</p>
             </Card>
 
             <Card variant="surface">
               <span className="text-xs font-bold text-secondary/70 uppercase">Ocorrências de Pragas</span>
-              <p className="text-3xl font-black text-yellow-600 mt-1">1</p>
-              <p className="mt-2 text-xs text-secondary/80">Reporte em análise (Lamego)</p>
+              <p className="text-3xl font-black text-amber-600 mt-1">
+                {dashboardData?.stats?.ocorrenciasPragasCount ?? 0}
+              </p>
+              <p className="mt-2 text-xs text-secondary/80">Reportadas pelos agricultores</p>
             </Card>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card variant="surface">
               <CardHeader>
-                <CardTitle>Fila de Validação: Humidade do Solo</CardTitle>
-                <CardDescription>
-                  Leituras submetidas pelos agricultores associados que requerem parecer técnico
-                </CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Leituras Recentes de Humidade</CardTitle>
+                    <CardDescription>
+                      Medições submetidas pelos agricultores associados
+                    </CardDescription>
+                  </div>
+                  <Link href="/parcelas">
+                    <Button size="sm" variant="outline">
+                      Ver Parcelas
+                    </Button>
+                  </Link>
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="p-4 rounded-2xl border border-secondary/20 bg-surface/80 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-bold text-sm text-primary">Mateus Cossa (Parcela Lamego 1)</p>
-                      <p className="text-xs text-secondary/70">Cultura: Tomate • Solo Franco-Argiloso</p>
-                    </div>
-                    <Badge variant="accent" size="sm">Pendente</Badge>
-                  </div>
-
-                  <div className="p-3 bg-white/40 rounded-xl flex items-center justify-between text-xs">
-                    <div>
-                      <span className="text-secondary/70 block">Leitura Registada</span>
-                      <span className="font-black text-base text-primary">38% (Humidade Adequada)</span>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-secondary/70 block">Data/Hora</span>
-                      <span className="font-semibold text-primary">Hoje, 07:30</span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-end gap-2 pt-2">
-                    <Button
-                      size="sm"
-                      variant="primary"
-                      onClick={() => setValidationSuccess('Leitura de 38% validada com sucesso pelo Técnico SDAE.')}
-                    >
-                      Validar Leitura
-                    </Button>
-                    <Button size="sm" variant="outline">
-                      Emitir Ajuste de Rega
-                    </Button>
-                  </div>
+                <div className="space-y-3">
+                  {dashboardData?.leiturasRecentes && dashboardData.leiturasRecentes.length > 0 ? (
+                    dashboardData.leiturasRecentes.map((l: any) => (
+                      <div
+                        key={l.id}
+                        className="p-3.5 rounded-xl border border-secondary/20 bg-surface/50 flex items-center justify-between"
+                      >
+                        <div>
+                          <p className="font-bold text-sm text-primary">
+                            {l.parcela?.nome} ({l.parcela?.agricultor?.nome})
+                          </p>
+                          <p className="text-xs text-secondary/70">
+                            Solo: {l.parcela?.tipoSolo} • {new Date(l.dataLeitura).toLocaleDateString('pt-MZ')}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-lg font-black text-[#002626]">{l.humidade}%</span>
+                          <span className="block text-[10px] font-bold text-emerald-700">
+                            {l.statusHumidade}
+                          </span>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-xs text-slate-500 py-3 text-center">
+                      Nenhuma leitura recente registada.
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>
 
             <Card variant="surface">
               <CardHeader>
-                <CardTitle>Ocorrências de Pragas Reportadas</CardTitle>
+                <CardTitle>Agricultores Acompanhados</CardTitle>
                 <CardDescription>
-                  Suspeitas fitossanitárias submetidas para acompanhamento técnico
+                  Produtores sob responsabilidade agronómica
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="p-4 rounded-2xl border border-yellow-500/30 bg-yellow-500/5 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-bold text-sm text-primary">Suspeita: Lagarta nas folhas do Milho</p>
-                      <p className="text-xs text-secondary/70">Reportado por Mateus Cossa • Parcela Lamego 2</p>
-                    </div>
-                    <Badge variant="secondary" size="sm">Aguardando Orientação</Badge>
-                  </div>
-
-                  <p className="text-xs text-secondary/90 bg-white/50 p-2.5 rounded-lg italic">
-                    "Identifiquei folhas perfuradas no centro do cartucho em Nhamatanda."
-                  </p>
-
-                  <div className="flex items-center justify-end gap-2 pt-1">
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      onClick={() => setValidationSuccess('Orientação técnica enviada ao agricultor Mateus Cossa.')}
-                    >
-                      Responder ao Agricultor
-                    </Button>
-                  </div>
+                <div className="space-y-3">
+                  {dashboardData?.agricultores && dashboardData.agricultores.length > 0 ? (
+                    dashboardData.agricultores.map((agr: any) => (
+                      <div
+                        key={agr.id}
+                        className="p-3.5 rounded-xl border border-secondary/20 bg-surface/50 flex items-center justify-between"
+                      >
+                        <div>
+                          <p className="font-bold text-sm text-primary">{agr.nome}</p>
+                          <p className="text-xs text-secondary/70">
+                            {agr.zonaAtuacao || 'Nhamatanda'} • {agr.telefone || agr.email}
+                          </p>
+                        </div>
+                        <Badge variant="secondary" size="sm">
+                          {agr.parcelas?.length || 0} Parcela(s)
+                        </Badge>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-xs text-slate-500 py-3 text-center">
+                      Ainda não há agricultores vinculados a este técnico.
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -457,125 +467,202 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* 3. VISÃO DO AGRICULTOR */}
-      {activeRole === 'AGRICULTOR' && (
+      {/* ===================================================================== */}
+      {/* 3. VISÃO DO AGRICULTOR                                                */}
+      {/* ===================================================================== */}
+      {role === 'AGRICULTOR' && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <Card variant="surface">
               <span className="text-xs font-bold text-secondary/70 uppercase">As Minhas Parcelas</span>
-              <p className="text-3xl font-black text-primary mt-1">2</p>
-              <p className="mt-2 text-xs text-secondary/80">Lamego 1 (2.5 ha) e Lamego 2 (1.0 ha)</p>
+              <p className="text-3xl font-black text-primary mt-1">
+                {dashboardData?.stats?.totalParcelas ?? 0}
+              </p>
+              <p className="mt-2 text-xs text-secondary/80">
+                Área Total: {dashboardData?.stats?.totalHectares ?? 0} hectares
+              </p>
             </Card>
 
             <Card variant="surface">
               <span className="text-xs font-bold text-secondary/70 uppercase">Humidade Atual do Solo</span>
-              <p className="text-3xl font-black text-primary mt-1">38%</p>
+              <p className="text-3xl font-black text-primary mt-1">
+                {dashboardData?.stats?.humidadeAtual !== null
+                  ? `${dashboardData?.stats?.humidadeAtual}%`
+                  : 'N/D'}
+              </p>
               <div className="mt-2 flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-accent" />
-                <span className="text-xs font-bold text-primary">Nível Óptimo para Tomate</span>
+                <span
+                  className={`w-2 h-2 rounded-full ${
+                    dashboardData?.stats?.statusHumidadeAtual === 'OPTIMA'
+                      ? 'bg-[#95C623]'
+                      : 'bg-amber-500'
+                  }`}
+                />
+                <span className="text-xs font-bold text-primary">
+                  {dashboardData?.stats?.statusHumidadeAtual
+                    ? `Nível ${dashboardData.stats.statusHumidadeAtual}`
+                    : 'Aguardando 1ª Leitura'}
+                </span>
               </div>
             </Card>
 
             <Card variant="surface">
               <span className="text-xs font-bold text-secondary/70 uppercase">Técnico Responsável</span>
-              <p className="text-lg font-bold text-primary mt-1">Eng. António Langa</p>
-              <p className="text-xs text-secondary/70">SDAE Nhamatanda</p>
+              <p className="text-base font-bold text-primary mt-1 truncate">
+                {dashboardData?.stats?.tecnicoResponsavel?.nome || 'SDAE Nhamatanda'}
+              </p>
+              <p className="text-xs text-secondary/70">
+                {dashboardData?.stats?.tecnicoResponsavel?.telefone || 'Acompanhamento Oficial'}
+              </p>
             </Card>
 
             <Card variant="surface">
-              <span className="text-xs font-bold text-secondary/70 uppercase">Recomendações Ativas</span>
-              <p className="text-3xl font-black text-accent mt-1">1</p>
-              <p className="mt-2 text-xs text-secondary/80">Rega matinal de 45 min</p>
+              <span className="text-xs font-bold text-secondary/70 uppercase">Recomendações Técnicas</span>
+              <p className="text-3xl font-black text-accent mt-1">
+                {dashboardData?.stats?.recomendacoesAtivasCount ?? 0}
+              </p>
+              <p className="mt-2 text-xs text-secondary/80">Orientações ativas do técnico</p>
             </Card>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Formulário Real de Leitura de Humidade de Solo */}
             <Card variant="surface">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle>Registo de Leitura de Humidade</CardTitle>
                     <CardDescription>
-                      Insira o valor medido no sensor ou teste manual de punho
+                      Insira o valor medido no sensor de solo da parcela
                     </CardDescription>
                   </div>
-                  <Badge variant="accent" size="sm">Diário</Badge>
+                  <Badge variant="accent" size="sm">
+                    Registo Diário
+                  </Badge>
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <form onSubmit={handleSubmeterLeitura} className="space-y-4">
                   <div>
                     <label className="block text-xs font-bold uppercase text-secondary mb-1">
                       Selecionar Parcela
                     </label>
-                    <select className="w-full bg-white border border-secondary/30 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-primary focus:outline-none focus:ring-2 focus:ring-accent">
-                      <option>Parcela Lamego 1 (2.5 ha - Tomate)</option>
-                      <option>Parcela Lamego 2 (1.0 ha - Milho)</option>
-                    </select>
+                    {dashboardData?.parcelas && dashboardData.parcelas.length > 0 ? (
+                      <select
+                        value={selectedParcelaId}
+                        onChange={(e) => setSelectedParcelaId(e.target.value)}
+                        className="w-full bg-white border border-secondary/30 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-primary focus:outline-none focus:ring-2 focus:ring-accent"
+                      >
+                        {dashboardData.parcelas.map((p: any) => (
+                          <option key={p.id} value={p.id}>
+                            {p.nome} ({p.areaHectares} ha - {p.tipoSolo})
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-800 flex items-center justify-between">
+                        <span>Ainda não possui parcelas registadas.</span>
+                        <Link href="/parcelas/novo" className="font-bold underline text-[#0E4749]">
+                          Criar Parcela
+                        </Link>
+                      </div>
+                    )}
                   </div>
 
-                  <div>
-                    <label className="block text-xs font-bold uppercase text-secondary mb-1">
-                      Teor de Humidade (%)
-                    </label>
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="number"
-                        defaultValue={38}
-                        min={0}
-                        max={100}
-                        className="flex-1 bg-white border border-secondary/30 rounded-xl px-3.5 py-2.5 text-base font-bold text-primary focus:outline-none focus:ring-2 focus:ring-accent"
-                      />
-                      <span className="font-bold text-secondary">%</span>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-bold uppercase text-secondary mb-1">
+                        Humidade (%)
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="number"
+                          min={0}
+                          max={100}
+                          step="0.1"
+                          required
+                          value={humidadeValor}
+                          onChange={(e) => setHumidadeValor(Number(e.target.value))}
+                          className="w-full bg-white border border-secondary/30 rounded-xl px-3.5 py-2.5 text-base font-bold text-primary focus:outline-none focus:ring-2 focus:ring-accent"
+                        />
+                        <span className="font-bold text-secondary">%</span>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold uppercase text-secondary mb-1">
+                        Temp. Solo (°C)
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="number"
+                          min={-10}
+                          max={60}
+                          step="0.5"
+                          value={temperaturaValor}
+                          onChange={(e) => setTemperaturaValor(Number(e.target.value))}
+                          className="w-full bg-white border border-secondary/30 rounded-xl px-3.5 py-2.5 text-base font-bold text-primary focus:outline-none focus:ring-2 focus:ring-accent"
+                        />
+                        <span className="font-bold text-secondary">°C</span>
+                      </div>
                     </div>
                   </div>
 
                   <Button
+                    type="submit"
                     variant="primary"
                     className="w-full"
-                    onClick={() => setValidationSuccess('Leitura de humidade registada com sucesso e enviada para validação do Eng. António Langa.')}
+                    disabled={submittingLeitura || !dashboardData?.parcelas?.length}
                   >
-                    Submeter Leitura ao SDAE
+                    {submittingLeitura ? 'A Gravar Leitura...' : 'Submeter Leitura ao SDAE'}
                   </Button>
-                </div>
+                </form>
               </CardContent>
             </Card>
 
+            {/* Recomendações e Parcelas Recentes */}
             <Card variant="surface">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle>Recomendações Técnicas Recebidas</CardTitle>
+                    <CardTitle>As Suas Parcelas Agrícolas</CardTitle>
                     <CardDescription>
-                      Orientações emitidas pelo Eng. António Langa (SDAE Nhamatanda)
+                      Talhões registados no SDAE Nhamatanda
                     </CardDescription>
                   </div>
-                  <Badge variant="secondary" size="sm">Ativa</Badge>
+                  <Link href="/parcelas">
+                    <Button size="sm" variant="outline">
+                      Ver Todas
+                    </Button>
+                  </Link>
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="p-4 rounded-2xl border border-secondary/20 bg-surface/50 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold uppercase tracking-wider text-accent bg-primary px-2 py-0.5 rounded">
-                      Manejo de Rega
-                    </span>
-                    <span className="text-xs text-secondary/60">Emitida ontem às 15:40</span>
-                  </div>
-
-                  <p className="text-sm font-semibold text-primary">
-                    "Com as temperaturas altas previstas para o distrito de Nhamatanda, efetuar a rega preferencialmente entre as 06:00 e as 07:30 da manhã, mantendo 45 minutos por sector."
-                  </p>
-
-                  <div className="flex items-center justify-between pt-2 border-t border-secondary/10 text-xs">
-                    <span className="text-secondary/70">Parcela: Lamego 1</span>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setValidationSuccess('Recomendação confirmada como implementada no campo.')}
-                    >
-                      Confirmar Aplicação
-                    </Button>
-                  </div>
+                <div className="space-y-3">
+                  {dashboardData?.parcelas && dashboardData.parcelas.length > 0 ? (
+                    dashboardData.parcelas.map((p: any) => (
+                      <div
+                        key={p.id}
+                        className="p-3.5 rounded-xl border border-secondary/20 bg-surface/50 flex items-center justify-between"
+                      >
+                        <div className="space-y-0.5">
+                          <p className="font-bold text-sm text-primary">{p.nome}</p>
+                          <p className="text-xs text-secondary/70">
+                            {p.areaHectares} ha • Solo {p.tipoSolo} • {p.localizacao || 'Nhamatanda'}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-xs font-bold text-[#0E4749] bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                            {p.ultimaLeitura ? `${p.ultimaLeitura.humidade}%` : 'Sem leitura'}
+                          </span>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-xs text-slate-500 py-3 text-center">
+                      Nenhuma parcela registada na sua conta.
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>

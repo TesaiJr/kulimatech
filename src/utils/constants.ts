@@ -1,10 +1,10 @@
 /**
- * Constantes globais do sistema iMunda adaptadas ao contexto de Moçambique
+ * Constantes globais do sistema KulimaTech adaptadas ao contexto de Moçambique
  */
 
 export const APP_CONFIG = {
-  NAME: 'iMunda',
-  DESCRIPTION: 'Sistema Integrado de Gestão iMunda - Moçambique',
+  NAME: 'KulimaTech',
+  DESCRIPTION: 'Sistema Integrado de Gestão KulimaTech - Moçambique',
   VERSION: '1.0.0',
   COUNTRY: 'Moçambique',
   COUNTRY_CODE: 'MZ',
@@ -18,12 +18,12 @@ export const APP_CONFIG = {
 } as const;
 
 export const STORAGE_KEYS = {
-  AUTH_TOKEN: '@imunda:auth_token',
-  REFRESH_TOKEN: '@imunda:refresh_token',
-  USER_DATA: '@imunda:user_data',
-  THEME: '@imunda:theme_mode',
-  SIDEBAR_COLLAPSED: '@imunda:sidebar_collapsed',
-  PREFERENCES: '@imunda:preferences',
+  AUTH_TOKEN: '@kulimatech:auth_token',
+  REFRESH_TOKEN: '@kulimatech:refresh_token',
+  USER_DATA: '@kulimatech:user_data',
+  THEME: '@kulimatech:theme_mode',
+  SIDEBAR_COLLAPSED: '@kulimatech:sidebar_collapsed',
+  PREFERENCES: '@kulimatech:preferences',
 } as const;
 
 export const HTTP_STATUS = {

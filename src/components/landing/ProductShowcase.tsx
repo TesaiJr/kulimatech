@@ -6,8 +6,8 @@ import { Activity, Droplets, CheckCircle2, ShieldAlert, ArrowRight } from 'lucid
 
 export function ProductShowcase() {
   return (
-    <section id="plataforma" className="py-16 md:py-24 bg-surface text-primary border-t border-secondary/10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 xl:px-12 space-y-10">
+    <section id="plataforma" className="py-10 sm:py-12 lg:py-14 bg-surface text-primary">
+      <div className="w-full px-6 sm:px-10 lg:px-16 xl:px-20 2xl:px-24 space-y-8">
         
         {/* Cabeçalho da Secção */}
         <div className="max-w-3xl text-left space-y-2">
@@ -23,12 +23,12 @@ export function ProductShowcase() {
         </div>
 
         {/* Quadro da Aplicação (Cartão em bg-white padronizado com as outras secções) */}
-        <div className="w-full rounded-3xl border border-secondary/20 bg-white text-primary p-6 sm:p-8 lg:p-10 shadow-sm space-y-7">
+        <div className="w-full rounded-lg border border-secondary/20 bg-white text-primary p-6 sm:p-8 lg:p-10 shadow-sm space-y-7">
           
           {/* Barra Superior do Painel */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-secondary/15">
             <div className="flex items-center gap-3.5">
-              <div className="w-10 h-10 rounded-xl bg-secondary/10 text-secondary font-bold text-sm flex items-center justify-center font-mono">
+              <div className="w-9 h-9 rounded-md bg-secondary/10 text-secondary font-bold text-sm flex items-center justify-center font-mono">
                 iM
               </div>
               <div>
@@ -38,10 +38,10 @@ export function ProductShowcase() {
             </div>
 
             <div className="flex flex-wrap items-center gap-2.5">
-              <span className="text-xs bg-secondary/10 text-secondary font-medium px-3 py-1.5 rounded-xl">
+              <span className="text-xs bg-secondary/10 text-secondary font-medium px-3 py-1.5 rounded-md">
                 Técnico: Eng. António Langa
               </span>
-              <span className="text-xs font-bold bg-green-100 text-green-800 px-3 py-1.5 rounded-xl">
+              <span className="text-xs font-bold bg-green-100 text-green-800 px-3 py-1.5 rounded-md">
                 Status: Leitura Validada
               </span>
             </div>
@@ -51,7 +51,7 @@ export function ProductShowcase() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-6">
             
             {/* Bloco 1: Monitorização de Humidade */}
-            <div className="p-5 rounded-2xl bg-surface border border-secondary/10 space-y-3.5">
+            <div className="p-5 rounded-md bg-surface border border-secondary/10 space-y-3.5">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-secondary uppercase tracking-wider">
                   Humidade do Solo

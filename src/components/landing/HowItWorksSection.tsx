@@ -37,8 +37,8 @@ export function HowItWorksSection() {
   ];
 
   return (
-    <section id="como-funciona" className="py-16 md:py-24 bg-surface text-primary">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 xl:px-12 space-y-12">
+    <section id="como-funciona" className="pt-8 sm:pt-10 lg:pt-12 pb-5 sm:pb-6 lg:pb-7 bg-surface text-primary">
+      <div className="w-full px-6 sm:px-10 lg:px-16 xl:px-20 2xl:px-24 space-y-5 sm:space-y-6">
         
         {/* Título da Secção Sóbrio */}
         <div className="max-w-3xl text-left space-y-2">
@@ -46,7 +46,7 @@ export function HowItWorksSection() {
             Fluxo Operacional de Campo
           </span>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-primary tracking-tight">
-            Como o iMunda Funciona no Terreno
+            Como o KulimaTech Funciona no Terreno
           </h2>
           <p className="text-sm sm:text-base text-secondary/80 leading-relaxed">
             Processo direto e adaptado às condições de conectividade e trabalho dos técnicos e agricultores no distrito de Nhamatanda.
@@ -61,15 +61,15 @@ export function HowItWorksSection() {
             return (
               <div
                 key={idx}
-                className="bg-white p-6 sm:p-7 rounded-3xl border border-secondary/20 shadow-sm flex flex-col justify-between h-full"
+                className="bg-[#e6efe8] p-6 sm:p-7 rounded-lg border border-[#8eb69b]/45 shadow-sm hover:shadow-md hover:border-[#0e4749]/40 transition-all flex flex-col justify-between h-full"
               >
                 <div>
                   <div className="flex items-center justify-between mb-5">
-                    <span className="text-xs font-mono font-bold bg-secondary/10 text-secondary px-3 py-1 rounded-lg">
+                    <span className="text-xs font-mono font-bold bg-[#002626]/10 text-[#002626] px-2.5 py-1 rounded-sm">
                       Etapa {step.number}
                     </span>
-                    <div className="w-10 h-10 rounded-xl bg-surface text-secondary flex items-center justify-center">
-                      <Icon className="w-5 h-5 stroke-[2]" />
+                    <div className="w-9 h-9 rounded-md bg-[#002626] text-[#95c623] flex items-center justify-center shadow-xs">
+                      <Icon className="w-4 h-4 stroke-[2.2]" />
                     </div>
                   </div>
 

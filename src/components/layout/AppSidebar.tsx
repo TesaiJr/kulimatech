@@ -1,8 +1,12 @@
 'use client';
 
 import React from 'react';
+import { useRouter } from 'next/navigation';
 import { Avatar, Badge } from '@/components/ui';
 import { UserRole } from '@/types/auth';
+import { LogOut } from 'lucide-react';
+import { authService } from '@/features/auth/services/authService';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 
 export interface NavItem {
   id: string;
@@ -49,6 +53,7 @@ export function getRoleNavigation(role: string = 'ADMIN'): NavSection[] {
           {
             id: 'dashboard',
             label: 'Painel SDAE',
+            href: '/dashboard',
             badge: 'SDAE',
             badgeVariant: 'accent',
             icon: (
@@ -69,6 +74,7 @@ export function getRoleNavigation(role: string = 'ADMIN'): NavSection[] {
           {
             id: 'parcels-monitoring',
             label: 'Parcelas em Acompanhamento',
+            href: '/parcelas',
             icon: (
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
@@ -147,6 +153,7 @@ export function getRoleNavigation(role: string = 'ADMIN'): NavSection[] {
           {
             id: 'dashboard',
             label: 'Painel da Exploração',
+            href: '/dashboard',
             icon: (
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
@@ -156,6 +163,7 @@ export function getRoleNavigation(role: string = 'ADMIN'): NavSection[] {
           {
             id: 'my-parcels',
             label: 'As Minhas Parcelas',
+            href: '/parcelas',
             badge: 'Registo',
             badgeVariant: 'accent',
             icon: (
@@ -237,11 +245,22 @@ export function getRoleNavigation(role: string = 'ADMIN'): NavSection[] {
         {
           id: 'dashboard',
           label: 'Painel do Sistema',
+          href: '/dashboard',
           badge: 'MZ',
           badgeVariant: 'accent',
           icon: (
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h4a1 1 0 011 1v6a1 1 0 01-1 1h-4a1 1 0 01-1-1v-6z" />
+            </svg>
+          ),
+        },
+        {
+          id: 'parcels',
+          label: 'Todas as Parcelas',
+          href: '/parcelas',
+          icon: (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
             </svg>
           ),
         },
@@ -315,13 +334,18 @@ export function AppSidebar({
   onCloseMobile,
   isCollapsed = false,
   onToggleCollapse,
-  user = {
-    name: 'Marcelo Silva',
-    email: 'marcelo@imunda.co.mz',
-    role: 'ADMIN',
-  },
+  user: userProp,
   className = '',
 }: AppSidebarProps) {
+  const router = useRouter();
+  const { user: authUser } = useAuth();
+
+  const user = userProp || (authUser ? {
+    name: authUser.nome,
+    email: authUser.email,
+    role: authUser.role,
+  } : undefined);
+
   // Deriva secções de navegação do perfil se não forem fornecidas explicitamente
   const resolvedSections = sections || getRoleNavigation(user?.role || 'ADMIN');
   const sidebarWidth = isCollapsed ? 'w-20' : 'w-64';
@@ -333,12 +357,12 @@ export function AppSidebar({
         <div className="flex items-center justify-between px-2 py-1.5 border-b border-muted/20 pb-4">
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-10 h-10 rounded-xl bg-accent text-primary flex items-center justify-center font-black text-xl shadow-md flex-shrink-0">
-              iM
+              KT
             </div>
             {!isCollapsed && (
               <div className="truncate">
                 <h2 className="font-extrabold text-lg tracking-wide text-surface leading-tight">
-                  iMunda
+                  KulimaTech
                 </h2>
                 <span className="text-[10px] text-muted uppercase font-mono tracking-wider">
                   Moçambique
@@ -379,7 +403,11 @@ export function AppSidebar({
                       key={item.id}
                       type="button"
                       onClick={() => {
-                        if (onSelect) onSelect(item.id);
+                        if (item.href) {
+                          router.push(item.href);
+                        } else if (onSelect) {
+                          onSelect(item.id);
+                        }
                         if (onCloseMobile) onCloseMobile();
                       }}
                       title={isCollapsed ? item.label : undefined}
@@ -434,14 +462,30 @@ export function AppSidebar({
         )}
 
         {user && (
-          <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-3 px-2'}`}>
-            <Avatar name={user.name} src={user.avatarUrl} status="online" size="md" />
-            {!isCollapsed && (
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold text-surface truncate">{user.name}</p>
-                <p className="text-xs text-muted truncate">{user.role || 'Utilizador'}</p>
-              </div>
-            )}
+          <div className="space-y-2">
+            <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-3 px-2'}`}>
+              <Avatar name={user.name} src={user.avatarUrl} status="online" size="md" />
+              {!isCollapsed && (
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold text-surface truncate">{user.name}</p>
+                  <p className="text-xs text-muted truncate">{user.role || 'Utilizador'}</p>
+                </div>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                authService.logout();
+                window.location.href = '/auth?mode=login';
+              }}
+              title="Terminar Sessão"
+              className={`w-full flex items-center ${
+                isCollapsed ? 'justify-center' : 'gap-2 px-3'
+              } py-2 rounded-xl text-red-300 hover:bg-red-500/20 hover:text-red-100 transition-colors text-xs font-semibold`}
+            >
+              <LogOut className="w-4 h-4 text-red-400 flex-shrink-0" />
+              {!isCollapsed && <span>Terminar Sessão</span>}
+            </button>
           </div>
         )}
       </div>

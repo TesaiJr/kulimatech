@@ -2,6 +2,9 @@
 
 import React from 'react';
 import { Avatar, Badge } from '@/components/ui';
+import { LogOut } from 'lucide-react';
+import { authService } from '@/features/auth/services/authService';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 
 export interface HeaderProps {
   onToggleSidebar?: () => void;
@@ -18,15 +21,22 @@ export interface HeaderProps {
 
 export function Header({
   onToggleSidebar,
-  user = {
-    name: 'Marcelo Silva',
-    email: 'marcelo@imunda.co.mz',
-    role: 'Administrador',
-  },
-  unreadNotificationsCount = 3,
+  user: userProp,
+  unreadNotificationsCount = 0,
   onNotificationsClick,
   className = '',
 }: HeaderProps) {
+  const { user: authUser } = useAuth();
+
+  const user = userProp || (authUser ? {
+    name: authUser.nome,
+    email: authUser.email,
+    role: authUser.role,
+  } : {
+    name: 'Utilizador',
+    email: '',
+    role: '',
+  });
   return (
     <header
       className={`sticky top-0 z-30 h-16 bg-surface/95 backdrop-blur border-b border-secondary/20 px-4 sm:px-6 flex items-center justify-between gap-4 transition-all duration-200 ${className}`}
@@ -48,7 +58,7 @@ export function Header({
 
         <div className="flex items-center gap-2">
           <span className="font-extrabold text-lg text-primary tracking-tight hidden sm:inline-block">
-            iMunda
+            KulimaTech
           </span>
           <Badge variant="accent" size="sm" className="font-mono text-[10px]">
             MZ (+258)
@@ -83,13 +93,25 @@ export function Header({
         {/* Separador */}
         <div className="h-6 w-px bg-secondary/20 hidden sm:block" />
 
-        {/* Perfil do Usuário */}
+        {/* Perfil do Usuário e Logout */}
         <div className="flex items-center gap-3 pl-1">
           <Avatar name={user.name} src={user.avatarUrl} size="sm" status="online" />
           <div className="hidden md:block text-left text-xs leading-tight">
             <p className="font-bold text-primary truncate max-w-[130px]">{user.name}</p>
             <p className="text-secondary/70 truncate max-w-[130px]">{user.role || 'Usuário'}</p>
           </div>
+          <button
+            type="button"
+            onClick={() => {
+              authService.logout();
+              window.location.href = '/auth?mode=login';
+            }}
+            title="Terminar Sessão"
+            className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg text-red-600 hover:bg-red-50 transition-colors flex items-center gap-1 text-xs font-bold border border-red-200"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Sair</span>
+          </button>
         </div>
       </div>
     </header>

@@ -3,20 +3,18 @@ import type { Metadata } from 'next';
 import {
   LandingNavbar,
   HeroSection,
-  StatsSection,
   HowItWorksSection,
-  ProductShowcase,
   InstitutionalSection,
   CallToActionSection,
 } from '@/components/landing';
 import { Footer } from '@/components/layout';
 
 export const metadata: Metadata = {
-  title: 'iMunda • Apoio à Decisão Agrícola em Nhamatanda',
+  title: 'KulimaTech • Apoio à Decisão Agrícola em Nhamatanda',
   description:
     'Sistema integrado de apoio à decisão agrícola para o Distrito de Nhamatanda (Sofala, Moçambique), ligando agricultores e técnicos do SDAE com base na humidade do solo e recomendações técnicas.',
   keywords: [
-    'iMunda',
+    'KulimaTech',
     'Nhamatanda',
     'Sofala',
     'Moçambique',
@@ -36,17 +34,11 @@ export default function LandingPage() {
 
       {/* 2. Conteúdo Principal Estruturado em Módulos */}
       <main className="flex-1">
-        {/* Hero Section com Proposta de Valor e Demonstração */}
+        {/* Hero Section em Tela Cheia */}
         <HeroSection />
 
-        {/* Prova de Valor e Métricas de Impacto em Nhamatanda */}
-        <StatsSection />
-
-        {/* Ciclo Operacional em 4 Passos */}
+        {/* Ciclo Operacional em 4 Passos: Fluxo Operacional de Campo */}
         <HowItWorksSection />
-
-        {/* Demonstração Realista da Plataforma */}
-        <ProductShowcase />
 
         {/* Cooperação Institucional: UniZambeze & SDAE Nhamatanda */}
         <InstitutionalSection />

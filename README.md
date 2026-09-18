@@ -1,4 +1,4 @@
-# iMunda - Sistema de Apoio a Decisao Agricola
+# KulimaTech - Sistema de Apoio a Decisao Agricola
 
 Plataforma integrada de apoio a decisao agricola voltada para o Distrito de Nhamatanda, Provincia de Sofala, Mocambique. O sistema conecta agricultores familiares e tecnicos extensionistas do Servico Distrital de Actividades Economicas (SDAE), fundamentando tomadas de decisao em dados de humidade do solo, catalogo de culturas e alertas fitossanitarios.
 
@@ -23,7 +23,7 @@ Projeto desenvolvido em cooperacao institucional entre a Universidade Zambeze (U
 
 ## Visao Geral
 
-O iMunda atua diretamente no fortalecimento da extensao agraria e na seguranca alimentar de Nhamatanda. O sistema mitiga os impactos de extremos climaticos e otimiza o uso da agua atraves do acompanhamento continuo da humidade do solo, validacao tecnica de dados de campo e distribuicao direcionada de recomendacoes agronomicas.
+O KulimaTech atua diretamente no fortalecimento da extensao agraria e na seguranca alimentar de Nhamatanda. O sistema mitiga os impactos de extremos climaticos e otimiza o uso da agua atraves do acompanhamento continuo da humidade do solo, validacao tecnica de dados de campo e distribuicao direcionada de recomendacoes agronomicas.
 
 ### Principais Objetivos
 
