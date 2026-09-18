@@ -126,6 +126,87 @@ async function main() {
   });
   console.log(`   [OK] Parcela: ${parcela.nome} (${parcela.areaHectares} ha)`);
 
+  // 5.1 Criar Contas Demo KulimaTech para o Frontend
+  console.log('\n5.1. Criando Contas Demo KulimaTech (Frontend)...');
+  const adminKulimaHash = await bcrypt.hash('Admin@2026', saltRounds);
+  const adminKulima = await prisma.user.upsert({
+    where: { email: 'admin@kulimatech.gov.mz' },
+    update: { passwordHash: adminKulimaHash, status: UserStatus.ATIVO },
+    create: {
+      nome: 'Alberto Nhantumbo (Admin)',
+      email: 'admin@kulimatech.gov.mz',
+      passwordHash: adminKulimaHash,
+      role: UserRole.ADMIN,
+      status: UserStatus.ATIVO,
+      telefone: '+258840009999',
+      zonaAtuacao: 'Distrito de Nhamatanda',
+    },
+  });
+
+  const techKulimaHash = await bcrypt.hash('Tecnico@2026', saltRounds);
+  const techKulima = await prisma.user.upsert({
+    where: { email: 'tecnico.nhamatanda@sdae.gov.mz' },
+    update: { passwordHash: techKulimaHash, status: UserStatus.ATIVO },
+    create: {
+      nome: 'Eng. António Langa',
+      email: 'tecnico.nhamatanda@sdae.gov.mz',
+      passwordHash: techKulimaHash,
+      role: UserRole.TECNICO,
+      status: UserStatus.ATIVO,
+      telefone: '+258843334444',
+      zonaAtuacao: 'Posto Agrário de Tica / Nhamatanda',
+    },
+  });
+
+  const agriKulimaHash = await bcrypt.hash('Agri@2026', saltRounds);
+  const agriKulima = await prisma.user.upsert({
+    where: { email: 'agricultor.lamego@kulimatech.mz' },
+    update: { passwordHash: agriKulimaHash, status: UserStatus.ATIVO },
+    create: {
+      nome: 'Mateus Cossa',
+      email: 'agricultor.lamego@kulimatech.mz',
+      passwordHash: agriKulimaHash,
+      role: UserRole.AGRICULTOR,
+      status: UserStatus.ATIVO,
+      telefone: '+258841234567',
+      zonaAtuacao: 'Posto de Lamego - Nhamatanda',
+    },
+  });
+
+  // Vincular Tecnico ao Agricultor do KulimaTech
+  await prisma.tecnicoAgricultor.upsert({
+    where: {
+      tecnicoId_agricultorId: {
+        tecnicoId: techKulima.id,
+        agricultorId: agriKulima.id,
+      },
+    },
+    update: {},
+    create: {
+      tecnicoId: techKulima.id,
+      agricultorId: agriKulima.id,
+    },
+  });
+
+  // Parcela KulimaTech para Mateus Cossa
+  await prisma.parcela.upsert({
+    where: { id: 'parcela-lamego-01' },
+    update: {
+      agricultorId: agriKulima.id,
+    },
+    create: {
+      id: 'parcela-lamego-01',
+      nome: 'Parcela Lamego 1 — Tomate e Hortícolas',
+      areaHectares: 2.5,
+      tipoSolo: TipoSolo.FRANCO,
+      localizacao: 'Posto de Lamego, Talhão Sul, Junto ao Canal',
+      latitude: -19.2345,
+      longitude: 34.2189,
+      agricultorId: agriKulima.id,
+    },
+  });
+  console.log(`   [OK] Contas KulimaTech criadas com sucesso.`);
+
   // 6. Catalogo de Culturas Prioritarias do SDAE Nhamatanda
   console.log('\n6. Povoando Catalogo de Culturas...');
   const culturas = [

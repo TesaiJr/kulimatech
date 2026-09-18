@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { ParcelaFormData, parcelaFormSchema } from '../schemas/parcelaSchemas';
 import { parcelaService } from '../services/parcelaService';
 import { TipoSolo, ParcelaListItem } from '../types';
+import { ApiError } from '@/lib/api/client';
 
 export interface UseParcelaFormOptions {
   initialData?: ParcelaListItem;
@@ -123,8 +124,8 @@ export function useParcelaForm({ initialData, agricultorId = 'usr-farm-01', onSu
         // Atualizar parcela existente
         await parcelaService.updateParcela(initialData.id, validationResult.data);
       } else {
-        // Criar nova parcela
-        await parcelaService.createParcela(validationResult.data, agricultorId);
+        // Criar nova parcela associada ao agricultor autenticado
+        await parcelaService.createParcela(validationResult.data);
       }
 
       if (onSuccess) {
@@ -133,8 +134,12 @@ export function useParcelaForm({ initialData, agricultorId = 'usr-farm-01', onSu
         router.push('/parcelas');
       }
     } catch (err) {
-      console.error(err);
-      setSubmitError('Ocorreu um erro ao guardar a parcela. Tente novamente.');
+      console.error('Falha ao submeter formulario de parcela:', err);
+      if (err instanceof ApiError) {
+        setSubmitError(err.message);
+      } else {
+        setSubmitError('Ocorreu um erro ao guardar a parcela. Tente novamente.');
+      }
     } finally {
       setIsSubmitting(false);
     }

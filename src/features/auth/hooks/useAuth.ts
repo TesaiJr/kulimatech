@@ -109,7 +109,7 @@ export function useAuth(): UseAuthReturn {
     authService.logout();
     setUser(null);
     setToken(null);
-    router.push('/login');
+    router.push('/auth?mode=login');
   }, [router]);
 
   const clearError = useCallback(() => {

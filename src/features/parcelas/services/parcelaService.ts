@@ -1,243 +1,107 @@
+// src/features/parcelas/services/parcelaService.ts
+import { api, ApiError } from '@/lib/api/client';
 import {
-  Parcela,
   ParcelaListItem,
   ParcelaDetalhe,
   CreateParcelaInput,
   UpdateParcelaInput,
 } from '../types';
 
-const PARCELAS_STORAGE_KEY = 'kulimatech_parcelas_data_v1';
-
-// Dados iniciais realistas para o Distrito de Nhamatanda (Província de Sofala)
-const INITIAL_PARCELAS: ParcelaListItem[] = [
-  {
-    id: 'parc-01',
-    nome: 'Parcela Lamego 1 — Tomate',
-    areaHectares: 2.5,
-    tipoSolo: 'FRANCO',
-    localizacao: 'Posto de Lamego, Talhão Sul, Junto ao Canal de Irrigação',
-    latitude: -19.2345,
-    longitude: 34.2189,
-    agricultorId: 'usr-farm-01',
-    createdAt: new Date('2026-01-15').toISOString(),
-    updatedAt: new Date('2026-03-01').toISOString(),
-    agricultor: {
-      id: 'usr-farm-01',
-      nome: 'Mateus Cossa',
-      telefone: '+258 84 123 4567',
-      zonaAtuacao: 'Lamego',
-    },
-    _count: {
-      leituras: 14,
-      recomendacoes: 3,
-      ocorrencias: 1,
-    },
-  },
-  {
-    id: 'parc-02',
-    nome: 'Parcela Lamego 2 — Milho',
-    areaHectares: 1.0,
-    tipoSolo: 'ARGILOSO',
-    localizacao: 'Posto de Lamego, Zona Alta',
-    latitude: -19.2412,
-    longitude: 34.2230,
-    agricultorId: 'usr-farm-01',
-    createdAt: new Date('2026-02-01').toISOString(),
-    updatedAt: new Date('2026-03-05').toISOString(),
-    agricultor: {
-      id: 'usr-farm-01',
-      nome: 'Mateus Cossa',
-      telefone: '+258 84 123 4567',
-      zonaAtuacao: 'Lamego',
-    },
-    _count: {
-      leituras: 8,
-      recomendacoes: 2,
-      ocorrencias: 1,
-    },
-  },
-  {
-    id: 'parc-03',
-    nome: 'Parcela Tica 1 — Feijão Bóer',
-    areaHectares: 3.2,
-    tipoSolo: 'ARENOSO',
-    localizacao: 'Posto Agrário de Tica, Zona Baixa',
-    latitude: -19.2105,
-    longitude: 34.1980,
-    agricultorId: 'usr-farm-02',
-    createdAt: new Date('2026-01-20').toISOString(),
-    updatedAt: new Date('2026-03-02').toISOString(),
-    agricultor: {
-      id: 'usr-farm-02',
-      nome: 'Celeste Macamo',
-      telefone: '+258 82 987 6543',
-      zonaAtuacao: 'Tica',
-    },
-    _count: {
-      leituras: 21,
-      recomendacoes: 5,
-      ocorrencias: 0,
-    },
-  },
-  {
-    id: 'parc-04',
-    nome: 'Parcela Nhamatanda-Sede — Mandioca',
-    areaHectares: 1.8,
-    tipoSolo: 'MISTO',
-    localizacao: 'Nhamatanda-Sede, Perímetro Agrícola 3',
-    latitude: -19.2678,
-    longitude: 34.1750,
-    agricultorId: 'usr-farm-03',
-    createdAt: new Date('2026-02-10').toISOString(),
-    updatedAt: new Date('2026-03-04').toISOString(),
-    agricultor: {
-      id: 'usr-farm-03',
-      nome: 'Joaquim Sitoe',
-      telefone: '+258 84 555 1212',
-      zonaAtuacao: 'Nhamatanda-Sede',
-    },
-    _count: {
-      leituras: 5,
-      recomendacoes: 1,
-      ocorrencias: 0,
-    },
-  },
-];
+export interface GetParcelasFilters {
+  search?: string;
+  tipoSolo?: string;
+  agricultorId?: string;
+}
 
 class ParcelaService {
-  private getStoredParcelas(): ParcelaListItem[] {
-    if (typeof window === 'undefined') return INITIAL_PARCELAS;
+  /**
+   * Obtém a lista de parcelas da API com suporte a filtros
+   * O backend isola automaticamente os dados de acordo com o papel do utilizador logado (RBAC):
+   * - AGRICULTOR: apenas suas parcelas
+   * - TECNICO: apenas parcelas dos agricultores vinculados
+   * - ADMIN: todas as parcelas
+   */
+  public async getParcelas(filters: GetParcelasFilters = {}): Promise<ParcelaListItem[]> {
+    const params: Record<string, string | undefined> = {};
+    if (filters.search?.trim()) params.search = filters.search.trim();
+    if (filters.tipoSolo && filters.tipoSolo !== 'TODOS') params.tipoSolo = filters.tipoSolo;
+    if (filters.agricultorId && filters.agricultorId !== 'TODOS') params.agricultorId = filters.agricultorId;
+
     try {
-      const stored = localStorage.getItem(PARCELAS_STORAGE_KEY);
-      if (!stored) {
-        localStorage.setItem(PARCELAS_STORAGE_KEY, JSON.stringify(INITIAL_PARCELAS));
-        return INITIAL_PARCELAS;
-      }
-      return JSON.parse(stored);
-    } catch {
-      return INITIAL_PARCELAS;
+      return await api.get<ParcelaListItem[]>('/api/parcelas', { params });
+    } catch (error) {
+      if (error instanceof ApiError) throw error;
+      throw new ApiError('Falha ao obter lista de parcelas da API.', 'GET_PARCELAS_ERROR');
     }
   }
 
-  private saveStoredParcelas(parcelas: ParcelaListItem[]): void {
-    if (typeof window === 'undefined') return;
-    try {
-      localStorage.setItem(PARCELAS_STORAGE_KEY, JSON.stringify(parcelas));
-    } catch (err) {
-      console.error('Erro ao guardar parcelas no localStorage:', err);
-    }
-  }
-
-  public async getParcelas(userRole: string, userId: string): Promise<ParcelaListItem[]> {
-    const list = this.getStoredParcelas();
-    if (userRole === 'AGRICULTOR') {
-      // Agricultor vê apenas as suas próprias parcelas
-      return list.filter((p) => p.agricultorId === userId || p.agricultorId === 'usr-farm-01');
-    }
-    // Técnico SDAE vê parcelas dos agricultores vinculados (ou todas de demonstração)
-    return list;
-  }
-
+  /**
+   * Obtém os detalhes completos de uma parcela pelo ID
+   * Inclui histórico de leituras de solo, recomendações e pragas
+   */
   public async getParcelaById(id: string): Promise<ParcelaDetalhe | null> {
-    const list = this.getStoredParcelas();
-    const item = list.find((p) => p.id === id);
-    if (!item) return null;
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const raw = await api.get<any>(`/api/parcelas/${id}`);
+      if (!raw) return null;
 
-    const detalhe: ParcelaDetalhe = {
-      ...item,
-      agricultor: item.agricultor || {
-        id: item.agricultorId,
-        nome: 'Mateus Cossa',
-        telefone: '+258 84 123 4567',
-        zonaAtuacao: 'Lamego',
-      },
-      leiturasRecentes: [
-        {
-          id: 'leit-01',
-          humidade: 38,
-          temperatura: 28.5,
-          statusHumidade: 'Humidade Adequada',
-          dataLeitura: new Date().toISOString(),
+      const detalhe: ParcelaDetalhe = {
+        ...raw,
+        agricultor: raw.agricultor || {
+          id: raw.agricultorId,
+          nome: 'Agricultor Familiar',
+          telefone: null,
+          zonaAtuacao: null,
         },
-        {
-          id: 'leit-02',
-          humidade: 32,
-          temperatura: 30.1,
-          statusHumidade: 'Atenção Necessária',
-          dataLeitura: new Date(Date.now() - 86400000).toISOString(),
-        },
-      ],
-      recomendacoesRecentes: [
-        {
-          id: 'rec-01',
-          parecer: 'Efetuar rega matinal de 45 minutos entre as 06:00 e 07:30.',
-          status: 'Ativa',
-          dataEmissao: new Date().toISOString(),
-          tecnico: { id: 'usr-tech-01', nome: 'Eng. António Langa' },
-          cultura: { id: 'cult-01', nome: 'Tomate' },
-        },
-      ],
-    };
-    return detalhe;
+        leiturasRecentes: raw.leituras || raw.leiturasRecentes || [],
+        recomendacoesRecentes: raw.recomendacoes || raw.recomendacoesRecentes || [],
+      };
+      return detalhe;
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 404) {
+        return null;
+      }
+      if (error instanceof ApiError) throw error;
+      throw new ApiError('Falha ao obter detalhes da parcela.', 'GET_PARCELA_ERROR');
+    }
   }
 
-  public async createParcela(input: CreateParcelaInput, agricultorId: string): Promise<ParcelaListItem> {
-    const list = this.getStoredParcelas();
-    const newId = `parc-${Date.now().toString().slice(-4)}`;
-    const now = new Date().toISOString();
-
-    const newParcela: ParcelaListItem = {
-      id: newId,
-      nome: input.nome,
-      areaHectares: input.areaHectares,
-      tipoSolo: input.tipoSolo,
-      localizacao: input.localizacao || null,
-      latitude: input.latitude || null,
-      longitude: input.longitude || null,
-      agricultorId: agricultorId || 'usr-farm-01',
-      createdAt: now,
-      updatedAt: now,
-      agricultor: {
-        id: agricultorId || 'usr-farm-01',
-        nome: 'Mateus Cossa',
-        telefone: '+258 84 123 4567',
-        zonaAtuacao: 'Lamego',
-      },
-      _count: {
-        leituras: 0,
-        recomendacoes: 0,
-        ocorrencias: 0,
-      },
-    };
-
-    const updated = [newParcela, ...list];
-    this.saveStoredParcelas(updated);
-    return newParcela;
+  /**
+   * Cria uma nova parcela agrícola no banco de dados
+   * O backend associa automaticamente ao agricultor autenticado via token JWT
+   */
+  public async createParcela(input: CreateParcelaInput): Promise<ParcelaListItem> {
+    try {
+      return await api.post<ParcelaListItem>('/api/parcelas', input);
+    } catch (error) {
+      if (error instanceof ApiError) throw error;
+      throw new ApiError('Falha ao criar parcela agrícola.', 'CREATE_PARCELA_ERROR');
+    }
   }
 
-  public async updateParcela(id: string, input: UpdateParcelaInput): Promise<ParcelaListItem | null> {
-    const list = this.getStoredParcelas();
-    const index = list.findIndex((p) => p.id === id);
-    if (index === -1) return null;
-
-    const existing = list[index];
-    const updatedParcela: ParcelaListItem = {
-      ...existing,
-      ...input,
-      updatedAt: new Date().toISOString(),
-    };
-
-    list[index] = updatedParcela;
-    this.saveStoredParcelas(list);
-    return updatedParcela;
+  /**
+   * Atualiza os dados de uma parcela existente
+   */
+  public async updateParcela(id: string, input: UpdateParcelaInput): Promise<ParcelaListItem> {
+    try {
+      return await api.put<ParcelaListItem>(`/api/parcelas/${id}`, input);
+    } catch (error) {
+      if (error instanceof ApiError) throw error;
+      throw new ApiError('Falha ao atualizar parcela agrícola.', 'UPDATE_PARCELA_ERROR');
+    }
   }
 
+  /**
+   * Remove uma parcela agrícola
+   */
   public async deleteParcela(id: string): Promise<boolean> {
-    const list = this.getStoredParcelas();
-    const filtered = list.filter((p) => p.id !== id);
-    if (filtered.length === list.length) return false;
-    this.saveStoredParcelas(filtered);
-    return true;
+    try {
+      await api.delete(`/api/parcelas/${id}`);
+      return true;
+    } catch (error) {
+      if (error instanceof ApiError) throw error;
+      throw new ApiError('Falha ao eliminar parcela agrícola.', 'DELETE_PARCELA_ERROR');
+    }
   }
 }
 

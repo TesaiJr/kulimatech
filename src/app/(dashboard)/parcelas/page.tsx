@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { DashboardLayout } from '@/components/layout';
 import { Button, Alert, Badge } from '@/components/ui';
-import { AuthUser, USER_ROLES_INFO, UserRole } from '@/types/auth';
-import { can } from '@/utils/permissions';
-import { authService } from '@/features/auth/services/authService';
+import { USER_ROLES_INFO, UserRole } from '@/types/auth';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 import {
   useParcelas,
   ParcelaCard,
@@ -15,66 +15,36 @@ import {
   ParcelaDeleteDialog,
   ParcelaListItem,
 } from '@/features/parcelas';
-import { Layers, Plus, ArrowLeft, RefreshCw, Info } from 'lucide-react';
-
-const DEMO_USERS: Record<UserRole, AuthUser> = {
-  ADMIN: {
-    id: 'usr-admin-01',
-    name: 'Alberto Nhantumbo',
-    email: 'alberto.nhantumbo@kulimatech.gov.mz',
-    role: 'ADMIN',
-    province: 'Sofala',
-    district: 'Sede Provincial (Beira / Nhamatanda)',
-  },
-  TECNICO_SDAE: {
-    id: 'usr-tech-01',
-    name: 'Eng. António Langa',
-    email: 'antonio.langa@sdae.gov.mz',
-    role: 'TECNICO_SDAE',
-    province: 'Sofala',
-    district: 'Nhamatanda (Posto de Tica)',
-    assignedFarmerIds: ['usr-farm-01', 'usr-farm-02'],
-  },
-  AGRICULTOR: {
-    id: 'usr-farm-01',
-    name: 'Mateus Cossa',
-    email: 'mateus.cossa@agri.mz',
-    role: 'AGRICULTOR',
-    province: 'Sofala',
-    district: 'Nhamatanda (Lamego)',
-    assignedTechnicianId: 'usr-tech-01',
-  },
-};
+import { Layers, Plus, ArrowLeft, RefreshCw, Info, ShieldCheck } from 'lucide-react';
 
 export default function ParcelasPage() {
-  const [activeRole, setActiveRole] = useState<UserRole>('AGRICULTOR');
-  const [activeNavId, setActiveNavId] = useState<string>('my-parcels');
-  const [authenticatedName, setAuthenticatedName] = useState<string | null>(null);
+  const router = useRouter();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
 
-  // Sincronização com sessão real de utilizador
   useEffect(() => {
-    const stored = authService.getStoredUser();
-    if (stored) {
-      setAuthenticatedName(stored.nome);
-      if (stored.role === 'TECNICO') {
-        setActiveRole('TECNICO_SDAE');
-        setActiveNavId('parcels-monitoring');
-      } else if (stored.role === 'ADMIN') {
-        setActiveRole('ADMIN');
-      } else if (stored.role === 'AGRICULTOR') {
-        setActiveRole('AGRICULTOR');
-        setActiveNavId('my-parcels');
-      }
+    if (!authLoading && !isAuthenticated) {
+      router.push('/auth?mode=login');
     }
-  }, []);
+  }, [authLoading, isAuthenticated, router]);
 
-  const baseUser = DEMO_USERS[activeRole];
-  const currentUser: AuthUser = {
-    ...baseUser,
-    name: authenticatedName && baseUser.role === activeRole ? authenticatedName : baseUser.name,
-  };
+  const role: UserRole =
+    user?.role === 'TECNICO'
+      ? 'TECNICO_SDAE'
+      : user?.role === 'ADMIN'
+      ? 'ADMIN'
+      : 'AGRICULTOR';
 
-  const isAgricultor = activeRole === 'AGRICULTOR';
+  const roleInfo = USER_ROLES_INFO[role];
+  const isAgricultor = role === 'AGRICULTOR';
+  const activeNavId = isAgricultor ? 'my-parcels' : role === 'TECNICO_SDAE' ? 'parcels-monitoring' : 'parcels';
+
+  const layoutUser = user
+    ? {
+        name: user.nome,
+        email: user.email,
+        role: roleInfo.label,
+      }
+    : undefined;
 
   const {
     parcelas,
@@ -97,62 +67,54 @@ export default function ParcelasPage() {
     handleDeleteConfirm,
     refresh,
   } = useParcelas({
-    userRole: activeRole,
-    userId: currentUser.id,
+    userRole: role,
+    userId: user?.id,
   });
 
-  const handleRoleChange = (role: UserRole) => {
-    setActiveRole(role);
-    setActiveNavId(role === 'AGRICULTOR' ? 'my-parcels' : role === 'TECNICO_SDAE' ? 'parcels-monitoring' : 'dashboard');
-  };
-
   return (
-    <DashboardLayout user={currentUser} activeNavId={activeNavId} onSelectNavId={setActiveNavId}>
+    <DashboardLayout user={layoutUser} activeNavId={activeNavId}>
       <div className="space-y-6">
-        {/* Barra Superior de Perfil & Simulador RBAC (F1 / F2) */}
-        <div className="bg-gradient-to-r from-[#002626] to-[#0e4749] p-4 sm:p-5 rounded-lg shadow-md text-[#FEFAE0] border border-[#95c623]/25">
+        {/* Barra Superior Contextualizada com Sessão Real */}
+        <div className="bg-gradient-to-r from-[#002626] to-[#0E4749] p-5 rounded-2xl shadow-md text-[#FEFAE0] border border-[#95C623]/25">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <Link href="/dashboard" className="text-[11px] font-bold text-[#95c623] hover:underline flex items-center gap-1">
+                <Link
+                  href="/dashboard"
+                  className="text-[11px] font-bold text-[#95C623] hover:underline flex items-center gap-1"
+                >
                   <ArrowLeft className="w-3 h-3" />
                   <span>Voltar ao Painel Geral</span>
                 </Link>
-                <span className="text-surface/40">•</span>
-                <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#95c623]">
-                  Módulo F2 • Gestão de Parcelas
+                <span className="text-white/40">•</span>
+                <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#95C623]">
+                  Módulo de Parcelas Agrícolas
                 </span>
               </div>
               <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-                Parcelas Agrícolas do Distrito de Nhamatanda
+                Parcelas Agrícolas • Distrito de Nhamatanda
               </h1>
-              <p className="text-xs sm:text-sm text-[#FEFAE0]/80">
-                Gira as suas parcelas ou consulte os talhões dos agricultores acompanhados na província de Sofala.
+              <p className="text-xs sm:text-sm text-white/80">
+                {isAgricultor
+                  ? 'Gira as suas parcelas e registe as características do solo dos seus talhões em Sofala.'
+                  : 'Consulte e acompanhe as parcelas dos produtores familiares cadastrados no SDAE.'}
               </p>
             </div>
 
-            {/* Alternador de Perfil Ativo */}
-            <div className="flex flex-wrap items-center gap-2 bg-black/25 p-1.5 rounded-md border border-white/10">
-              {(['AGRICULTOR', 'TECNICO_SDAE', 'ADMIN'] as UserRole[]).map((r) => {
-                const info = USER_ROLES_INFO[r];
-                const isSelected = activeRole === r;
-
-                return (
-                  <button
-                    key={r}
-                    type="button"
-                    onClick={() => handleRoleChange(r)}
-                    className={`px-3 py-1.5 rounded-sm text-xs font-bold transition-all duration-200 flex items-center gap-1.5 ${
-                      isSelected
-                        ? 'bg-[#95c623] text-[#002626] shadow-sm scale-105'
-                        : 'text-white/80 hover:text-white hover:bg-white/10'
-                    }`}
-                  >
-                    <span className={`w-2 h-2 rounded-full ${isSelected ? 'bg-[#002626]' : 'bg-white/40'}`} />
-                    {info.label}
-                  </button>
-                );
-              })}
+            <div className="flex items-center gap-2">
+              <div className="bg-white/10 backdrop-blur-md px-3.5 py-1.5 rounded-xl border border-white/15 text-right">
+                <span className="text-[10px] text-white/60 uppercase block font-semibold">Perfil Ativo</span>
+                <Badge variant={roleInfo.badgeVariant} size="sm">
+                  {roleInfo.label}
+                </Badge>
+              </div>
+              {isAgricultor && (
+                <Link href="/parcelas/novo">
+                  <Button variant="primary" size="sm" leftIcon={<Plus className="w-4 h-4" />}>
+                    Nova Parcela
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
         </div>
@@ -162,7 +124,7 @@ export default function ParcelasPage() {
           <Alert variant="info" title="Visão do Agricultor">
             Está a consultar as suas parcelas registadas em Nhamatanda. Pode registar novos talhões, editar hectares ou atualizar informações de solo.
           </Alert>
-        ) : activeRole === 'TECNICO_SDAE' ? (
+        ) : role === 'TECNICO_SDAE' ? (
           <Alert variant="success" title="Visão do Técnico SDAE">
             Está a acompanhar as parcelas dos agricultores atribuídos à sua carteira técnica. Utilize os filtros para localizar talhões específicos de Tica ou Lamego.
           </Alert>
@@ -201,7 +163,7 @@ export default function ParcelasPage() {
               <span className="hidden sm:inline">Atualizar</span>
             </Button>
 
-            {can(currentUser, 'create', 'parcels') && (
+            {isAgricultor && (
               <Link href="/parcelas/novo">
                 <Button
                   type="button"
@@ -228,7 +190,7 @@ export default function ParcelasPage() {
           agricultoresOptions={agricultoresOptions}
           viewMode={viewMode}
           onViewModeChange={setViewMode}
-          userRole={activeRole}
+          userRole={role}
         />
 
         {error && (
@@ -269,7 +231,7 @@ export default function ParcelasPage() {
               <ParcelaCard
                 key={parcela.id}
                 parcela={parcela}
-                userRole={activeRole}
+                userRole={role}
                 onDelete={isAgricultor ? setDeletingParcela : undefined}
               />
             ))}
@@ -277,7 +239,7 @@ export default function ParcelasPage() {
         ) : (
           <ParcelaListTable
             parcelas={parcelas}
-            userRole={activeRole}
+            userRole={role}
             onDelete={isAgricultor ? setDeletingParcela : undefined}
           />
         )}

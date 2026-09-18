@@ -89,7 +89,7 @@ export function HeroSection() {
           </p>
 
           <div className="pt-2 sm:pt-4">
-            <Link href="/login" className="inline-block">
+            <Link href="/auth" className="inline-block">
               <button
                 type="button"
                 className="min-h-[50px] px-8 py-3 rounded-md bg-[#95C623] hover:bg-white text-[#002626] font-extrabold text-base flex items-center gap-3 transition-all duration-200 shadow-xl active:scale-[0.98] group"

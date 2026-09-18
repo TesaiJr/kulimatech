@@ -1,6 +1,8 @@
+// src/features/parcelas/hooks/useParcelas.ts
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { ParcelaListItem, TipoSolo } from '../types';
 import { parcelaService } from '../services/parcelaService';
+import { ApiError } from '@/lib/api/client';
 
 export type ViewMode = 'cards' | 'table';
 
@@ -9,7 +11,7 @@ export interface UseParcelasProps {
   userId?: string;
 }
 
-export function useParcelas({ userRole = 'AGRICULTOR', userId = 'usr-farm-01' }: UseParcelasProps = {}) {
+export function useParcelas({ userRole = 'AGRICULTOR', userId }: UseParcelasProps = {}) {
   const [parcelas, setParcelas] = useState<ParcelaListItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -28,21 +30,29 @@ export function useParcelas({ userRole = 'AGRICULTOR', userId = 'usr-farm-01' }:
     setLoading(true);
     setError(null);
     try {
-      const data = await parcelaService.getParcelas(userRole, userId);
+      const data = await parcelaService.getParcelas({
+        search: searchQuery || undefined,
+        tipoSolo: selectedSolo !== 'TODOS' ? selectedSolo : undefined,
+        agricultorId: selectedAgricultorId !== 'TODOS' ? selectedAgricultorId : undefined,
+      });
       setParcelas(data);
     } catch (err) {
-      setError('Não foi possível carregar a lista de parcelas.');
-      console.error(err);
+      if (err instanceof ApiError) {
+        setError(err.message);
+      } else {
+        setError('Não foi possível carregar a lista de parcelas.');
+      }
+      console.error('Erro ao buscar parcelas:', err);
     } finally {
       setLoading(false);
     }
-  }, [userRole, userId]);
+  }, [searchQuery, selectedSolo, selectedAgricultorId]);
 
   useEffect(() => {
     fetchParcelas();
   }, [fetchParcelas]);
 
-  // Lista de Agricultores Únicos para Filtro do Técnico
+  // Lista de Agricultores Únicos para Filtro do Técnico / Admin
   const agricultoresOptions = useMemo(() => {
     const map = new Map<string, string>();
     parcelas.forEach((p) => {
@@ -53,7 +63,7 @@ export function useParcelas({ userRole = 'AGRICULTOR', userId = 'usr-farm-01' }:
     return Array.from(map.entries()).map(([id, nome]) => ({ id, nome }));
   }, [parcelas]);
 
-  // Parcelas Filtradas
+  // Parcelas Filtradas localmente para agilidade instantânea na UI
   const filteredParcelas = useMemo(() => {
     return parcelas.filter((p) => {
       // Busca textual por nome ou localização
@@ -78,17 +88,17 @@ export function useParcelas({ userRole = 'AGRICULTOR', userId = 'usr-farm-01' }:
     if (!deletingParcela) return;
     setIsDeleting(true);
     try {
-      const success = await parcelaService.deleteParcela(deletingParcela.id);
-      if (success) {
-        setParcelas((prev) => prev.filter((p) => p.id !== deletingParcela.id));
-      } else {
-        setError('Não foi possível eliminar a parcela.');
-      }
+      await parcelaService.deleteParcela(deletingParcela.id);
+      setParcelas((prev) => prev.filter((p) => p.id !== deletingParcela.id));
+      setDeletingParcela(null);
     } catch (err) {
-      setError('Ocorreu um erro ao tentar eliminar a parcela.');
+      if (err instanceof ApiError) {
+        setError(err.message);
+      } else {
+        setError('Ocorreu um erro ao tentar eliminar a parcela.');
+      }
     } finally {
       setIsDeleting(false);
-      setDeletingParcela(null);
     }
   };
 

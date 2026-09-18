@@ -7,6 +7,7 @@ import { signJwtToken } from '@/lib/auth/jwt';
 import { createSuccessResponse } from '@/lib/api/response';
 import { handleApiError, AppError } from '@/lib/api/errors';
 import { AuthResponseData } from '@/features/auth/types';
+import { supabaseServer } from '@/lib/supabase/server';
 
 export async function POST(req: NextRequest) {
   try {
@@ -47,6 +48,25 @@ export async function POST(req: NextRequest) {
         createdAt: true,
       },
     });
+
+    // 3.1 Disparar criação e envio de e-mail de confirmação via Supabase Auth no servidor
+    try {
+      await supabaseServer.auth.signUp({
+        email: validatedData.email,
+        password: validatedData.password,
+        options: {
+          data: {
+            nome: validatedData.nome,
+            role: validatedData.role,
+            telefone: validatedData.telefone,
+            zonaAtuacao: validatedData.zonaAtuacao,
+          },
+          emailRedirectTo: `${req.nextUrl.origin}/auth?mode=login&confirmed=true`,
+        },
+      });
+    } catch (sbErr) {
+      console.warn('Aviso no envio de confirmação Supabase:', sbErr);
+    }
 
     // 4. Emitir token JWT inicial
     const token = signJwtToken({

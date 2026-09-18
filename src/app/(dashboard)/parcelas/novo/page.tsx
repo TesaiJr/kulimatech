@@ -11,7 +11,13 @@ import { ParcelaForm } from '@/features/parcelas/components/ParcelaForm';
 
 export default function NovaParcelaPage() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
+
+  React.useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.push('/auth?mode=login');
+    }
+  }, [isLoading, isAuthenticated, router]);
 
   const layoutUser = user
     ? {

@@ -27,7 +27,7 @@ export function CallToActionSection() {
           </div>
 
           <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3.5">
-            <Link href="/login" className="w-full sm:w-auto">
+            <Link href="/auth" className="w-full sm:w-auto">
               <button
                 type="button"
                 className="w-full sm:w-auto min-h-[50px] px-9 py-3.5 rounded-md bg-[#95c623] hover:bg-white text-[#002626] font-extrabold text-sm sm:text-base flex items-center justify-center gap-2.5 transition-all shadow-lg active:scale-[0.99] group"
