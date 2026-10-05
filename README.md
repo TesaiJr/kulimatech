@@ -143,8 +143,8 @@ Antes de iniciar, certifique-se de possuir em seu ambiente de desenvolvimento:
 
 1. Clone o repositorio:
    ```bash
-   git clone https://github.com/seu-usuario/imunda.git
-   cd imunda
+   git clone https://github.com/seu-usuario/kulimatech.git
+   cd kulimatech
    ```
 
 2. Instale as dependencias do projeto:

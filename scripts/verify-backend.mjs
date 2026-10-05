@@ -18,7 +18,7 @@ const prisma = new PrismaClient({
   log: ['error'],
 });
 
-const JWT_SECRET = process.env.JWT_SECRET || 'imunda_secure_jwt_token_secret_nhamatanda_2026';
+const JWT_SECRET = process.env.JWT_SECRET || 'kulimatech_secure_jwt_token_secret_nhamatanda_2026';
 
 let passedTests = 0;
 let failedTests = 0;
@@ -74,9 +74,9 @@ async function runVerification() {
     // -------------------------------------------------------------
     console.log('\n--- TESTE 2: Validacao do Seed e Contas Iniciais ---');
     const adminUser = await prisma.user.findUnique({
-      where: { email: 'admin@imunda.mz' },
+      where: { email: 'admin@kulimatech.mz' },
     });
-    assert(adminUser !== null, 'Administrador padrao (admin@imunda.mz) cadastrado');
+    assert(adminUser !== null, 'Administrador padrao (admin@kulimatech.mz) cadastrado');
     assert(adminUser?.role === UserRole.ADMIN, 'Administrador possui perfil ADMIN correto');
 
     const isAdminPasswordValid = await bcrypt.compare('Admin123', adminUser.passwordHash);
@@ -120,7 +120,7 @@ async function runVerification() {
     // FASE 1: TESTE 4 - Conflito de E-mail
     // -------------------------------------------------------------
     console.log('\n--- TESTE 4: Teste de Conflito de E-mail e Unicidade ---');
-    const testEmail = `teste.agricultor.${Date.now()}@imunda.mz`;
+    const testEmail = `teste.agricultor.${Date.now()}@kulimatech.mz`;
     const tempPasswordHash = await bcrypt.hash('SenhaForte123', 10);
 
     const tempUser = await prisma.user.create({
@@ -161,10 +161,10 @@ async function runVerification() {
 
     // 1. Obter Agricultor Principal e Tecnico do Seed
     const agricultorA = await prisma.user.findUnique({
-      where: { email: 'agricultor@imunda.mz' },
+      where: { email: 'agricultor@kulimatech.mz' },
     });
     const tecnicoSDAE = await prisma.user.findUnique({
-      where: { email: 'tecnico@imunda.mz' },
+      where: { email: 'tecnico@kulimatech.mz' },
     });
     assert(agricultorA !== null, 'Agricultor A (Mateus Fernando Tivane) localizado para testes da F2');
     assert(tecnicoSDAE !== null, 'Tecnico SDAE (Arnaldo) localizado para testes da F2');
@@ -228,7 +228,7 @@ async function runVerification() {
     const agricultorB = await prisma.user.create({
       data: {
         nome: 'Segundo Agricultor Teste',
-        email: `agricultor.b.${Date.now()}@imunda.mz`,
+        email: `agricultor.b.${Date.now()}@kulimatech.mz`,
         passwordHash: tempPasswordHash,
         role: UserRole.AGRICULTOR,
       },

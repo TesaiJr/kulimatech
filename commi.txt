@@ -8,3 +8,5 @@ feat(comunicacao): implementar modulo de comunicacao direta e alertas agronomico
 - Atualizar barra lateral (AppSidebar) com navegacao contextual para Tecnico, Agricultor e Administrador, com normalizacao de papeis
 - Configurar disparo automatico de alerta para leituras com humidade critica
 - Adicionar suite completa de testes automatizados de backend em scripts/verify-comunicacao.mjs
+- Criar script automatizado replace-imunda-kulimatech.js e realizar a renomeacao global do projeto para KulimaTech
+- Atualizar package.json, package-lock.json, scripts de teste, seed e documentacao tecnica com o novo nome oficial

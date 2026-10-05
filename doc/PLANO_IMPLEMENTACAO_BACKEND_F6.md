@@ -1,5 +1,5 @@
 # Plano de Implementação: Módulo F6 — Canal de Comunicação e Alertas
-**Projeto:** KulimaTech / iMunda — SDAE Nhamatanda  
+**Projeto:** KulimaTech / KulimaTech — SDAE Nhamatanda  
 **Responsável Técnico:** Paulo Tivane (Backend Developer)  
 **Status do Projeto:** Fase 5 / Módulo F6 (Prioridade Alta)  
 **Data:** 2026-10-05  
