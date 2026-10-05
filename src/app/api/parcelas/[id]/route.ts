@@ -89,10 +89,10 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
 
 export async function PUT(req: NextRequest, { params }: RouteParams) {
   try {
-    const session = requireRole(req, ['AGRICULTOR']);
+    const session = requireRole(req, ['AGRICULTOR', 'TECNICO', 'ADMIN']);
     const { id } = await params;
 
-    // Verificar se a parcela existe e se pertence ao agricultor autenticado
+    // Verificar se a parcela existe e validar permissões por papel
     const existingParcela = await prisma.parcela.findUnique({
       where: { id },
       select: { agricultorId: true },
@@ -102,8 +102,27 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
       throw new AppError('Parcela nao encontrada no sistema.', 404, 'NOT_FOUND');
     }
 
-    if (existingParcela.agricultorId !== session.userId) {
-      throw new AppError('Acesso negado. Voce so pode editar as suas proprias parcelas.', 403, 'FORBIDDEN');
+    if (session.role === 'AGRICULTOR') {
+      if (existingParcela.agricultorId !== session.userId) {
+        throw new AppError('Acesso negado. Voce so pode editar as suas proprias parcelas.', 403, 'FORBIDDEN');
+      }
+    } else if (session.role === 'TECNICO') {
+      const vinculo = await prisma.tecnicoAgricultor.findUnique({
+        where: {
+          tecnicoId_agricultorId: {
+            tecnicoId: session.userId,
+            agricultorId: existingParcela.agricultorId,
+          },
+        },
+      });
+
+      if (!vinculo) {
+        throw new AppError(
+          'Acesso negado. Este agricultor nao esta sob seu acompanhamento tecnico.',
+          403,
+          'FORBIDDEN'
+        );
+      }
     }
 
     const body = await req.json();
@@ -132,7 +151,7 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
 
 export async function DELETE(req: NextRequest, { params }: RouteParams) {
   try {
-    const session = requireRole(req, ['AGRICULTOR']);
+    const session = requireRole(req, ['AGRICULTOR', 'ADMIN']);
     const { id } = await params;
 
     const existingParcela = await prisma.parcela.findUnique({
@@ -144,7 +163,7 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
       throw new AppError('Parcela nao encontrada no sistema.', 404, 'NOT_FOUND');
     }
 
-    if (existingParcela.agricultorId !== session.userId) {
+    if (session.role === 'AGRICULTOR' && existingParcela.agricultorId !== session.userId) {
       throw new AppError('Acesso negado. Voce so pode excluir as suas proprias parcelas.', 403, 'FORBIDDEN');
     }
 

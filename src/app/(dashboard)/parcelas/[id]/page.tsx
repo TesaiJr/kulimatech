@@ -14,6 +14,8 @@ import { parcelaService } from '@/features/parcelas/services/parcelaService';
 import { ParcelaDetalhe, TipoSolo } from '@/features/parcelas/types';
 import { ParcelaForm } from '@/features/parcelas/components/ParcelaForm';
 import { ParcelaDeleteDialog } from '@/features/parcelas/components/ParcelaDeleteDialog';
+import { EmitirRecomendacaoModal } from '@/features/culturas/components/EmitirRecomendacaoModal';
+import { recomendacaoService } from '@/features/culturas/services/recomendacaoService';
 import {
   MapPin,
   User,
@@ -69,6 +71,10 @@ export default function ParcelaDetalhePage() {
   // Dialog de Exclusão
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
+
+  // Modal de Recomendação Técnica
+  const [isRecomendacaoModalOpen, setIsRecomendacaoModalOpen] = useState<boolean>(false);
+  const [updatingRecId, setUpdatingRecId] = useState<string | null>(null);
 
   const fetchParcela = useCallback(async () => {
     if (!parcelaId) return;
@@ -163,15 +169,17 @@ export default function ParcelaDetalhePage() {
               {isEditing ? 'Cancelar Edição' : 'Editar Parcela'}
             </Button>
 
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsDeleteDialogOpen(true)}
-              className="text-red-600 hover:bg-red-50"
-              title="Eliminar Parcela"
-            >
-              <Trash2 className="w-4 h-4" />
-            </Button>
+            {(user?.role === 'AGRICULTOR' || user?.role === 'ADMIN') && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsDeleteDialogOpen(true)}
+                className="text-red-600 hover:bg-red-50"
+                title="Eliminar Parcela"
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            )}
           </div>
         }
       />
@@ -333,11 +341,13 @@ export default function ParcelaDetalhePage() {
                 </div>
 
                 {isTechnicianOrAdmin && (
-                  <Link href="/mensagens">
-                    <Button variant="secondary" size="sm">
-                      Emitir Recomendação
-                    </Button>
-                  </Link>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setIsRecomendacaoModalOpen(true)}
+                  >
+                    Emitir Recomendação
+                  </Button>
                 )}
               </CardHeader>
               <CardContent>
@@ -362,7 +372,29 @@ export default function ParcelaDetalhePage() {
 
                       <div className="flex items-center justify-between pt-1 border-t border-secondary/10 text-[11px] text-primary/60">
                         <span>Cultura: {rec.cultura?.nome || 'Geral'}</span>
-                        <span>{new Date(rec.dataEmissao).toLocaleDateString('pt-MZ')}</span>
+                        <div className="flex items-center gap-2">
+                          <span>{new Date(rec.dataEmissao).toLocaleDateString('pt-MZ')}</span>
+                          {user?.role === 'AGRICULTOR' && rec.status === 'PENDENTE' && (
+                            <button
+                              type="button"
+                              disabled={updatingRecId === rec.id}
+                              onClick={async () => {
+                                setUpdatingRecId(rec.id);
+                                try {
+                                  await recomendacaoService.updateStatus(rec.id, { status: 'APLICADA' });
+                                  fetchParcela();
+                                } catch (e) {
+                                  console.error(e);
+                                } finally {
+                                  setUpdatingRecId(null);
+                                }
+                              }}
+                              className="px-2 py-0.5 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-[10px] transition-colors"
+                            >
+                              {updatingRecId === rec.id ? 'A guardar...' : 'Marcar Aplicada'}
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -380,6 +412,15 @@ export default function ParcelaDetalhePage() {
         onClose={() => setIsDeleteDialogOpen(false)}
         onConfirm={handleDelete}
         isDeleting={isDeleting}
+      />
+
+      {/* Modal de Emissão de Recomendação Técnica */}
+      <EmitirRecomendacaoModal
+        isOpen={isRecomendacaoModalOpen}
+        onClose={() => setIsRecomendacaoModalOpen(false)}
+        parcelaId={parcela.id}
+        parcelaNome={parcela.nome}
+        onSuccess={fetchParcela}
       />
     </DashboardLayout>
   );

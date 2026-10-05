@@ -13,13 +13,13 @@ Orientador: Christian Coulon
 
 Beira, 2026
 
-agricultor.lamego@imunda.mz
+agricultor.lamego@kulimatech.mz
 Agri@2026
 
 tecnico.nhamatanda@sdae.gov.mz
 Tecnico@2026
 
-admin@imunda.gov.mz
+admin@kulimatech.gov.mz
 Admin@2026
 
 # **1\. INTRODUÇÃO**

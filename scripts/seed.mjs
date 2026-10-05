@@ -1,5 +1,5 @@
 // scripts/seed.mjs
-// Povoamento inicial idempotente (upsert) para o Banco de Dados iMunda (SDAE Nhamatanda)
+// Povoamento inicial idempotente (upsert) para o Banco de Dados KulimaTech (SDAE Nhamatanda)
 import 'dotenv/config';
 import bcrypt from 'bcryptjs';
 import pkgPrisma from '@prisma/client';
@@ -21,13 +21,13 @@ async function main() {
   console.log(' INICIANDO POVOAMENTO DE DADOS (SEED) - SISTEMA iMUNDA');
   console.log('===========================================================\n');
 
-  // 1. Criar Administrador Padrao (admin@imunda.mz / Admin123)
+  // 1. Criar Administrador Padrao (admin@kulimatech.mz / Admin123)
   console.log('1. Criando Administrador Geral...');
   const saltRounds = 12;
   const adminPasswordHash = await bcrypt.hash('Admin123', saltRounds);
 
   const admin = await prisma.user.upsert({
-    where: { email: 'admin@imunda.mz' },
+    where: { email: 'admin@kulimatech.mz' },
     update: {
       nome: 'Administrador do Sistema',
       role: UserRole.ADMIN,
@@ -35,7 +35,7 @@ async function main() {
     },
     create: {
       nome: 'Administrador do Sistema',
-      email: 'admin@imunda.mz',
+      email: 'admin@kulimatech.mz',
       passwordHash: adminPasswordHash,
       role: UserRole.ADMIN,
       status: UserStatus.ATIVO,
@@ -45,12 +45,12 @@ async function main() {
   });
   console.log(`   [OK] Administrador: ${admin.email} (ID: ${admin.id})`);
 
-  // 2. Criar Tecnico do SDAE de Teste (tecnico@imunda.mz / Tecnico123)
+  // 2. Criar Tecnico do SDAE de Teste (tecnico@kulimatech.mz / Tecnico123)
   console.log('\n2. Criando Tecnico do SDAE de Teste...');
   const tecnicoPasswordHash = await bcrypt.hash('Tecnico123', saltRounds);
 
   const tecnico = await prisma.user.upsert({
-    where: { email: 'tecnico@imunda.mz' },
+    where: { email: 'tecnico@kulimatech.mz' },
     update: {
       nome: 'Tecnico Arnaldo (SDAE)',
       role: UserRole.TECNICO,
@@ -58,7 +58,7 @@ async function main() {
     },
     create: {
       nome: 'Tecnico Arnaldo (SDAE)',
-      email: 'tecnico@imunda.mz',
+      email: 'tecnico@kulimatech.mz',
       passwordHash: tecnicoPasswordHash,
       role: UserRole.TECNICO,
       status: UserStatus.ATIVO,
@@ -68,12 +68,12 @@ async function main() {
   });
   console.log(`   [OK] Tecnico: ${tecnico.email} (ID: ${tecnico.id})`);
 
-  // 3. Criar Agricultor de Teste (agricultor@imunda.mz / Agricultor123)
+  // 3. Criar Agricultor de Teste (agricultor@kulimatech.mz / Agricultor123)
   console.log('\n3. Criando Agricultor de Teste...');
   const agricultorPasswordHash = await bcrypt.hash('Agricultor123', saltRounds);
 
   const agricultor = await prisma.user.upsert({
-    where: { email: 'agricultor@imunda.mz' },
+    where: { email: 'agricultor@kulimatech.mz' },
     update: {
       nome: 'Mateus Chimoio',
       role: UserRole.AGRICULTOR,
@@ -81,7 +81,7 @@ async function main() {
     },
     create: {
       nome: 'Mateus Fernando Tivane',
-      email: 'agricultor@imunda.mz',
+      email: 'agricultor@kulimatech.mz',
       passwordHash: agricultorPasswordHash,
       role: UserRole.AGRICULTOR,
       status: UserStatus.ATIVO,

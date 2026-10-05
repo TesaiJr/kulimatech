@@ -1,5 +1,5 @@
 # Plano de Organizacao e Trabalho Sincronizado (Backend & Frontend)
-Projeto iMunda - SDAE Nhamatanda
+Projeto KulimaTech - SDAE Nhamatanda
 
 Este documento estabelece as responsabilidades, fronteiras tecnicas e diretrizes de trabalho para a equipe de desenvolvimento, composta por Paulo e Amancio. O objetivo central e permitir o desenvolvimento paralelo, sem bloqueios mútuos e sem conflitos de codigo no repositorio.
 
