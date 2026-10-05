@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { requireAuth } from '@/lib/rbac/guard';
 import { createSuccessResponse } from '@/lib/api/response';
 import { handleApiError, AppError } from '@/lib/api/errors';
-import { UserRole } from '@prisma/client';
+import { UserRole, AlertaTipo } from '@prisma/client';
 import { z } from 'zod';
 
 const createLeituraSchema = z.object({
@@ -34,6 +34,11 @@ export async function POST(req: NextRequest) {
         id: true,
         nome: true,
         agricultorId: true,
+        agricultor: {
+          select: {
+            nome: true,
+          },
+        },
       },
     });
 
@@ -49,27 +54,51 @@ export async function POST(req: NextRequest) {
     // 2. Calcular status de humidade agronómica
     const statusHumidade = calcularStatusHumidade(data.humidade);
 
-    // 3. Persistir leitura no banco de dados
-    const novaLeitura = await prisma.leituraSolo.create({
-      data: {
-        parcelaId: data.parcelaId,
-        humidade: data.humidade,
-        temperatura: data.temperatura,
-        statusHumidade,
-        observacoes: data.observacoes,
-      },
-      include: {
-        parcela: {
-          select: {
-            id: true,
-            nome: true,
-            areaHectares: true,
+    // 3. Persistir leitura no banco de dados e disparar alerta de anomalia se crítico
+    const resultado = await prisma.$transaction(async (tx) => {
+      const novaLeitura = await tx.leituraSolo.create({
+        data: {
+          parcelaId: data.parcelaId,
+          humidade: data.humidade,
+          temperatura: data.temperatura,
+          statusHumidade,
+          observacoes: data.observacoes,
+        },
+        include: {
+          parcela: {
+            select: {
+              id: true,
+              nome: true,
+              areaHectares: true,
+            },
           },
         },
-      },
+      });
+
+      // Se a humidade for CRITICA, notificar automaticamente o Técnico responsável
+      if (statusHumidade === 'CRITICA') {
+        const vinculo = await tx.tecnicoAgricultor.findFirst({
+          where: { agricultorId: parcela.agricultorId },
+          select: { tecnicoId: true },
+        });
+
+        if (vinculo) {
+          await tx.alerta.create({
+            data: {
+              userId: vinculo.tecnicoId,
+              tipo: AlertaTipo.HUMIDADE_CRITICA,
+              titulo: `Humidade Crítica na Parcela ${parcela.nome}`,
+              mensagem: `Leitura de ${data.humidade}% registada por ${parcela.agricultor.nome}. Atenção técnica necessária.`,
+              link: `/leituras?parcelaId=${parcela.id}`,
+            },
+          });
+        }
+      }
+
+      return novaLeitura;
     });
 
-    return createSuccessResponse(novaLeitura, 201);
+    return createSuccessResponse(resultado, 201);
   } catch (error) {
     return handleApiError(error);
   }

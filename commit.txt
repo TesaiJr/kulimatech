@@ -1,0 +1,10 @@
+feat(comunicacao): implementar modulo de comunicacao direta e alertas agronomicos
+
+- Adicionar endpoints de API REST para gestao de mensagens (/api/mensagens) e alertas (/api/alertas, /api/alertas/[id]) com controlo de acesso RBAC
+- Criar schemas Zod de validacao rigorosa e contratos de tipos DTO para comunicacao e notificacoes
+- Implementar servico comunicacaoService para integracao entre o frontend e a API
+- Integrar interface do chat de mensagens com suporte a sincronizacao em tempo real (polling curto e foco de janela)
+- Implementar painel de alertas com filtros de criticidade, marcacao de leitura e remocao
+- Atualizar barra lateral (AppSidebar) com navegacao contextual para Tecnico, Agricultor e Administrador, com normalizacao de papeis
+- Configurar disparo automatico de alerta para leituras com humidade critica
+- Adicionar suite completa de testes automatizados de backend em scripts/verify-comunicacao.mjs
