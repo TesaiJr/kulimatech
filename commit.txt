@@ -1,12 +1,9 @@
-feat(comunicacao): implementar modulo de comunicacao direta e alertas agronomicos
+feat(core): consolidar fases 1-4, chat realtime sse e carteiras tecnicas do sdae
 
-- Adicionar endpoints de API REST para gestao de mensagens (/api/mensagens) e alertas (/api/alertas, /api/alertas/[id]) com controlo de acesso RBAC
-- Criar schemas Zod de validacao rigorosa e contratos de tipos DTO para comunicacao e notificacoes
-- Implementar servico comunicacaoService para integracao entre o frontend e a API
-- Integrar interface do chat de mensagens com suporte a sincronizacao em tempo real (polling curto e foco de janela)
-- Implementar painel de alertas com filtros de criticidade, marcacao de leitura e remocao
-- Atualizar barra lateral (AppSidebar) com navegacao contextual para Tecnico, Agricultor e Administrador, com normalizacao de papeis
-- Configurar disparo automatico de alerta para leituras com humidade critica
-- Adicionar suite completa de testes automatizados de backend em scripts/verify-comunicacao.mjs
-- Criar script automatizado replace-imunda-kulimatech.js e realizar a renomeacao global do projeto para KulimaTech
-- Atualizar package.json, package-lock.json, scripts de teste, seed e documentacao tecnica com o novo nome oficial
+- Fase 1: Atualizar schema Prisma com integridade referencial, novos campos de validacao tecnica, relacoes praga-cultura e status agronomicos
+- Fase 2: Implementar modulo de leituras de humidade do solo (/api/leituras), regras de anomalia hidrica e homologacao tecnica por extensionistas (/api/leituras/[id]/validar)
+- Fase 3: Implementar catalogo de pragas com filtro por cultura (/api/pragas), reporte de ocorrencias fitossanitarias (/api/ocorrencias) e emissao de parecer tecnico (/api/ocorrencias/[id]/resolver)
+- Comunicacao & Realtime: Implementar SSE push stream (/api/mensagens/stream), envio otimista de mensagens, hidratacao via Server Components e eliminacao de loading continuo em /mensagens/alertas
+- Fase 4: Implementar administracao de utilizadores (/api/users, /api/users/[id]), atribuicao de carteiras tecnicas (/api/users/atribuicoes), isolamento estrito de visao do tecnico e painel com 3 abas para administracao central
+- Layout & Navegacao: Alinhar AppSidebar com a monografia oficial (perfis Agricultor, Tecnico SDAE e Administrador) e sanitizar rotulos de requisitos com remove-rf-codes.mjs
+- Testes & Homologacao: Adicionar suites de testes automatizados de ponta a ponta (verify-fase1-schema.mjs, verify-fase2-leituras.mjs, verify-fase3-pragas.mjs, verify-chat-realtime.mjs, verify-fase4-users.mjs) e guia visual em doc/guia-testes-frontend.md

@@ -20,6 +20,13 @@ export function extractTokenFromRequest(req: Request | NextRequest): string | nu
     if (cookieToken) return cookieToken;
   }
 
+  // 3. Query parameter 'token' (necessário para conexões SSE / EventSource que não enviam headers customizados)
+  try {
+    const url = new URL(req.url);
+    const queryToken = url.searchParams.get('token');
+    if (queryToken) return queryToken;
+  } catch {}
+
   return null;
 }
 

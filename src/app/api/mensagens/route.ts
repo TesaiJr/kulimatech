@@ -6,6 +6,7 @@ import { createSuccessResponse } from '@/lib/api/response';
 import { handleApiError, AppError } from '@/lib/api/errors';
 import { enviarMensagemSchema } from '@/features/comunicacao/schemas/comunicacaoSchemas';
 import { AlertaTipo } from '@prisma/client';
+import { chatEvents, CHAT_EVENT_TYPES } from '@/lib/events/chatEvents';
 
 /**
  * GET /api/mensagens
@@ -77,7 +78,7 @@ export async function GET(req: NextRequest) {
       });
 
       // 3. Atualizar mensagens recebidas não lidas para 'lida: true'
-      await prisma.mensagem.updateMany({
+      const updateResult = await prisma.mensagem.updateMany({
         where: {
           remetenteId: interlocutorId,
           destinatarioId: session.userId,
@@ -87,6 +88,13 @@ export async function GET(req: NextRequest) {
           lida: true,
         },
       });
+
+      if (updateResult.count > 0) {
+        chatEvents.emit(CHAT_EVENT_TYPES.MESSAGES_READ, {
+          leitorId: session.userId,
+          outroUsuarioId: interlocutorId,
+        });
+      }
 
       return createSuccessResponse(mensagens, 200);
     }
@@ -275,7 +283,7 @@ export async function POST(req: NextRequest) {
           ? `${validatedData.conteudo.substring(0, 70)}...`
           : validatedData.conteudo;
 
-      await tx.alerta.create({
+      const novoAlerta = await tx.alerta.create({
         data: {
           userId: validatedData.destinatarioId,
           tipo: AlertaTipo.NOVA_MENSAGEM,
@@ -285,10 +293,14 @@ export async function POST(req: NextRequest) {
         },
       });
 
-      return novaMensagem;
+      return { novaMensagem, novoAlerta };
     });
 
-    return createSuccessResponse(resultado, 201);
+    // 4. Emitir eventos push em tempo real para os clientes conectados
+    chatEvents.emit(CHAT_EVENT_TYPES.NEW_MESSAGE, resultado.novaMensagem);
+    chatEvents.emit(CHAT_EVENT_TYPES.NEW_ALERTA, resultado.novoAlerta);
+
+    return createSuccessResponse(resultado.novaMensagem, 201);
   } catch (error) {
     return handleApiError(error);
   }
