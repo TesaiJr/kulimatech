@@ -191,8 +191,8 @@ export default function ParcelaDetalhePage() {
       {/* Modo de Edição Inline ou Exibição de Detalhes */}
       {isEditing ? (
         <div className="max-w-3xl mx-auto">
-          <Card variant="surface" className="border border-[#8eb69b]/40">
-            <h3 className="text-lg font-bold text-primary mb-4 border-b border-[#8eb69b]/30 pb-2">
+          <Card variant="surface" className="border border-muted/40">
+            <h3 className="text-lg font-bold text-primary mb-4 border-b border-muted/30 pb-2">
               Editar Dados da Parcela
             </h3>
             <ParcelaForm
@@ -255,7 +255,7 @@ export default function ParcelaDetalhePage() {
               </div>
 
               {/* Produtor Responsável */}
-              <div className="space-y-2 bg-[#e6efe8]/60 p-4 rounded-2xl border border-[#8eb69b]/30">
+              <div className="space-y-2 bg-muted/15 p-4 rounded-2xl border border-muted/30">
                 <span className="text-xs font-bold uppercase tracking-wider text-primary/70">
                   Produtor Responsável
                 </span>
@@ -300,7 +300,7 @@ export default function ParcelaDetalhePage() {
                   {parcela.leiturasRecentes.map((leitura) => (
                     <div
                       key={leitura.id}
-                      className="p-3.5 rounded-xl border border-[#8eb69b]/30 bg-[#e6efe8]/40 flex items-center justify-between"
+                      className="p-3.5 rounded-xl border border-muted/30 bg-muted/15 flex items-center justify-between"
                     >
                       <div>
                         <div className="flex items-center gap-2">

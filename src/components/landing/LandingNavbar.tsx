@@ -40,15 +40,15 @@ export function LandingNavbar() {
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           isScrolled
-            ? 'bg-[#0c2340] shadow-md py-3 text-white'
+            ? 'bg-primary shadow-md py-3 text-white'
             : 'bg-transparent py-4 md:py-6 text-white'
         }`}
       >
         <div className="relative w-full px-6 sm:px-10 lg:px-16 xl:px-20 2xl:px-24 flex items-center justify-between">
           {/* Identidade / Logótipo à Esquerda */}
           <Link href="/" className="flex items-center gap-3.5 group z-10">
-            <div className="w-9 h-9 rounded-md bg-[#95C623] text-[#002626] flex items-center justify-center font-bold text-lg shadow-sm group-hover:scale-105 transition-transform">
-              <Sprout className="w-5 h-5 text-[#002626] stroke-[2.5]" />
+            <div className="w-9 h-9 rounded-md bg-accent text-primary flex items-center justify-center font-bold text-lg shadow-sm group-hover:scale-105 transition-transform">
+              <Sprout className="w-5 h-5 text-primary stroke-[2.5]" />
             </div>
             <div className="flex flex-col">
               <div className="flex items-center gap-2">
@@ -68,7 +68,7 @@ export function LandingNavbar() {
               <a
                 key={link.href}
                 href={link.href}
-                className="hover:text-[#95C623] transition-colors py-1 relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-[#95C623] hover:after:w-full after:transition-all drop-shadow"
+                className="hover:text-accent transition-colors py-1 relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-accent hover:after:w-full after:transition-all drop-shadow"
               >
                 {link.label}
               </a>

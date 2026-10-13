@@ -1,9 +1,18 @@
-feat(core): consolidar fases 1-4, chat realtime sse e carteiras tecnicas do sdae
+refactor: alinhamento integral com a monografia, padronizacao de tokens de cor e guia de testes
 
-- Fase 1: Atualizar schema Prisma com integridade referencial, novos campos de validacao tecnica, relacoes praga-cultura e status agronomicos
-- Fase 2: Implementar modulo de leituras de humidade do solo (/api/leituras), regras de anomalia hidrica e homologacao tecnica por extensionistas (/api/leituras/[id]/validar)
-- Fase 3: Implementar catalogo de pragas com filtro por cultura (/api/pragas), reporte de ocorrencias fitossanitarias (/api/ocorrencias) e emissao de parecer tecnico (/api/ocorrencias/[id]/resolver)
-- Comunicacao & Realtime: Implementar SSE push stream (/api/mensagens/stream), envio otimista de mensagens, hidratacao via Server Components e eliminacao de loading continuo em /mensagens/alertas
-- Fase 4: Implementar administracao de utilizadores (/api/users, /api/users/[id]), atribuicao de carteiras tecnicas (/api/users/atribuicoes), isolamento estrito de visao do tecnico e painel com 3 abas para administracao central
-- Layout & Navegacao: Alinhar AppSidebar com a monografia oficial (perfis Agricultor, Tecnico SDAE e Administrador) e sanitizar rotulos de requisitos com remove-rf-codes.mjs
-- Testes & Homologacao: Adicionar suites de testes automatizados de ponta a ponta (verify-fase1-schema.mjs, verify-fase2-leituras.mjs, verify-fase3-pragas.mjs, verify-chat-realtime.mjs, verify-fase4-users.mjs) e guia visual em doc/guia-testes-frontend.md
+- Alinhamento rigoroso das telas do sistema com o Capitulo IV (Figuras 11 a 16) da monografia KulimaTech (UniZambeze 2026, Marcelo Tesai Faife):
+  * Figura 11: Portal Institucional com indicacao formal da parceria UniZambeze e SDAE Nhamatanda.
+  * Figuras 12 e 13: Fluxos de autenticacao e registo com vinculacao territorial aos postos de Nhamatanda-Sede, Tica e Lamego.
+  * Figura 14: Painel da Exploracao do Agricultor Familiar (Mateus Fernando Tivane) com curva de humidade de 7 dias, faixa de referencia de 40% a 75%, 3 indicadores hidricos, Ciclo Agronomico 2026, talhoes da exploracao, dados agroclimaticos locais e registo rapido.
+  * Figura 15: Painel de Supervisao do Extensionista SDAE (Eng. Antonio Langa) com 4 KPIs da carteira tecnica, validacao rapida de humidade com botao Ver Parcelas e relacao de produtores acompanhados.
+  * Figura 16: Painel Consolidado do Administrador Distrital (Alberto Nhantumbo) com 4 indicadores distritais, carteiras tecnicas com navegacao Ver Parcelas e Catalogo Mestre de Culturas Prioritarias.
+
+- Eliminacao integral de cores hardcoded no codigo-fonte:
+  * Substituicao de valores hexadecimais arbitrarios pelas classes semanticas padronizadas em tailwind.config.ts e src/theme/colors (primary, secondary, accent, surface, muted).
+  * Refatoracao de componentes da landing page, parcelas, leituras, comunicacao e paineis.
+  * Correcao de propriedades de dimensionamento em botoes e badges no dashboard.
+
+- Atualizacao e profissionalizacao do guia de homologacao (doc/guia-testes-frontend.md):
+  * Reestruturacao sem utilizacao de emojis com enquadramento academico e operacional.
+  * Roteiro passo a passo para validacao dos requisitos funcionais RF01 a RF08 e das telas oficiais.
+  * Descricao dos scripts automatizados de homologacao com 100% de cobertura (33 de 33 testes aprovados).

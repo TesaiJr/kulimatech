@@ -26,32 +26,32 @@ export function ParcelaListTable({ parcelas, userRole = 'AGRICULTOR', onDelete }
   }
 
   return (
-    <div className="bg-white rounded-lg border border-[#8eb69b]/40 shadow-sm overflow-hidden">
+    <div className="bg-white rounded-lg border border-muted/40 shadow-sm overflow-hidden">
       <Table>
-        <TableHeader className="bg-[#e6efe8]">
+        <TableHeader className="bg-muted/15">
           <TableRow>
-            <TableHead className="font-bold text-[#002626]">Parcela</TableHead>
-            <TableHead className="font-bold text-[#002626]">Área (ha)</TableHead>
-            <TableHead className="font-bold text-[#002626]">Tipo de Solo</TableHead>
-            <TableHead className="font-bold text-[#002626]">Localização / GPS</TableHead>
-            {!isAgricultor && <TableHead className="font-bold text-[#002626]">Agricultor</TableHead>}
-            <TableHead className="font-bold text-[#002626] text-center">Atividades</TableHead>
-            <TableHead className="font-bold text-[#002626] text-right">Ações</TableHead>
+            <TableHead className="font-bold text-primary">Parcela</TableHead>
+            <TableHead className="font-bold text-primary">Área (ha)</TableHead>
+            <TableHead className="font-bold text-primary">Tipo de Solo</TableHead>
+            <TableHead className="font-bold text-primary">Localização / GPS</TableHead>
+            {!isAgricultor && <TableHead className="font-bold text-primary">Agricultor</TableHead>}
+            <TableHead className="font-bold text-primary text-center">Atividades</TableHead>
+            <TableHead className="font-bold text-primary text-right">Ações</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {parcelas.map((parcela) => (
-            <TableRow key={parcela.id} className="hover:bg-[#e6efe8]/40 transition-colors">
-              <TableCell className="font-bold text-[#002626]">
+            <TableRow key={parcela.id} className="hover:bg-muted/20 transition-colors">
+              <TableCell className="font-bold text-primary">
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-md bg-[#002626] text-[#95c623] flex items-center justify-center text-xs flex-shrink-0">
+                  <div className="w-7 h-7 rounded-md bg-primary text-accent flex items-center justify-center text-xs flex-shrink-0">
                     <Layers className="w-3.5 h-3.5" />
                   </div>
                   <span>{parcela.nome}</span>
                 </div>
               </TableCell>
 
-              <TableCell className="font-mono font-semibold text-[#0e4749]">
+              <TableCell className="font-mono font-semibold text-secondary">
                 {parcela.areaHectares} ha
               </TableCell>
 
@@ -64,7 +64,7 @@ export function ParcelaListTable({ parcelas, userRole = 'AGRICULTOR', onDelete }
               <TableCell className="text-xs text-secondary/80 max-w-xs truncate">
                 {parcela.localizacao ? (
                   <span className="flex items-center gap-1" title={parcela.localizacao}>
-                    <MapPin className="w-3 h-3 text-[#0e4749] flex-shrink-0" />
+                    <MapPin className="w-3 h-3 text-secondary flex-shrink-0" />
                     <span className="truncate">{parcela.localizacao}</span>
                   </span>
                 ) : parcela.latitude && parcela.longitude ? (
@@ -77,7 +77,7 @@ export function ParcelaListTable({ parcelas, userRole = 'AGRICULTOR', onDelete }
               </TableCell>
 
               {!isAgricultor && (
-                <TableCell className="text-xs font-medium text-[#002626]">
+                <TableCell className="text-xs font-medium text-primary">
                   {parcela.agricultor ? (
                     <div>
                       <div className="font-bold">{parcela.agricultor.nome}</div>

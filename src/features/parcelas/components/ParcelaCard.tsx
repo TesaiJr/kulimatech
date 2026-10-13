@@ -23,7 +23,7 @@ export function ParcelaCard({ parcela, userRole = 'AGRICULTOR', onDelete }: Parc
   const isAgricultor = userRole === 'AGRICULTOR';
 
   return (
-    <div className="bg-[#e6efe8] p-6 rounded-lg border border-[#8eb69b]/45 shadow-sm hover:shadow-md hover:border-[#0e4749]/40 transition-all flex flex-col justify-between h-full group">
+    <div className="bg-muted/15 p-6 rounded-lg border border-muted/45 shadow-sm hover:shadow-md hover:border-secondary/40 transition-all flex flex-col justify-between h-full group">
       <div className="space-y-4">
         {/* Cabeçalho do Card */}
         <div className="flex items-start justify-between gap-3">
@@ -31,28 +31,28 @@ export function ParcelaCard({ parcela, userRole = 'AGRICULTOR', onDelete }: Parc
             <span className={`inline-block text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-sm border ${soloInfo.colorClass}`}>
               {soloInfo.label}
             </span>
-            <h3 className="text-lg font-bold text-[#002626] mt-2 group-hover:text-[#0e4749] transition-colors leading-snug">
+            <h3 className="text-lg font-bold text-primary mt-2 group-hover:text-secondary transition-colors leading-snug">
               {parcela.nome}
             </h3>
           </div>
 
-          <div className="w-10 h-10 rounded-md bg-[#002626] text-[#95c623] flex items-center justify-center flex-shrink-0 shadow-xs">
+          <div className="w-10 h-10 rounded-md bg-primary text-accent flex items-center justify-center flex-shrink-0 shadow-xs">
             <Layers className="w-5 h-5 stroke-[2]" />
           </div>
         </div>
 
         {/* Detalhes de Área e Localização */}
-        <div className="space-y-2 text-xs text-secondary/85 pt-1 border-t border-[#8eb69b]/25">
+        <div className="space-y-2 text-xs text-secondary/85 pt-1 border-t border-muted/25">
           <div className="flex items-center gap-2">
-            <span className="font-semibold text-[#002626]">Área Total:</span>
-            <span className="font-mono font-bold text-[#0e4749] bg-white/60 px-2 py-0.5 rounded text-xs">
+            <span className="font-semibold text-primary">Área Total:</span>
+            <span className="font-mono font-bold text-secondary bg-white/60 px-2 py-0.5 rounded text-xs">
               {parcela.areaHectares} ha ({parcela.areaHectares * 10000} m²)
             </span>
           </div>
 
           {parcela.localizacao && (
             <div className="flex items-start gap-1.5">
-              <MapPin className="w-3.5 h-3.5 text-[#0e4749] flex-shrink-0 mt-0.5" />
+              <MapPin className="w-3.5 h-3.5 text-secondary flex-shrink-0 mt-0.5" />
               <span className="line-clamp-2">{parcela.localizacao}</span>
             </div>
           )}
@@ -65,17 +65,17 @@ export function ParcelaCard({ parcela, userRole = 'AGRICULTOR', onDelete }: Parc
 
           {/* Nome do Agricultor para o Perfil Técnico */}
           {!isAgricultor && parcela.agricultor && (
-            <div className="flex items-center gap-1.5 pt-1 text-[#002626] font-medium">
-              <User className="w-3.5 h-3.5 text-[#0e4749]" />
+            <div className="flex items-center gap-1.5 pt-1 text-primary font-medium">
+              <User className="w-3.5 h-3.5 text-secondary" />
               <span>Produtor: <strong>{parcela.agricultor.nome}</strong> ({parcela.agricultor.zonaAtuacao || 'Nhamatanda'})</span>
             </div>
           )}
         </div>
 
         {/* Contadores de Atividade (Leituras & Recomendações) */}
-        <div className="grid grid-cols-3 gap-2 pt-2 text-center text-[11px] border-t border-[#8eb69b]/25">
+        <div className="grid grid-cols-3 gap-2 pt-2 text-center text-[11px] border-t border-muted/25">
           <div className="bg-white/50 p-2 rounded-md">
-            <div className="flex items-center justify-center gap-1 text-[#0e4749] font-bold">
+            <div className="flex items-center justify-center gap-1 text-secondary font-bold">
               <Droplets className="w-3 h-3" />
               <span>{parcela._count?.leituras || 0}</span>
             </div>
@@ -83,7 +83,7 @@ export function ParcelaCard({ parcela, userRole = 'AGRICULTOR', onDelete }: Parc
           </div>
 
           <div className="bg-white/50 p-2 rounded-md">
-            <div className="flex items-center justify-center gap-1 text-[#002626] font-bold">
+            <div className="flex items-center justify-center gap-1 text-primary font-bold">
               <FileText className="w-3 h-3" />
               <span>{parcela._count?.recomendacoes || 0}</span>
             </div>
@@ -101,7 +101,7 @@ export function ParcelaCard({ parcela, userRole = 'AGRICULTOR', onDelete }: Parc
       </div>
 
       {/* Botões de Ação do Rodapé do Card */}
-      <div className="mt-5 pt-3.5 border-t border-[#8eb69b]/35 flex items-center justify-between gap-2">
+      <div className="mt-5 pt-3.5 border-t border-muted/35 flex items-center justify-between gap-2">
         <Link href={`/parcelas/${parcela.id}`} className="flex-1">
           <Button size="sm" variant="outline" className="w-full text-xs font-bold gap-1.5 bg-white/70 hover:bg-white">
             <Eye className="w-3.5 h-3.5" />

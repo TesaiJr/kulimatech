@@ -314,7 +314,7 @@ export function ChatContainer({
               </div>
 
               {/* Mensagens da Conversa (Scrollable) */}
-              <div className="flex-1 p-4 sm:p-6 overflow-y-auto space-y-3 bg-[#FAF8F5]">
+              <div className="flex-1 p-4 sm:p-6 overflow-y-auto space-y-3 bg-surface/30">
                 {mensagens.length === 0 ? (
                   <div className="h-full flex flex-col items-center justify-center text-center p-6 text-muted">
                     <MessageSquare className="w-12 h-12 text-secondary/30 mb-2" />

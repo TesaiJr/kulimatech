@@ -25,14 +25,14 @@ export function InstitutionalSection() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 lg:gap-6 w-full">
           
           {/* Entidade 1: Universidade Zambeze */}
-          <div className="p-6 sm:p-7 lg:p-8 rounded-lg border border-[#0e4749]/20 bg-[#e4ede6] shadow-sm space-y-4 flex flex-col justify-between">
+          <div className="p-6 sm:p-7 lg:p-8 rounded-lg border border-secondary/20 bg-muted/15 shadow-sm space-y-4 flex flex-col justify-between">
             <div className="space-y-3.5">
-              <div className="w-11 h-11 rounded-md bg-[#0e4749] text-white flex items-center justify-center shadow-sm">
+              <div className="w-11 h-11 rounded-md bg-secondary text-white flex items-center justify-center shadow-sm">
                 <GraduationCap className="w-5 h-5 stroke-[2]" />
               </div>
 
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-[#0e4749] block">
+                <span className="text-xs font-bold uppercase tracking-wider text-secondary block">
                   Pesquisa & Inovação Tecnológica
                 </span>
                 <h3 className="text-xl sm:text-2xl font-bold text-primary mt-1">
@@ -48,20 +48,20 @@ export function InstitutionalSection() {
               </p>
             </div>
 
-            <div className="pt-3.5 border-t border-[#0e4749]/15 text-xs font-semibold text-secondary/70">
+            <div className="pt-3.5 border-t border-secondary/15 text-xs font-semibold text-secondary/70">
               • Cooperação em Pesquisa e Validação Científica
             </div>
           </div>
 
           {/* Entidade 2: SDAE Nhamatanda */}
-          <div className="p-6 sm:p-7 lg:p-8 rounded-lg border border-[#002626]/20 bg-[#e4ede6] shadow-sm space-y-4 flex flex-col justify-between">
+          <div className="p-6 sm:p-7 lg:p-8 rounded-lg border border-primary/20 bg-muted/15 shadow-sm space-y-4 flex flex-col justify-between">
             <div className="space-y-4">
-              <div className="w-12 h-12 rounded-md bg-[#002626] text-[#95c623] flex items-center justify-center shadow-sm">
+              <div className="w-12 h-12 rounded-md bg-primary text-accent flex items-center justify-center shadow-sm">
                 <Landmark className="w-6 h-6 stroke-[2]" />
               </div>
 
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-[#002626] block">
+                <span className="text-xs font-bold uppercase tracking-wider text-primary block">
                   Implementação & Extensão no Terreno
                 </span>
                 <h3 className="text-xl sm:text-2xl font-bold text-primary mt-1">
@@ -77,7 +77,7 @@ export function InstitutionalSection() {
               </p>
             </div>
 
-            <div className="pt-4 border-t border-[#002626]/15 text-xs font-semibold text-primary/70">
+            <div className="pt-4 border-t border-primary/15 text-xs font-semibold text-primary/70">
               • Coordenação da Rede de Extensão Agrária Distrital
             </div>
           </div>
