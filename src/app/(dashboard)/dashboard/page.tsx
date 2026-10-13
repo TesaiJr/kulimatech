@@ -9,7 +9,24 @@ import { USER_ROLES_INFO, UserRole } from '@/types/auth';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { api, ApiError } from '@/lib/api/client';
 import Link from 'next/link';
-import { Sprout, Activity, User, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import {
+  Sprout,
+  Activity,
+  User,
+  ShieldCheck,
+  CheckCircle2,
+  Droplets,
+  AlertTriangle,
+  Users,
+  MapPin,
+  ClipboardList,
+  PlusCircle,
+  ArrowRight,
+  TrendingUp,
+  FileCheck2,
+  RefreshCw,
+} from 'lucide-react';
+import { WeatherCard, useMeteorologia } from '@/features/meteorologia';
 
 interface DashboardResponse {
   role: 'ADMIN' | 'TECNICO_SDAE' | 'AGRICULTOR';
@@ -38,6 +55,7 @@ interface DashboardResponse {
 export default function DashboardPage() {
   const router = useRouter();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { clima, loading: loadingClima, refresh: refreshClima } = useMeteorologia();
 
   const [activeNavId, setActiveNavId] = useState<string>('dashboard');
   const [dashboardData, setDashboardData] = useState<DashboardResponse | null>(null);
@@ -229,24 +247,29 @@ export default function DashboardPage() {
                 {dashboardData?.stats?.totalParcelas ?? 0}
               </p>
               <p className="mt-2 text-xs text-secondary/80">
-                Monitoradas no Distrito de Nhamatanda
+                Área distrital: <strong className="text-primary">{dashboardData?.stats?.totalHectaresDistrito ?? 0} ha</strong>
               </p>
             </Card>
 
             <Card variant="surface">
-              <span className="text-xs font-bold text-secondary/70 uppercase">Catálogo de Culturas</span>
+              <span className="text-xs font-bold text-secondary/70 uppercase">Auditoria de Humidade</span>
+              <p className="text-3xl font-black text-primary mt-1">
+                {dashboardData?.stats?.leiturasValidadas ?? 0}
+              </p>
+              <div className="mt-2 flex items-center gap-1 text-xs text-secondary/80">
+                <FileCheck2 className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Validadas de <strong>{dashboardData?.stats?.totalLeituras ?? 0}</strong> medições</span>
+              </div>
+            </Card>
+
+            <Card variant="surface">
+              <span className="text-xs font-bold text-secondary/70 uppercase">Catálogos & Ocorrências</span>
               <p className="text-3xl font-black text-primary mt-1">
                 {dashboardData?.stats?.totalCulturas ?? 0}
               </p>
-              <p className="mt-2 text-xs text-secondary/80">Culturas parametrizadas para Sofala</p>
-            </Card>
-
-            <Card variant="surface">
-              <span className="text-xs font-bold text-secondary/70 uppercase">Catálogo de Pragas</span>
-              <p className="text-3xl font-black text-primary mt-1">
-                {dashboardData?.stats?.totalPragas ?? 0}
+              <p className="mt-2 text-xs text-secondary/80">
+                Culturas • <strong>{dashboardData?.stats?.totalPragas ?? 0}</strong> Pragas • <strong>{dashboardData?.stats?.totalOcorrencias ?? 0}</strong> Reportes
               </p>
-              <p className="mt-2 text-xs text-secondary/80">Fichas técnicas com medidas de controlo</p>
             </Card>
           </div>
 
@@ -260,9 +283,9 @@ export default function DashboardPage() {
                       Extensão rural e agricultores atribuídos no distrito
                     </CardDescription>
                   </div>
-                  <Link href="/parcelas">
+                  <Link href="/utilizadores">
                     <Button size="sm" variant="primary">
-                      Ver Parcelas
+                      Gerir Carteiras
                     </Button>
                   </Link>
                 </div>
@@ -287,9 +310,18 @@ export default function DashboardPage() {
                       </div>
                     ))
                   ) : (
-                    <p className="text-xs text-slate-500 py-3 text-center">
-                      Nenhum técnico registado ainda no sistema.
-                    </p>
+                    <div className="text-center py-6 px-4 bg-white/40 rounded-xl border border-dashed border-secondary/30 space-y-2">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto">
+                        <Users className="w-5 h-5" />
+                      </div>
+                      <p className="text-xs font-bold text-primary">Nenhum técnico registado no sistema.</p>
+                      <p className="text-[11px] text-secondary/70">Registe os técnicos do SDAE para iniciar a supervisão das parcelas.</p>
+                      <Link href="/utilizadores">
+                        <Button size="sm" variant="outline" className="mt-2">
+                          Criar Conta de Técnico
+                        </Button>
+                      </Link>
+                    </div>
                   )}
                 </div>
               </CardContent>
@@ -304,6 +336,11 @@ export default function DashboardPage() {
                       Culturas agrícolas de referência para Nhamatanda
                     </CardDescription>
                   </div>
+                  <Link href="/culturas">
+                    <Button size="sm" variant="outline">
+                      Gerir Catálogo
+                    </Button>
+                  </Link>
                 </div>
               </CardHeader>
               <CardContent>
@@ -327,9 +364,18 @@ export default function DashboardPage() {
                       </div>
                     ))
                   ) : (
-                    <p className="text-xs text-slate-500 py-3 text-center">
-                      Nenhuma cultura registada.
-                    </p>
+                    <div className="text-center py-6 px-4 bg-white/40 rounded-xl border border-dashed border-secondary/30 space-y-2">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto">
+                        <Sprout className="w-5 h-5" />
+                      </div>
+                      <p className="text-xs font-bold text-primary">Nenhuma cultura registada.</p>
+                      <p className="text-[11px] text-secondary/70">Cadastre as culturas prioritárias (Milho, Mapira, Feijão Boer, etc.).</p>
+                      <Link href="/culturas">
+                        <Button size="sm" variant="outline" className="mt-2">
+                          Adicionar Cultura
+                        </Button>
+                      </Link>
+                    </div>
                   )}
                 </div>
               </CardContent>
@@ -349,7 +395,7 @@ export default function DashboardPage() {
               <p className="text-3xl font-black text-primary mt-1">
                 {dashboardData?.stats?.totalAgricultores ?? 0}
               </p>
-              <p className="mt-2 text-xs text-secondary/80">Carteira técnica em Nhamatanda</p>
+              <p className="mt-2 text-xs text-secondary/80">Carteira sob sua supervisão</p>
             </Card>
 
             <Card variant="surface">
@@ -358,26 +404,49 @@ export default function DashboardPage() {
                 {dashboardData?.stats?.totalParcelas ?? 0}
               </p>
               <p className="mt-2 text-xs text-secondary/80">
-                Área total: {dashboardData?.stats?.totalHectares ?? 0} hectares
+                Área produtiva: <strong className="text-primary">{dashboardData?.stats?.totalHectares ?? 0} ha</strong>
               </p>
             </Card>
 
             <Card variant="surface">
-              <span className="text-xs font-bold text-secondary/70 uppercase">Leituras Recentes</span>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-secondary/70 uppercase">Validações de Solo</span>
+                {Number(dashboardData?.stats?.validacoesPendentes) > 0 && (
+                  <Badge variant="accent" size="sm">
+                    Pendente
+                  </Badge>
+                )}
+              </div>
               <p className="text-3xl font-black text-accent mt-1">
                 {dashboardData?.stats?.validacoesPendentes ?? 0}
               </p>
-              <p className="mt-2 text-xs text-secondary/80">Medições de solo reportadas</p>
+              <Link href="/leituras" className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline">
+                <span>Validar leituras</span>
+                <ArrowRight className="w-3 h-3" />
+              </Link>
             </Card>
 
             <Card variant="surface">
-              <span className="text-xs font-bold text-secondary/70 uppercase">Ocorrências de Pragas</span>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-secondary/70 uppercase">Ocorrências de Pragas</span>
+                {Number(dashboardData?.stats?.ocorrenciasPragasCount) > 0 && (
+                  <Badge variant="secondary" size="sm">
+                    Atenção
+                  </Badge>
+                )}
+              </div>
               <p className="text-3xl font-black text-amber-600 mt-1">
                 {dashboardData?.stats?.ocorrenciasPragasCount ?? 0}
               </p>
-              <p className="mt-2 text-xs text-secondary/80">Reportadas pelos agricultores</p>
+              <Link href="/pragas/ocorrencias" className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-amber-800 hover:underline">
+                <span>{dashboardData?.stats?.ocorrenciasResolvidasCount ?? 0} resolvidas • Analisar</span>
+                <ArrowRight className="w-3 h-3" />
+              </Link>
             </Card>
           </div>
+
+          {/* Previsão Meteorológica e Recomendações Agroclimáticas Nhamatanda */}
+          <WeatherCard clima={clima} loading={loadingClima} onRefresh={refreshClima} />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card variant="surface">
@@ -389,9 +458,9 @@ export default function DashboardPage() {
                       Medições submetidas pelos agricultores associados
                     </CardDescription>
                   </div>
-                  <Link href="/parcelas">
+                  <Link href="/leituras">
                     <Button size="sm" variant="outline">
-                      Ver Parcelas
+                      Validar no Painel
                     </Button>
                   </Link>
                 </div>
@@ -415,15 +484,24 @@ export default function DashboardPage() {
                         <div className="text-right">
                           <span className="text-lg font-black text-[#002626]">{l.humidade}%</span>
                           <span className="block text-[10px] font-bold text-emerald-700">
-                            {l.statusHumidade}
+                            {l.statusHumidade || (l.validadoPorTecnico ? 'VALIDADA' : 'PENDENTE')}
                           </span>
                         </div>
                       </div>
                     ))
                   ) : (
-                    <p className="text-xs text-slate-500 py-3 text-center">
-                      Nenhuma leitura recente registada.
-                    </p>
+                    <div className="text-center py-6 px-4 bg-white/40 rounded-xl border border-dashed border-secondary/30 space-y-2">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto">
+                        <Droplets className="w-5 h-5" />
+                      </div>
+                      <p className="text-xs font-bold text-primary">Nenhuma medição recente registada.</p>
+                      <p className="text-[11px] text-secondary/70">As novas leituras submetidas pelos agricultores acompanhados aparecerão aqui.</p>
+                      <Link href="/leituras">
+                        <Button size="sm" variant="outline" className="mt-2">
+                          Consultar Histórico
+                        </Button>
+                      </Link>
+                    </div>
                   )}
                 </div>
               </CardContent>
@@ -431,10 +509,19 @@ export default function DashboardPage() {
 
             <Card variant="surface">
               <CardHeader>
-                <CardTitle>Agricultores Acompanhados</CardTitle>
-                <CardDescription>
-                  Produtores sob responsabilidade agronómica
-                </CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Agricultores Acompanhados</CardTitle>
+                    <CardDescription>
+                      Produtores sob responsabilidade agronómica
+                    </CardDescription>
+                  </div>
+                  <Link href="/utilizadores">
+                    <Button size="sm" variant="outline">
+                      Ver Carteira
+                    </Button>
+                  </Link>
+                </div>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
@@ -456,9 +543,18 @@ export default function DashboardPage() {
                       </div>
                     ))
                   ) : (
-                    <p className="text-xs text-slate-500 py-3 text-center">
-                      Ainda não há agricultores vinculados a este técnico.
-                    </p>
+                    <div className="text-center py-6 px-4 bg-white/40 rounded-xl border border-dashed border-secondary/30 space-y-2">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto">
+                        <Users className="w-5 h-5" />
+                      </div>
+                      <p className="text-xs font-bold text-primary">Nenhum agricultor atribuído.</p>
+                      <p className="text-[11px] text-secondary/70">Solicite à administração distrital a vinculação de produtores da sua zona.</p>
+                      <Link href="/utilizadores">
+                        <Button size="sm" variant="primary" className="mt-2">
+                          Consultar Utilizadores
+                        </Button>
+                      </Link>
+                    </div>
                   )}
                 </div>
               </CardContent>
@@ -479,7 +575,7 @@ export default function DashboardPage() {
                 {dashboardData?.stats?.totalParcelas ?? 0}
               </p>
               <p className="mt-2 text-xs text-secondary/80">
-                Área Total: {dashboardData?.stats?.totalHectares ?? 0} hectares
+                Área Total: <strong className="text-primary">{dashboardData?.stats?.totalHectares ?? 0} ha</strong>
               </p>
             </Card>
 
@@ -521,9 +617,15 @@ export default function DashboardPage() {
               <p className="text-3xl font-black text-accent mt-1">
                 {dashboardData?.stats?.recomendacoesAtivasCount ?? 0}
               </p>
-              <p className="mt-2 text-xs text-secondary/80">Orientações ativas do técnico</p>
+              <Link href="/recomendacoes" className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline">
+                <span>Ver orientações agronómicas</span>
+                <ArrowRight className="w-3 h-3" />
+              </Link>
             </Card>
           </div>
+
+          {/* Previsão Meteorológica e Recomendações Agroclimáticas Nhamatanda */}
+          <WeatherCard clima={clima} loading={loadingClima} onRefresh={refreshClima} />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Formulário Real de Leitura de Humidade de Solo */}
@@ -560,10 +662,16 @@ export default function DashboardPage() {
                         ))}
                       </select>
                     ) : (
-                      <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-800 flex items-center justify-between">
-                        <span>Ainda não possui parcelas registadas.</span>
-                        <Link href="/parcelas/novo" className="font-bold underline text-[#0E4749]">
-                          Criar Parcela
+                      <div className="p-4 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-800 space-y-2">
+                        <div className="flex items-center gap-2 font-bold text-amber-900">
+                          <MapPin className="w-4 h-4 text-amber-700" />
+                          <span>Ainda não possui parcelas registadas.</span>
+                        </div>
+                        <p className="text-[11px] text-amber-800">
+                          Para registar medições de humidade, é necessário primeiro cadastrar a sua parcela agrícola.
+                        </p>
+                        <Link href="/parcelas/novo" className="inline-block font-bold underline text-[#0E4749]">
+                          + Registar Parcela Agora
                         </Link>
                       </div>
                     )}
@@ -659,9 +767,18 @@ export default function DashboardPage() {
                       </div>
                     ))
                   ) : (
-                    <p className="text-xs text-slate-500 py-3 text-center">
-                      Nenhuma parcela registada na sua conta.
-                    </p>
+                    <div className="text-center py-6 px-4 bg-white/40 rounded-xl border border-dashed border-secondary/30 space-y-2">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto">
+                        <MapPin className="w-5 h-5" />
+                      </div>
+                      <p className="text-xs font-bold text-primary">Nenhuma parcela registada na sua conta.</p>
+                      <p className="text-[11px] text-secondary/70">Registe o seu primeiro terreno para começar a monitorar a humidade.</p>
+                      <Link href="/parcelas/novo">
+                        <Button size="sm" variant="primary" className="mt-2">
+                          Registar Parcela
+                        </Button>
+                      </Link>
+                    </div>
                   )}
                 </div>
               </CardContent>

@@ -479,6 +479,13 @@ function AuthContent() {
               </div>
 
 
+              {searchParams.get('sessionExpired') === 'true' && (
+                <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs flex items-center gap-2 shadow-xs">
+                  <ShieldAlert className="w-4 h-4 flex-shrink-0 text-amber-600" />
+                  <span>A sua sessão expirou por inatividade ou segurança. Por favor, inicie sessão novamente para continuar.</span>
+                </div>
+              )}
+
               {(loginValidationError || loginApiError) && (
                 <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2">
                   <ShieldAlert className="w-4 h-4 flex-shrink-0 text-red-600" />

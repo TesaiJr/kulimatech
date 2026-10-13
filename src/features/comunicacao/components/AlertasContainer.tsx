@@ -1,11 +1,12 @@
 // src/features/comunicacao/components/AlertasContainer.tsx
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { Badge, Button, Alert } from '@/components/ui';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { authService } from '@/features/auth/services/authService';
+import { ApiError } from '@/lib/api/client';
 import { comunicacaoService } from '../services/comunicacaoService';
 import { AlertaDTO } from '../types';
 import {
@@ -63,6 +64,11 @@ export function AlertasContainer({
         setAlertas(data.alertas || []);
         setTotalNaoLidos(data.totalNaoLidos || 0);
       } catch (err) {
+        if (err instanceof ApiError && (err.status === 401 || err.code === 'UNAUTHORIZED')) {
+          console.warn('[Alertas] Sessão expirada:', err.message);
+          setError('A sua sessão expirou. Redirecionando para a página de início de sessão...');
+          return;
+        }
         console.error('[Alertas] Erro ao sincronizar:', err);
         // Não apaga a tela, apenas mostra aviso se for clique manual
         if (isManual) {
@@ -75,6 +81,8 @@ export function AlertasContainer({
     [filtroLido, filtroTipo]
   );
 
+  const isFirstMount = useRef(true);
+
   // Se não recebemos alertas pré-carregados pelo servidor, buscar do cliente na montagem
   useEffect(() => {
     if (initialAlertas.length === 0) {
@@ -82,8 +90,12 @@ export function AlertasContainer({
     }
   }, [initialAlertas.length, sincronizarAlertas]);
 
-  // Recarregar quando filtros mudam
+  // Recarregar quando filtros mudarem (apenas após a montagem inicial)
   useEffect(() => {
+    if (isFirstMount.current) {
+      isFirstMount.current = false;
+      return;
+    }
     sincronizarAlertas(false);
   }, [filtroLido, filtroTipo, sincronizarAlertas]);
 
@@ -151,6 +163,9 @@ export function AlertasContainer({
   const handleMarcarLido = async (id: string) => {
     setAlertas((prev) => prev.map((a) => (a.id === id ? { ...a, lido: true } : a)));
     setTotalNaoLidos((prev) => Math.max(prev - 1, 0));
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('kulima:alerts-updated'));
+    }
 
     try {
       await comunicacaoService.marcarAlertaLido(id);
@@ -163,6 +178,9 @@ export function AlertasContainer({
   const handleMarcarTodosLidos = async () => {
     setAlertas((prev) => prev.map((a) => ({ ...a, lido: true })));
     setTotalNaoLidos(0);
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('kulima:alerts-updated'));
+    }
 
     try {
       await comunicacaoService.marcarTodosAlertasLidos();
@@ -178,6 +196,9 @@ export function AlertasContainer({
     setAlertas((prev) => prev.filter((a) => a.id !== id));
     if (alertaRemovido && !alertaRemovido.lido) {
       setTotalNaoLidos((prev) => Math.max(prev - 1, 0));
+    }
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('kulima:alerts-updated'));
     }
 
     try {
@@ -296,56 +317,116 @@ export function AlertasContainer({
         </Alert>
       )}
 
-      {/* Barra de Filtros Rápidos */}
-      <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-surface border border-secondary/20 rounded-2xl shadow-sm">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs font-bold text-primary flex items-center gap-1 px-2">
-            <Filter className="w-3.5 h-3.5 text-secondary" />
-            <span>Filtros:</span>
-          </span>
+      {/* Barra de Filtros e Categorias Temáticas */}
+      <div className="p-4 bg-surface border border-secondary/20 rounded-2xl shadow-sm space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-bold text-primary flex items-center gap-1.5 px-1">
+              <Filter className="w-3.5 h-3.5 text-secondary" />
+              <span>Estado:</span>
+            </span>
 
-          <button
-            type="button"
-            onClick={() => setFiltroLido('todos')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors ${
-              filtroLido === 'todos'
-                ? 'bg-primary text-surface'
-                : 'text-secondary hover:bg-muted/40'
-            }`}
-          >
-            Todos ({alertas.length})
-          </button>
-          <button
-            type="button"
-            onClick={() => setFiltroLido('nao_lidos')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors flex items-center gap-1.5 ${
-              filtroLido === 'nao_lidos'
-                ? 'bg-accent text-primary'
-                : 'text-secondary hover:bg-muted/40'
-            }`}
-          >
-            <span>Não lidos</span>
-            {totalNaoLidos > 0 && (
-              <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.2 rounded-full font-bold">
-                {totalNaoLidos}
-              </span>
-            )}
-          </button>
+            <button
+              type="button"
+              onClick={() => setFiltroLido('todos')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                filtroLido === 'todos'
+                  ? 'bg-primary text-surface shadow-xs'
+                  : 'text-secondary hover:bg-muted/40 border border-secondary/15'
+              }`}
+            >
+              Todos ({alertas.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setFiltroLido('nao_lidos')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                filtroLido === 'nao_lidos'
+                  ? 'bg-accent text-primary shadow-xs'
+                  : 'text-secondary hover:bg-muted/40 border border-secondary/15'
+              }`}
+            >
+              <span>Não lidos</span>
+              {totalNaoLidos > 0 && (
+                <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.2 rounded-full font-bold">
+                  {totalNaoLidos}
+                </span>
+              )}
+            </button>
+          </div>
+
+          <div className="text-xs text-secondary/70">
+            Exibindo <span className="font-bold text-primary">{alertasFiltrados.length}</span> alerta(s)
+          </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <select
-            value={filtroTipo}
-            onChange={(e) => setFiltroTipo(e.target.value)}
-            className="bg-muted/20 border border-secondary/20 rounded-xl px-3 py-1.5 text-xs text-primary focus:outline-none focus:ring-2 focus:ring-accent"
-          >
-            <option value="todos">Todas as Categorias</option>
-            <option value="HUMIDADE_CRITICA">Humidade Crítica</option>
-            <option value="NOVA_MENSAGEM">Novas Mensagens</option>
-            <option value="NOVA_RECOMENDACAO">Recomendações Técnicas</option>
-            <option value="PRAGA_REPORTADA">Ocorrências de Pragas</option>
-            <option value="SISTEMA">Avisos do Sistema</option>
-          </select>
+        {/* Separador sutil */}
+        <div className="h-px bg-secondary/10 w-full" />
+
+        {/* Chips de Categorias Temáticas */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
+          {[
+            { id: 'todos', label: 'Todas as Categorias', icon: Bell, count: alertas.length },
+            {
+              id: 'HUMIDADE_CRITICA',
+              label: 'Humidade Crítica',
+              icon: AlertTriangle,
+              count: alertas.filter((a) => a.tipo === 'HUMIDADE_CRITICA').length,
+            },
+            {
+              id: 'PRAGA_REPORTADA',
+              label: 'Pragas',
+              icon: Bug,
+              count: alertas.filter((a) => a.tipo === 'PRAGA_REPORTADA').length,
+            },
+            {
+              id: 'NOVA_RECOMENDACAO',
+              label: 'Recomendações',
+              icon: FileText,
+              count: alertas.filter((a) => a.tipo === 'NOVA_RECOMENDACAO').length,
+            },
+            {
+              id: 'NOVA_MENSAGEM',
+              label: 'Mensagens',
+              icon: MessageSquare,
+              count: alertas.filter((a) => a.tipo === 'NOVA_MENSAGEM').length,
+            },
+            {
+              id: 'SISTEMA',
+              label: 'Sistema',
+              icon: Bell,
+              count: alertas.filter((a) => a.tipo === 'SISTEMA').length,
+            },
+          ].map((cat) => {
+            const Icon = cat.icon;
+            const isSelected = filtroTipo === cat.id;
+            return (
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => setFiltroTipo(cat.id)}
+                className={`whitespace-nowrap flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-semibold transition-all ${
+                  isSelected
+                    ? 'bg-secondary/15 text-primary border border-secondary/30 font-bold'
+                    : 'text-secondary/80 hover:text-primary hover:bg-muted/30 border border-transparent'
+                }`}
+              >
+                <Icon className={`w-3.5 h-3.5 ${isSelected ? 'text-accent' : 'text-secondary/60'}`} />
+                <span>{cat.label}</span>
+                {cat.count > 0 && (
+                  <span
+                    className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                      isSelected
+                        ? 'bg-primary text-surface'
+                        : 'bg-secondary/10 text-secondary'
+                    }`}
+                  >
+                    {cat.count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </div>
       </div>
 

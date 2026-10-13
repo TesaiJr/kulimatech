@@ -21,6 +21,43 @@ export class ApiError extends Error {
   }
 }
 
+let isHandlingUnauthorized = false;
+
+function handleUnauthorizedSession(message: string) {
+  if (typeof window === 'undefined') return;
+
+  try {
+    localStorage.removeItem('kulimatech_token');
+    localStorage.removeItem('kulimatech_user');
+    document.cookie = 'token=; Max-Age=0; path=/;';
+  } catch {
+    // Ignora restrições locais de storage
+  }
+
+  // Notifica ouvintes na aplicação sobre o encerramento da sessão
+  window.dispatchEvent(
+    new CustomEvent('kulimatech:session_expired', {
+      detail: { message },
+    })
+  );
+
+  const pathname = window.location.pathname;
+  const isAuthRoute =
+    pathname.startsWith('/auth') ||
+    pathname.startsWith('/login') ||
+    pathname.startsWith('/registo') ||
+    pathname.startsWith('/recuperar-senha');
+
+  // Redireciona com segurança apenas se estiver em rota autenticada
+  if (!isAuthRoute && !isHandlingUnauthorized) {
+    isHandlingUnauthorized = true;
+    setTimeout(() => {
+      const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
+      window.location.href = `/auth?mode=login&sessionExpired=true&returnUrl=${returnUrl}`;
+    }, 200);
+  }
+}
+
 /**
  * Cliente HTTP unificado para chamadas à API do KulimaTech.
  * Trata o formato padronizado de ApiResponse<T> e gerencia headers comuns (JWT).
@@ -69,21 +106,55 @@ export async function apiClient<T>(
     },
   });
 
-  let data: ApiResponse<T>;
-  try {
-    data = await response.json();
-  } catch {
+  // Trata resposta 204 No Content
+  if (response.status === 204) {
+    return null as unknown as T;
+  }
+
+  // Lê o corpo da resposta de forma segura para inspecionar JSON ou erros em texto/HTML
+  const rawText = await response.text();
+  let data: ApiResponse<T> | null = null;
+
+  if (rawText) {
+    try {
+      data = JSON.parse(rawText);
+    } catch {
+      // Corpo não é JSON (ex.: página de erro HTML 500/404 do Next.js ou texto plano)
+    }
+  }
+
+  // Se o servidor retornou status de erro HTTP (!response.ok)
+  if (!response.ok) {
+    const errorData = data && !data.success ? (data as ApiErrorResponse).error : null;
+    const errorMessage =
+      errorData?.message ||
+      (rawText && !rawText.trim().startsWith('<') ? rawText.slice(0, 300) : null) ||
+      `Erro no servidor (${response.status}: ${response.statusText || 'Falha na requisição'}).`;
+
+    const errorCode = errorData?.code || `HTTP_${response.status}`;
+
+    // Trata sessão expirada ou token inválido (401)
+    if (response.status === 401 || errorCode === 'UNAUTHORIZED') {
+      handleUnauthorizedSession(errorMessage);
+    }
+
+    throw new ApiError(errorMessage, errorCode, response.status, errorData?.details);
+  }
+
+  // Se status HTTP foi sucesso (2xx) mas o corpo não é JSON válido
+  if (!data) {
     throw new ApiError(
-      'Falha ao comunicar com o servidor. Resposta inválida.',
+      `Resposta inválida do servidor em ${endpoint} (esperado JSON).`,
       'NETWORK_OR_PARSE_ERROR',
       response.status
     );
   }
 
-  if (!response.ok || !data.success) {
+  // Se a API retornou payload padronizado com success === false
+  if (!data.success) {
     const errorData = (data as ApiErrorResponse).error || {
-      code: 'HTTP_ERROR',
-      message: response.statusText || 'Ocorreu um erro na requisição.',
+      code: 'API_ERROR',
+      message: 'Erro inesperado retornado pela API.',
     };
 
     throw new ApiError(

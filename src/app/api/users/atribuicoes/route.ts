@@ -139,45 +139,49 @@ export async function POST(req: NextRequest) {
       throw new AppError('Não é possível atribuir carteira a um técnico inativo ou bloqueado.', 400, 'TECNICO_INACTIVE');
     }
 
-    // 3. Executar transação atômica
-    await prisma.$transaction(async (tx) => {
-      for (const agricultorId of agricultorIds) {
-        // Remover vínculo anterior para garantir 1 Técnico responsável por Agricultor (1:N)
-        await tx.tecnicoAgricultor.deleteMany({
-          where: { agricultorId },
-        });
+    // 3. Executar atribuição atômica em transação de lote (único round-trip ao banco)
+    await prisma.$transaction([
+      prisma.tecnicoAgricultor.deleteMany({
+        where: {
+          agricultorId: { in: agricultorIds },
+        },
+      }),
+      prisma.tecnicoAgricultor.createMany({
+        data: agricultorIds.map((agId) => ({
+          tecnicoId,
+          agricultorId: agId,
+        })),
+        skipDuplicates: true,
+      }),
+    ]);
 
-        // Criar novo vínculo
-        await tx.tecnicoAgricultor.create({
-          data: {
-            tecnicoId,
-            agricultorId,
-          },
-        });
+    // 4. Notificações disparadas de forma segura (sem abortar a atribuição caso ocorra timeout de rede)
+    try {
+      const alertasAgricultores = agricultorIds.map((agId) => ({
+        userId: agId,
+        tipo: 'SISTEMA' as const,
+        titulo: 'Técnico SDAE Atribuído',
+        mensagem: `Você foi vinculado ao Técnico SDAE ${tecnico.nome}. Suas parcelas e dúvidas agora contam com acompanhamento técnico dedicado.`,
+        lido: false,
+      }));
 
-        // Notificar o agricultor
-        await tx.alerta.create({
+      await Promise.all([
+        prisma.alerta.createMany({
+          data: alertasAgricultores,
+        }),
+        prisma.alerta.create({
           data: {
-            userId: agricultorId,
+            userId: tecnicoId,
             tipo: 'SISTEMA',
-            titulo: 'Técnico SDAE Atribuído',
-            mensagem: `Você foi vinculado ao Técnico SDAE ${tecnico.nome}. Suas parcelas e dúvidas agora contam com acompanhamento técnico dedicado.`,
+            titulo: 'Novos Produtores na Carteira',
+            mensagem: `A administração atribuiu ${agricultorIds.length} novo(s) agricultor(es) à sua carteira técnica de supervisão.`,
             lido: false,
           },
-        });
-      }
-
-      // Notificar o técnico
-      await tx.alerta.create({
-        data: {
-          userId: tecnicoId,
-          tipo: 'SISTEMA',
-          titulo: 'Novos Produtores na Carteira',
-          mensagem: `A administração atribuiu ${agricultorIds.length} novo(s) agricultor(es) à sua carteira técnica de supervisão.`,
-          lido: false,
-        },
-      });
-    });
+        }),
+      ]);
+    } catch (notifError) {
+      console.warn('[Atribuicoes] Aviso: Vínculos criados com sucesso, mas houve lentidão ao registrar alertas:', notifError);
+    }
 
     return createSuccessResponse(
       {
@@ -223,27 +227,23 @@ export async function DELETE(req: NextRequest) {
       throw new AppError('Vínculo entre o técnico e o agricultor não encontrado.', 404, 'NOT_FOUND');
     }
 
-    // 3. Remover vínculo e notificar
-    await prisma.$transaction(async (tx) => {
-      await tx.tecnicoAgricultor.delete({
-        where: {
-          tecnicoId_agricultorId: {
-            tecnicoId,
-            agricultorId,
-          },
-        },
-      });
+    // 3. Remover vínculo e notificar sequencialmente sem transação aberta
+    await prisma.tecnicoAgricultor.deleteMany({
+      where: {
+        tecnicoId,
+        agricultorId,
+      },
+    });
 
-      // Notificar agricultor
-      await tx.alerta.create({
-        data: {
-          userId: agricultorId,
-          tipo: 'SISTEMA',
-          titulo: 'Desvinculação Técnica',
-          mensagem: `O seu vínculo com o Técnico SDAE ${vinculo.tecnico.nome} foi descontinuado pela administração. Aguarde nova atribuição.`,
-          lido: false,
-        },
-      });
+    // Notificar agricultor
+    await prisma.alerta.create({
+      data: {
+        userId: agricultorId,
+        tipo: 'SISTEMA',
+        titulo: 'Desvinculação Técnica',
+        mensagem: `O seu vínculo com o Técnico SDAE ${vinculo.tecnico.nome} foi descontinuado pela administração. Aguarde nova atribuição.`,
+        lido: false,
+      },
     });
 
     return createSuccessResponse(

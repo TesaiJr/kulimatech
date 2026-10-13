@@ -5,6 +5,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { ConversaResumoDTO, MensagemDTO, InterlocutorDTO } from '../types';
 import { comunicacaoService } from '../services/comunicacaoService';
 import { authService } from '@/features/auth/services/authService';
+import { ApiError } from '@/lib/api/client';
 
 export interface UseChatRealtimeProps {
   initialConversas?: ConversaResumoDTO[];
@@ -61,6 +62,10 @@ export function useChatRealtime({
           }
         })
         .catch((err) => {
+          if (err instanceof ApiError && (err.status === 401 || err.code === 'UNAUTHORIZED')) {
+            console.warn('[Chat] Sessão expirada ao carregar conversas.');
+            return;
+          }
           console.error('[Chat] Erro ao carregar conversas iniciais:', err);
         });
     }
@@ -80,6 +85,11 @@ export function useChatRealtime({
         )
       );
     } catch (err) {
+      if (err instanceof ApiError && (err.status === 401 || err.code === 'UNAUTHORIZED')) {
+        console.warn('[Chat] Sessão expirada ao carregar mensagens.');
+        setError('A sua sessão expirou. Por favor, inicie sessão novamente.');
+        return;
+      }
       console.error('[Chat] Erro ao carregar mensagens do interlocutor:', err);
       setError('Falha ao carregar histórico de mensagens com este interlocutor.');
     }

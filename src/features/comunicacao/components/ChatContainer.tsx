@@ -25,6 +25,18 @@ import {
 import { ConversaResumoDTO, MensagemDTO, InterlocutorDTO } from '../types';
 import { useChatRealtime } from '../hooks/useChatRealtime';
 
+function formatHora(dateInput: string | Date): string {
+  try {
+    const d = new Date(dateInput);
+    if (isNaN(d.getTime())) return '';
+    const h = String(d.getHours()).padStart(2, '0');
+    const m = String(d.getMinutes()).padStart(2, '0');
+    return `${h}:${m}`;
+  } catch {
+    return '';
+  }
+}
+
 export interface ChatContainerProps {
   initialConversas?: ConversaResumoDTO[];
   initialMensagens?: MensagemDTO[];
@@ -211,10 +223,7 @@ export function ChatContainer({
                         </p>
                         {conv.ultimaMensagem && (
                           <span className="text-[10px] text-muted whitespace-nowrap">
-                            {new Date(conv.ultimaMensagem.createdAt).toLocaleTimeString([], {
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            })}
+                            {formatHora(conv.ultimaMensagem.createdAt)}
                           </span>
                         )}
                       </div>
@@ -351,10 +360,7 @@ export function ChatContainer({
                             }`}
                           >
                             <span>
-                              {new Date(msg.createdAt).toLocaleTimeString([], {
-                                hour: '2-digit',
-                                minute: '2-digit',
-                              })}
+                              {formatHora(msg.createdAt)}
                             </span>
 
                             {enviadaPorMim && (

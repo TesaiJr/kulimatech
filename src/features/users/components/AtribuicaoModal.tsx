@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { CarteiraTecnicaItem, UserAdminDTO } from '../types';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { X, UserPlus, Search, CheckSquare, Square, AlertCircle, MapPin } from 'lucide-react';
+import { X, UserPlus, Search, CheckSquare, Square, AlertCircle, MapPin, CheckCircle2, ArrowRight, RotateCcw, Info, Sparkles } from 'lucide-react';
 
 interface AtribuicaoModalProps {
   isOpen: boolean;
@@ -15,6 +15,7 @@ interface AtribuicaoModalProps {
   onClose: () => void;
   onSubmit: (tecnicoId: string, agricultorIds: string[]) => Promise<boolean>;
   loading: boolean;
+  error?: string | null;
 }
 
 export const AtribuicaoModal: React.FC<AtribuicaoModalProps> = ({
@@ -25,11 +26,16 @@ export const AtribuicaoModal: React.FC<AtribuicaoModalProps> = ({
   onClose,
   onSubmit,
   loading,
+  error: externalError,
 }) => {
   const [selectedTecnicoId, setSelectedTecnicoId] = useState<string>('');
   const [selectedAgriIds, setSelectedAgriIds] = useState<string[]>([]);
   const [searchFilter, setSearchFilter] = useState<string>('');
   const [modalError, setModalError] = useState<string | null>(null);
+  const [successFeedback, setSuccessFeedback] = useState<{
+    tecnicoNome: string;
+    count: number;
+  } | null>(null);
 
   useEffect(() => {
     if (defaultTecnicoId) {
@@ -40,9 +46,12 @@ export const AtribuicaoModal: React.FC<AtribuicaoModalProps> = ({
     setSelectedAgriIds([]);
     setSearchFilter('');
     setModalError(null);
+    setSuccessFeedback(null);
   }, [isOpen, defaultTecnicoId, tecnicos]);
 
   if (!isOpen) return null;
+
+  const currentTecnico = tecnicos.find((t) => t.tecnico.id === selectedTecnicoId);
 
   const filteredAgricultores = agricultoresPendentes.filter(
     (a) =>
@@ -81,9 +90,16 @@ export const AtribuicaoModal: React.FC<AtribuicaoModalProps> = ({
       return;
     }
 
-    const success = await onSubmit(selectedTecnicoId, selectedAgriIds);
-    if (success) {
-      onClose();
+    try {
+      const success = await onSubmit(selectedTecnicoId, selectedAgriIds);
+      if (success) {
+        setSuccessFeedback({
+          tecnicoNome: currentTecnico?.tecnico.nome || 'Técnico SDAE',
+          count: selectedAgriIds.length,
+        });
+      }
+    } catch (err) {
+      setModalError(err instanceof Error ? err.message : 'Falha ao vincular produtores.');
     }
   };
 
@@ -93,13 +109,19 @@ export const AtribuicaoModal: React.FC<AtribuicaoModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-border bg-muted/30">
           <div className="flex items-center gap-2.5">
-            <div className="h-9 w-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
-              <UserPlus className="h-5 w-5" />
+            <div className={`h-9 w-9 rounded-lg flex items-center justify-center ${
+              successFeedback ? 'bg-emerald-100 text-emerald-700' : 'bg-emerald-50 text-emerald-600'
+            }`}>
+              {successFeedback ? <CheckCircle2 className="h-5 w-5" /> : <UserPlus className="h-5 w-5" />}
             </div>
             <div>
-              <h2 className="text-base font-bold text-foreground">Vincular Carteira Técnica</h2>
+              <h2 className="text-base font-bold text-foreground">
+                {successFeedback ? 'Atribuição Concluída com Sucesso' : 'Vincular Carteira Técnica'}
+              </h2>
               <p className="text-xs text-muted-foreground">
-                Atribuição de agricultores a um extensionista do SDAE
+                {successFeedback
+                  ? 'Resumo operacional e próximas orientações para o SDAE'
+                  : 'Atribuição de agricultores a um extensionista do SDAE'}
               </p>
             </div>
           </div>
@@ -112,14 +134,115 @@ export const AtribuicaoModal: React.FC<AtribuicaoModalProps> = ({
           </button>
         </div>
 
-        {/* Form Body */}
-        <form onSubmit={handleSubmit} className="p-5 overflow-y-auto space-y-4">
-          {modalError && (
-            <div className="p-3 text-xs bg-rose-50 text-rose-700 border border-rose-200 rounded-lg flex items-center gap-2">
-              <AlertCircle className="h-4 w-4 shrink-0" />
-              <span>{modalError}</span>
+        {/* =================================================================== */}
+        {/* TELA DE SUCESSO & INSTRUÇÕES SEGUINTES                                */}
+        {/* =================================================================== */}
+        {successFeedback ? (
+          <div className="p-6 space-y-6 overflow-y-auto">
+            {/* Banner de Confirmação */}
+            <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200/80 text-emerald-900 flex items-start gap-3 shadow-xs">
+              <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <p className="text-sm font-bold">
+                  {successFeedback.count} agricultor(es) vinculados com sucesso!
+                </p>
+                <p className="text-xs text-emerald-700">
+                  Os produtores selecionados foram alocados à carteira técnica de supervisão de{' '}
+                  <strong className="text-emerald-900">{successFeedback.tecnicoNome}</strong>.
+                </p>
+              </div>
             </div>
-          )}
+
+            {/* Caixa de Instruções Seguintes (Workflow SDAE) */}
+            <div className="p-4 rounded-xl bg-muted/40 border border-border space-y-3">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-emerald-600" />
+                <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">
+                  Instruções Seguintes & Próximos Passos
+                </h3>
+              </div>
+
+              <ul className="space-y-2.5 text-xs text-muted-foreground">
+                <li className="flex items-start gap-2">
+                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                    1
+                  </span>
+                  <span>
+                    <strong className="text-foreground">Notificações Emitidas:</strong> O técnico e os agricultores
+                    já foram notificados automaticamente nas suas respectivas centrais de alertas.
+                  </span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                    2
+                  </span>
+                  <span>
+                    <strong className="text-foreground">Supervisão de Campo:</strong> O técnico já visualiza
+                    as parcelas, culturas e leituras destes produtores na aba <em>Carteiras Técnicas</em>.
+                  </span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                    3
+                  </span>
+                  <span>
+                    <strong className="text-foreground">Comunicação e Apoio:</strong> Utilize o módulo de{' '}
+                    <em>Chat</em> para iniciar conversas diretas ou emitir recomendações agronómicas específicas.
+                  </span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Ações pós-sucesso */}
+            <div className="pt-2 flex flex-col sm:flex-row items-center justify-end gap-2.5">
+              {agricultoresPendentes.length > successFeedback.count && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setSuccessFeedback(null);
+                    setSelectedAgriIds([]);
+                  }}
+                  className="w-full sm:w-auto h-9 text-xs"
+                >
+                  <RotateCcw className="h-3.5 w-3.5 mr-1.5" />
+                  Vincular Mais Agricultores
+                </Button>
+              )}
+              <Button
+                type="button"
+                onClick={onClose}
+                className="w-full sm:w-auto h-9 px-4 text-xs font-semibold"
+              >
+                Concluir e Ver Carteira
+                <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
+              </Button>
+            </div>
+          </div>
+        ) : (
+          /* =================================================================== */
+          /* FORMULÁRIO DE SELEÇÃO & FEEDBACK DE FALHA                           */
+          /* =================================================================== */
+          <form onSubmit={handleSubmit} className="p-5 overflow-y-auto space-y-4">
+            {(modalError || externalError) && (
+              <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-xl space-y-2 text-rose-800 animate-in fade-in">
+                <div className="flex items-start gap-2">
+                  <AlertCircle className="h-4 w-4 shrink-0 text-rose-600 mt-0.5" />
+                  <div className="space-y-0.5">
+                    <p className="text-xs font-bold text-rose-900">Falha ao processar a vinculação</p>
+                    <p className="text-xs text-rose-700">{modalError || externalError}</p>
+                  </div>
+                </div>
+
+                <div className="pl-6 pt-1 border-t border-rose-200/60 text-[11px] text-rose-600 space-y-1">
+                  <p className="font-semibold text-rose-700">Instruções para continuar:</p>
+                  <ul className="list-disc list-inside space-y-0.5">
+                    <li>As suas seleções de técnico e produtores foram mantidas salvas.</li>
+                    <li>Verifique se a sua conexão está estável e clique em <strong>Tentar Novamente</strong>.</li>
+                  </ul>
+                </div>
+              </div>
+            )}
 
           {/* Selecionar Técnico */}
           <div>
@@ -237,7 +360,8 @@ export const AtribuicaoModal: React.FC<AtribuicaoModalProps> = ({
             </div>
           </div>
         </form>
-      </div>
+      )}
+    </div>
     </div>
   );
 };

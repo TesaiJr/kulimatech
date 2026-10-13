@@ -227,7 +227,58 @@ O chat oficial do KulimaTech foi desenvolvido com **arquitetura profissional em 
 
 ---
 
-## 8. Verificação de Scripts de Homologação Automatizada
+---
+
+## 8. Fase 5: Recomendações Técnicas Agronómicas e Catálogo Mestre de Culturas (RF06, RF07, RF08, RF14)
+
+### 8.1 Teste no Catálogo de Culturas (`/culturas`)
+1. **Administrador (`admin@kulimatech.mz`):**
+   * Aceda a `/culturas`.
+   * Verifique o botão **"Nova Cultura"** no topo.
+   * Clique e cadastre uma nova espécie com limiares de humidade (ex: 40% a 70%).
+   * Nos cartões, teste os botões **"Editar"** e **"Eliminar"**.
+   * Teste a proteção de integridade referencial: tente eliminar uma cultura que possua recomendações associadas (o sistema bloqueia e exibe modal informativo com o motivo exato).
+2. **Técnico ou Agricultor:**
+   * Aceda a `/culturas`.
+   * Verifique que os botões administrativos ("Nova Cultura", "Editar", "Eliminar") estão ocultos e o catálogo funciona em modo exclusivo de consulta.
+
+### 8.2 Teste na Central de Recomendações (`/recomendacoes`)
+1. **Técnico SDAE (`tecnico@kulimatech.mz`):**
+   * No menu lateral, clique em **"Recomendações Técnicas"** (`/recomendacoes`).
+   * Visualize os 4 cartões de indicadores (Total, Pendentes, Aplicadas no Solo, Taxa de Adoção).
+   * Clique em **"Emitir Recomendação"**: selecione uma parcela de um agricultor da sua carteira, escolha a cultura orientada e redija o parecer agronómico.
+   * A recomendação é criada com estado inicial `Pendente de Aplicação` e o agricultor recebe notificação imediata.
+2. **Agricultor Familiar (`agricultor@kulimatech.mz`):**
+   * No menu lateral, clique em **"Recomendações Recebidas"** (`/recomendacoes`).
+   * Localize a orientação pendente e clique no botão **"Marcar como Aplicada"**.
+   * O estado atualiza imediatamente para `Aplicada na Parcela` e o técnico supervisor recebe um alerta de confirmação.
+
+---
+
+## 9. Fase 6: Central de Alertas, Comunicação Dinâmica e Meteorologia Open-Meteo
+
+### 9.1 Teste do Cartão Meteorológico de Nhamatanda (`/dashboard`)
+1. **Login como Agricultor ou Técnico:**
+   * Aceda ao Painel Principal (`/dashboard`).
+   * Observe o novo componente **"Clima & Agroclima em Nhamatanda"** integrado logo abaixo das métricas do painel.
+   * **Dados em Tempo Real:** Verifique a temperatura atual (ex: ~26°C a 29°C), humidade relativa do ar (~57%) e velocidade do vento lidos via API Open-Meteo com coordenadas oficiais de Nhamatanda (`-19.2667, 34.2167`).
+   * **Recomendação Agronómica Reativa:** O sistema avalia a probabilidade e volume de precipitação e exibe parecer contextualizado (ex: suspensão ou manutenção de rega).
+   * **Previsão de 3 Dias:** Clique em "Ver Previsão 3 Dias" para expandir a janela diária de temperaturas e precipitação estimada.
+   * **Resiliência Offline:** Na ausência de ligação externa, o componente transiciona suavemente para o fallback agroclimático sazonal de Sofala sem quebrar a interface.
+
+### 9.2 Teste do Polling Otimizado e Notificações (Sino e Menu Lateral)
+1. **Contador em Tempo Real:**
+   * Observe o ícone do sino no cabeçalho superior (`Header`) e o item **Alertas & Notificações** no menu lateral (`AppSidebar`).
+   * O sistema consulta o endpoint ultra-leve `/api/alertas/unread-count` (< 50 bytes) a cada 30 segundos conforme RNF04.
+   * Ao alternar para outra aba do navegador, o polling pausa automaticamente para poupar bateria e dados móveis.
+2. **Central de Alertas (`/mensagens/alertas`):**
+   * Clique no sino ou no menu lateral para aceder a `/mensagens/alertas`.
+   * **Abas Temáticas:** Filtre por categorias com contagens em tempo real: *Humidade Crítica*, *Pragas*, *Recomendações*, *Mensagens* e *Sistema*.
+   * **Ação Rápida:** Clique em **"Marcar todos como lidos"** ou marque alertas individuais. O contador do sino e do menu lateral atualiza instantaneamente (0ms) sem necessidade de aguardar o próximo ciclo de polling.
+
+---
+
+## 10. Verificação de Scripts de Homologação Automatizada
 
 Para validar a integridade completa diretamente contra o banco de dados PostgreSQL a qualquer momento:
 
@@ -246,7 +297,15 @@ node scripts/verify-chat-realtime.mjs
 
 # Validar Fase 4 (Utilizadores, RBAC estrito, carteiras técnicas e bloqueio)
 node scripts/verify-fase4-users.mjs
+
+# Validar Fase 5 (Catálogo mestre, emissão técnica, ciclo de aplicação e integridade)
+node scripts/verify-fase5-recomendacoes-culturas.mjs
+
+# Validar Fase 6 (Open-Meteo Nhamatanda, unread-count ultra-leve e ciclo de alertas)
+node scripts/verify-fase6-alertas-meteo.mjs
 ```
 
 Todos os comandos acima concluem com **código de saída 0** e 100% de sucesso.
+
+
 

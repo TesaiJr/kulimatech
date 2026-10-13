@@ -49,6 +49,7 @@ export interface AppSidebarProps {
     role?: string;
     avatarUrl?: string;
   };
+  unreadAlertsCount?: number;
   className?: string;
 }
 
@@ -56,7 +57,8 @@ export interface AppSidebarProps {
  * Construtor dos menus contextuais por perfil de acesso estritamente
  * alinhado com a Seção 11 (Figuras 14, 15 e 16) da monografia KulimaTech
  */
-export function getRoleNavigation(role: string = 'ADMIN'): NavSection[] {
+export function getRoleNavigation(role: string = 'ADMIN', unreadAlertsCount: number = 0): NavSection[] {
+  const alertsBadge = unreadAlertsCount > 0 ? (unreadAlertsCount > 99 ? '99+' : unreadAlertsCount.toString()) : undefined;
   const normalizedRole = (role || '')
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
@@ -117,7 +119,7 @@ export function getRoleNavigation(role: string = 'ADMIN'): NavSection[] {
           {
             id: 'recommendations',
             label: 'Recomendações Técnicas',
-            href: '/parcelas',
+            href: '/recomendacoes',
             icon: <ClipboardList className="w-5 h-5 flex-shrink-0" />,
           },
         ],
@@ -135,6 +137,8 @@ export function getRoleNavigation(role: string = 'ADMIN'): NavSection[] {
             id: 'alerts',
             label: 'Painel de Alertas',
             href: '/mensagens/alertas',
+            badge: alertsBadge,
+            badgeVariant: 'secondary',
             icon: <Bell className="w-5 h-5 flex-shrink-0" />,
           },
         ],
@@ -195,7 +199,7 @@ export function getRoleNavigation(role: string = 'ADMIN'): NavSection[] {
           {
             id: 'received-recommendations',
             label: 'Recomendações Recebidas',
-            href: '/parcelas',
+            href: '/recomendacoes',
             icon: <ClipboardList className="w-5 h-5 flex-shrink-0" />,
           },
           {
@@ -216,6 +220,8 @@ export function getRoleNavigation(role: string = 'ADMIN'): NavSection[] {
             id: 'alerts',
             label: 'Os Meus Alertas',
             href: '/mensagens/alertas',
+            badge: alertsBadge,
+            badgeVariant: 'secondary',
             icon: <Bell className="w-5 h-5 flex-shrink-0" />,
           },
         ],
@@ -273,6 +279,12 @@ export function getRoleNavigation(role: string = 'ADMIN'): NavSection[] {
           href: '/leituras',
           icon: <Droplets className="w-5 h-5 flex-shrink-0" />,
         },
+        {
+          id: 'recommendations-admin',
+          label: 'Recomendações Técnicas',
+          href: '/recomendacoes',
+          icon: <ClipboardList className="w-5 h-5 flex-shrink-0" />,
+        },
       ],
     },
     {
@@ -311,6 +323,8 @@ export function getRoleNavigation(role: string = 'ADMIN'): NavSection[] {
           id: 'alerts',
           label: 'Alertas Distritais',
           href: '/mensagens/alertas',
+          badge: alertsBadge,
+          badgeVariant: 'secondary',
           icon: <Bell className="w-5 h-5 flex-shrink-0" />,
         },
       ],
@@ -327,6 +341,7 @@ export function AppSidebar({
   isCollapsed = false,
   onToggleCollapse,
   user: userProp,
+  unreadAlertsCount = 0,
   className = '',
 }: AppSidebarProps) {
   const router = useRouter();
@@ -340,7 +355,7 @@ export function AppSidebar({
   } : undefined);
 
   // Deriva secções de navegação do perfil
-  const resolvedSections = sections || getRoleNavigation(user?.role || 'ADMIN');
+  const resolvedSections = sections || getRoleNavigation(user?.role || 'ADMIN', unreadAlertsCount);
   const sidebarWidth = isCollapsed ? 'w-20' : 'w-64';
 
   /**

@@ -74,7 +74,14 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
       where: { id },
       include: {
         parcela: {
-          select: { id: true, agricultorId: true, nome: true },
+          select: {
+            id: true,
+            agricultorId: true,
+            nome: true,
+            agricultor: {
+              select: { nome: true },
+            },
+          },
         },
       },
     });
@@ -111,15 +118,36 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
       updatePayload.parecer = validatedData.parecer;
     }
 
-    const atualizada = await prisma.recomendacao.update({
-      where: { id },
-      data: updatePayload,
-      include: {
-        tecnico: { select: { id: true, nome: true } },
-        cultura: { select: { id: true, nome: true } },
-        parcela: { select: { id: true, nome: true } },
+    const atualizada = await prisma.$transaction(
+      async (tx) => {
+        const rec = await tx.recomendacao.update({
+          where: { id },
+          data: updatePayload,
+          include: {
+            tecnico: { select: { id: true, nome: true } },
+            cultura: { select: { id: true, nome: true } },
+            parcela: { select: { id: true, nome: true } },
+          },
+        });
+
+        // Disparar notificação de retorno ao técnico quando o agricultor aplicar
+        if (session.role === 'AGRICULTOR' && validatedData.status === 'APLICADA') {
+          const agricultorNome = recomendacao.parcela.agricultor?.nome || 'O agricultor';
+          await tx.alerta.create({
+            data: {
+              userId: recomendacao.tecnicoId,
+              tipo: 'SISTEMA',
+              titulo: `Recomendação Aplicada: ${recomendacao.parcela.nome}`,
+              mensagem: `${agricultorNome} confirmou a aplicação da recomendação técnica na parcela "${recomendacao.parcela.nome}".`,
+              link: `/parcelas/${recomendacao.parcela.id}`,
+            },
+          });
+        }
+
+        return rec;
       },
-    });
+      { maxWait: 10000, timeout: 20000 }
+    );
 
     return createSuccessResponse(atualizada, 200);
   } catch (error) {

@@ -22,6 +22,7 @@ export async function GET(req: NextRequest) {
     const parcelaId = searchParams.get('parcelaId')?.trim();
     const statusParam = searchParams.get('status')?.trim().toUpperCase();
     const culturaId = searchParams.get('culturaId')?.trim();
+    const search = searchParams.get('search')?.trim();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const whereClause: any = {};
@@ -53,6 +54,21 @@ export async function GET(req: NextRequest) {
 
     if (culturaId) {
       whereClause.culturaId = culturaId;
+    }
+
+    if (search) {
+      const searchConditions = [
+        { parecer: { contains: search, mode: 'insensitive' } },
+        { parcela: { nome: { contains: search, mode: 'insensitive' } } },
+        { cultura: { nome: { contains: search, mode: 'insensitive' } } },
+        { tecnico: { nome: { contains: search, mode: 'insensitive' } } },
+      ];
+
+      if (whereClause.AND) {
+        whereClause.AND.push({ OR: searchConditions });
+      } else {
+        whereClause.AND = [{ OR: searchConditions }];
+      }
     }
 
     const recomendacoes = await prisma.recomendacao.findMany({
@@ -211,7 +227,7 @@ export async function POST(req: NextRequest) {
       });
 
       return novaRecomendacao;
-    });
+    }, { maxWait: 10000, timeout: 20000 });
 
     return createSuccessResponse(resultado, 201);
   } catch (error) {
