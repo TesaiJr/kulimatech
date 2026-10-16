@@ -95,7 +95,12 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
     const existing = await prisma.cultura.findUnique({
       where: { id },
       include: {
-        _count: { select: { recomendacoes: true } },
+        _count: {
+          select: {
+            recomendacoes: true,
+            pragas: true,
+          },
+        },
       },
     });
 
@@ -105,9 +110,17 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
 
     if (existing._count.recomendacoes > 0) {
       throw new AppError(
-        `Não é possível eliminar a cultura "${existing.nome}" pois existem ${existing._count.recomendacoes} recomendações técnicas associadas a ela.`,
+        `Não é possível eliminar a cultura "${existing.nome}" pois existem ${existing._count.recomendacoes} recomendações técnicas associadas a ela no sistema.`,
         400,
-        'CULTURA_HAS_DEPENDENCIES'
+        'CULTURA_HAS_RECOMMENDATIONS'
+      );
+    }
+
+    if (existing._count.pragas > 0) {
+      throw new AppError(
+        `Não é possível eliminar a cultura "${existing.nome}" pois existem ${existing._count.pragas} pragas cadastradas associadas a ela no catálogo fitossanitário.`,
+        400,
+        'CULTURA_HAS_PESTS'
       );
     }
 

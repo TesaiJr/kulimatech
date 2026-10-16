@@ -16,12 +16,28 @@ class RecomendacaoService {
     if (filters.parcelaId) params.parcelaId = filters.parcelaId;
     if (filters.status) params.status = filters.status;
     if (filters.culturaId) params.culturaId = filters.culturaId;
+    if (filters.search?.trim()) params.search = filters.search.trim();
 
     try {
       return await api.get<Recomendacao[]>('/api/recomendacoes', { params });
     } catch (error) {
       if (error instanceof ApiError) throw error;
       throw new ApiError('Falha ao obter lista de recomendações técnicas.', 'GET_RECOMENDACOES_ERROR');
+    }
+  }
+
+  /**
+   * Obtém as estatísticas consolidadas de recomendações
+   */
+  public async getEstatisticas(parcelaId?: string): Promise<import('../types').RecomendacaoStats> {
+    const params: Record<string, string | undefined> = {};
+    if (parcelaId && parcelaId !== 'TODOS') params.parcelaId = parcelaId;
+
+    try {
+      return await api.get<import('../types').RecomendacaoStats>('/api/recomendacoes/estatisticas', { params });
+    } catch (error) {
+      if (error instanceof ApiError) throw error;
+      throw new ApiError('Falha ao obter estatísticas de recomendações.', 'GET_RECOMENDACOES_STATS_ERROR');
     }
   }
 

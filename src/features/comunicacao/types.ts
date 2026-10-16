@@ -19,6 +19,8 @@ export interface MensagemDTO {
   createdAt: string;
   remetente?: InterlocutorDTO;
   destinatario?: InterlocutorDTO;
+  status?: 'sending' | 'sent' | 'error';
+  tempId?: string;
 }
 
 export interface ConversaResumoDTO {

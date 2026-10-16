@@ -55,21 +55,38 @@ export function handleApiError(error: unknown): NextResponse {
         'DUPLICATE_RESOURCE'
       );
     }
-    if (errObj.code === 'ECONNREFUSED' || (errObj.message && (errObj.message.includes('ECONNREFUSED') || errObj.message.includes('Can\'t reach database server')))) {
+    const msg = errObj.message || '';
+    if (
+      errObj.code === 'ECONNREFUSED' ||
+      msg.includes('ECONNREFUSED') ||
+      msg.includes('Can\'t reach database server') ||
+      msg.includes('Connection terminated') ||
+      msg.includes('connection timeout') ||
+      msg.includes('Connection closed')
+    ) {
       return createErrorResponse(
-        'Nao foi possivel conectar a base de dados (PostgreSQL/Supabase). Verifique se o servidor de banco de dados esta ativo e a variavel DATABASE_URL esta correta no ficheiro .env.',
+        'A base de dados (Supabase/PostgreSQL) está temporariamente inacessível ou o tempo limite de conexão esgotou. Por favor, tente novamente em alguns instantes.',
         503,
         'DATABASE_CONNECTION_ERROR'
       );
     }
   }
 
-  if (error instanceof Error && (error.message.includes('ECONNREFUSED') || error.message.includes('Can\'t reach database server'))) {
-    return createErrorResponse(
-      'Nao foi possivel conectar a base de dados (PostgreSQL/Supabase). Verifique se o servidor de banco de dados esta ativo e a variavel DATABASE_URL esta correta no ficheiro .env.',
-      503,
-      'DATABASE_CONNECTION_ERROR'
-    );
+  if (error instanceof Error) {
+    const msg = error.message;
+    if (
+      msg.includes('ECONNREFUSED') ||
+      msg.includes('Can\'t reach database server') ||
+      msg.includes('Connection terminated') ||
+      msg.includes('connection timeout') ||
+      msg.includes('Connection closed')
+    ) {
+      return createErrorResponse(
+        'A base de dados (Supabase/PostgreSQL) está temporariamente inacessível ou o tempo limite de conexão esgotou. Por favor, tente novamente em alguns instantes.',
+        503,
+        'DATABASE_CONNECTION_ERROR'
+      );
+    }
   }
 
   // 4. Erro de JSON Web Token

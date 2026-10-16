@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
       whereClause.tipo = tipoParam as AlertaTipo;
     }
 
-    // Consulta de alertas e contagem de não lidos em paralelo
+    // Consulta sequencial para evitar contenção de conexões no PgBouncer
     const userUnreadFilter =
       session.role === 'ADMIN' && targetUserId
         ? { userId: targetUserId, lido: false }
@@ -51,16 +51,15 @@ export async function GET(req: NextRequest) {
         ? { lido: false }
         : { userId: session.userId, lido: false };
 
-    const [alertas, totalNaoLidos] = await Promise.all([
-      prisma.alerta.findMany({
-        where: whereClause,
-        orderBy: { createdAt: 'desc' },
-        take,
-      }),
-      prisma.alerta.count({
-        where: userUnreadFilter,
-      }),
-    ]);
+    const alertas = await prisma.alerta.findMany({
+      where: whereClause,
+      orderBy: { createdAt: 'desc' },
+      take,
+    });
+
+    const totalNaoLidos = await prisma.alerta.count({
+      where: userUnreadFilter,
+    });
 
     return createSuccessResponse(
       {
@@ -70,6 +69,18 @@ export async function GET(req: NextRequest) {
       200
     );
   } catch (error) {
+    const errorMsg = (error as Error)?.message || '';
+    if (
+      errorMsg.includes('Connection terminated') ||
+      errorMsg.includes('timeout') ||
+      errorMsg.includes('Can\'t reach') ||
+      errorMsg.includes('Connection closed') ||
+      errorMsg.includes('closed and is not queryable') ||
+      errorMsg.includes('ECONNREFUSED')
+    ) {
+      console.warn('[Alertas] Retornando fallback gracioso após indisponibilidade da base de dados:', errorMsg);
+      return createSuccessResponse({ alertas: [], totalNaoLidos: 0 }, 200);
+    }
     return handleApiError(error);
   }
 }

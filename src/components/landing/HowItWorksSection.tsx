@@ -61,14 +61,14 @@ export function HowItWorksSection() {
             return (
               <div
                 key={idx}
-                className="bg-[#e6efe8] p-6 sm:p-7 rounded-lg border border-[#8eb69b]/45 shadow-sm hover:shadow-md hover:border-[#0e4749]/40 transition-all flex flex-col justify-between h-full"
+                className="bg-muted/15 p-6 sm:p-7 rounded-lg border border-muted/45 shadow-sm hover:shadow-md hover:border-secondary/40 transition-all flex flex-col justify-between h-full"
               >
                 <div>
                   <div className="flex items-center justify-between mb-5">
-                    <span className="text-xs font-mono font-bold bg-[#002626]/10 text-[#002626] px-2.5 py-1 rounded-sm">
+                    <span className="text-xs font-mono font-bold bg-primary/10 text-primary px-2.5 py-1 rounded-sm">
                       Etapa {step.number}
                     </span>
-                    <div className="w-9 h-9 rounded-md bg-[#002626] text-[#95c623] flex items-center justify-center shadow-xs">
+                    <div className="w-9 h-9 rounded-md bg-primary text-accent flex items-center justify-center shadow-xs">
                       <Icon className="w-4 h-4 stroke-[2.2]" />
                     </div>
                   </div>

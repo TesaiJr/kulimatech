@@ -42,7 +42,7 @@ export default function NovaParcelaPage() {
 
       {/* Card do Formulário */}
       <div className="max-w-3xl mx-auto">
-        <Card variant="surface" className="border border-[#8eb69b]/40 shadow-md">
+        <Card variant="surface" className="border border-muted/40 shadow-md">
           <ParcelaForm
             agricultorId={user?.id || 'usr-farm-01'}
             onCancel={() => router.push('/parcelas')}

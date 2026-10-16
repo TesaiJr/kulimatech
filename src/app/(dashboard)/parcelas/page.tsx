@@ -75,19 +75,19 @@ export default function ParcelasPage() {
     <DashboardLayout user={layoutUser} activeNavId={activeNavId}>
       <div className="space-y-6">
         {/* Barra Superior Contextualizada com Sessão Real */}
-        <div className="bg-gradient-to-r from-[#002626] to-[#0E4749] p-5 rounded-2xl shadow-md text-[#FEFAE0] border border-[#95C623]/25">
+        <div className="bg-gradient-to-r from-primary to-secondary p-5 rounded-2xl shadow-md text-surface border border-accent/25">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <Link
                   href="/dashboard"
-                  className="text-[11px] font-bold text-[#95C623] hover:underline flex items-center gap-1"
+                  className="text-[11px] font-bold text-accent hover:underline flex items-center gap-1"
                 >
                   <ArrowLeft className="w-3 h-3" />
                   <span>Voltar ao Painel Geral</span>
                 </Link>
                 <span className="text-white/40">•</span>
-                <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#95C623]">
+                <span className="text-xs font-mono font-bold uppercase tracking-wider text-accent">
                   Módulo de Parcelas Agrícolas
                 </span>
               </div>
@@ -138,7 +138,7 @@ export default function ParcelasPage() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2.5">
-              <h2 className="text-xl font-bold text-[#002626]">
+              <h2 className="text-xl font-bold text-primary">
                 {isAgricultor ? 'As Minhas Parcelas Registadas' : 'Parcelas em Acompanhamento'}
               </h2>
               <Badge variant="accent" size="sm" className="font-mono font-bold">
@@ -156,7 +156,7 @@ export default function ParcelasPage() {
               variant="outline"
               size="sm"
               onClick={refresh}
-              className="text-xs gap-1.5 bg-white hover:bg-surface border-[#8eb69b]/40 text-[#002626]"
+              className="text-xs gap-1.5 bg-white hover:bg-surface border-muted/40 text-primary"
               title="Recarregar dados"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
@@ -169,9 +169,9 @@ export default function ParcelasPage() {
                   type="button"
                   variant="primary"
                   size="sm"
-                  className="bg-[#002626] hover:bg-[#0e4749] text-white font-extrabold text-xs gap-1.5 shadow-sm rounded-md"
+                  className="bg-primary hover:bg-secondary text-white font-extrabold text-xs gap-1.5 shadow-sm rounded-md"
                 >
-                  <Plus className="w-4 h-4 text-[#95c623]" />
+                  <Plus className="w-4 h-4 text-accent" />
                   <span>+ Nova Parcela</span>
                 </Button>
               </Link>
@@ -201,25 +201,25 @@ export default function ParcelasPage() {
 
         {/* Área de Conteúdo da Listagem */}
         {loading ? (
-          <div className="py-16 text-center space-y-3 bg-white rounded-lg border border-[#8eb69b]/30">
-            <div className="w-8 h-8 rounded-full border-2 border-[#002626] border-t-transparent animate-spin mx-auto" />
-            <p className="text-xs font-bold text-[#002626]">A carregar parcelas de Nhamatanda...</p>
+          <div className="py-16 text-center space-y-3 bg-white rounded-lg border border-muted/30">
+            <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin mx-auto" />
+            <p className="text-xs font-bold text-primary">A carregar parcelas de Nhamatanda...</p>
           </div>
         ) : filteredCount === 0 ? (
-          <div className="py-16 px-6 text-center space-y-4 bg-[#e6efe8]/40 rounded-lg border border-[#8eb69b]/40">
-            <div className="w-14 h-14 rounded-md bg-[#002626] text-[#95c623] flex items-center justify-center mx-auto shadow-sm">
+          <div className="py-16 px-6 text-center space-y-4 bg-muted/15 rounded-lg border border-muted/40">
+            <div className="w-14 h-14 rounded-md bg-primary text-accent flex items-center justify-center mx-auto shadow-sm">
               <Layers className="w-7 h-7 stroke-[2]" />
             </div>
             <div className="max-w-md mx-auto space-y-1">
-              <h3 className="text-base font-bold text-[#002626]">Nenhuma parcela encontrada</h3>
+              <h3 className="text-base font-bold text-primary">Nenhuma parcela encontrada</h3>
               <p className="text-xs text-secondary/70">
                 Não foram encontradas parcelas agrícolas que correspondam aos filtros selecionados.
               </p>
             </div>
             {isAgricultor && (
               <Link href="/parcelas/novo" className="inline-block pt-2">
-                <Button variant="primary" size="sm" className="bg-[#002626] text-white font-extrabold gap-2 rounded-md">
-                  <Plus className="w-4 h-4 text-[#95c623]" />
+                <Button variant="primary" size="sm" className="bg-primary text-white font-extrabold gap-2 rounded-md">
+                  <Plus className="w-4 h-4 text-accent" />
                   <span>Cadastrar Primeira Parcela</span>
                 </Button>
               </Link>

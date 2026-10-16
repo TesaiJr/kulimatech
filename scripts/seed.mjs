@@ -126,15 +126,20 @@ async function main() {
   });
   console.log(`   [OK] Parcela: ${parcela.nome} (${parcela.areaHectares} ha)`);
 
-  // 5.1 Criar Contas Demo KulimaTech para o Frontend
-  console.log('\n5.1. Criando Contas Demo KulimaTech (Frontend)...');
+  // 5.1 Criar Contas Demo KulimaTech alinhadas 1:1 com a Monografia
+  console.log('\n5.1. Criando Contas Demo KulimaTech (Monografia Oficial)...');
   const adminKulimaHash = await bcrypt.hash('Admin@2026', saltRounds);
   const adminKulima = await prisma.user.upsert({
-    where: { email: 'admin@kulimatech.gov.mz' },
-    update: { passwordHash: adminKulimaHash, status: UserStatus.ATIVO },
+    where: { email: 'admin@kulimatech.mz' },
+    update: { 
+      nome: 'Alberto Nhantumbo',
+      passwordHash: adminKulimaHash, 
+      status: UserStatus.ATIVO,
+      zonaAtuacao: 'Distrito de Nhamatanda',
+    },
     create: {
-      nome: 'Alberto Nhantumbo (Admin)',
-      email: 'admin@kulimatech.gov.mz',
+      nome: 'Alberto Nhantumbo',
+      email: 'admin@kulimatech.mz',
       passwordHash: adminKulimaHash,
       role: UserRole.ADMIN,
       status: UserStatus.ATIVO,
@@ -146,7 +151,12 @@ async function main() {
   const techKulimaHash = await bcrypt.hash('Tecnico@2026', saltRounds);
   const techKulima = await prisma.user.upsert({
     where: { email: 'tecnico.nhamatanda@sdae.gov.mz' },
-    update: { passwordHash: techKulimaHash, status: UserStatus.ATIVO },
+    update: { 
+      nome: 'Eng. António Langa',
+      passwordHash: techKulimaHash, 
+      status: UserStatus.ATIVO,
+      zonaAtuacao: 'Posto de Tica • Nhamatanda',
+    },
     create: {
       nome: 'Eng. António Langa',
       email: 'tecnico.nhamatanda@sdae.gov.mz',
@@ -154,22 +164,47 @@ async function main() {
       role: UserRole.TECNICO,
       status: UserStatus.ATIVO,
       telefone: '+258843334444',
-      zonaAtuacao: 'Posto Agrário de Tica / Nhamatanda',
+      zonaAtuacao: 'Posto de Tica • Nhamatanda',
     },
   });
 
   const agriKulimaHash = await bcrypt.hash('Agri@2026', saltRounds);
   const agriKulima = await prisma.user.upsert({
-    where: { email: 'agricultor.lamego@kulimatech.mz' },
-    update: { passwordHash: agriKulimaHash, status: UserStatus.ATIVO },
+    where: { email: 'lamego@imunda.mz' },
+    update: { 
+      nome: 'Mateus Fernando Tivane',
+      passwordHash: agriKulimaHash, 
+      status: UserStatus.ATIVO,
+      zonaAtuacao: 'Lamego • Nhamatanda',
+    },
     create: {
-      nome: 'Mateus Cossa',
-      email: 'agricultor.lamego@kulimatech.mz',
+      nome: 'Mateus Fernando Tivane',
+      email: 'lamego@imunda.mz',
       passwordHash: agriKulimaHash,
       role: UserRole.AGRICULTOR,
       status: UserStatus.ATIVO,
       telefone: '+258841234567',
-      zonaAtuacao: 'Posto de Lamego - Nhamatanda',
+      zonaAtuacao: 'Lamego • Nhamatanda',
+    },
+  });
+
+  // Conta espelho para agricultor@kulimatech.mz
+  await prisma.user.upsert({
+    where: { email: 'agricultor@kulimatech.mz' },
+    update: {
+      nome: 'Mateus Fernando Tivane',
+      passwordHash: agriKulimaHash,
+      status: UserStatus.ATIVO,
+      zonaAtuacao: 'Lamego • Nhamatanda',
+    },
+    create: {
+      nome: 'Mateus Fernando Tivane',
+      email: 'agricultor@kulimatech.mz',
+      passwordHash: agriKulimaHash,
+      role: UserRole.AGRICULTOR,
+      status: UserStatus.ATIVO,
+      telefone: '+258841234567',
+      zonaAtuacao: 'Lamego • Nhamatanda',
     },
   });
 
@@ -188,24 +223,128 @@ async function main() {
     },
   });
 
-  // Parcela KulimaTech para Mateus Cossa
-  await prisma.parcela.upsert({
-    where: { id: 'parcela-lamego-01' },
+  // 5.2 Parcelas Oficiais da Figura 14 da Monografia para Mateus Fernando Tivane
+  const parcela1 = await prisma.parcela.upsert({
+    where: { id: 'parcela-machamba-principal' },
     update: {
+      nome: 'Machamba Principal',
+      areaHectares: 2.5,
+      tipoSolo: TipoSolo.ARGILOSO,
+      localizacao: 'Posto de Lamego, Talhão Sul (Milho Doce)',
       agricultorId: agriKulima.id,
     },
     create: {
-      id: 'parcela-lamego-01',
-      nome: 'Parcela Lamego 1 — Tomate e Hortícolas',
+      id: 'parcela-machamba-principal',
+      nome: 'Machamba Principal',
       areaHectares: 2.5,
-      tipoSolo: TipoSolo.FRANCO,
-      localizacao: 'Posto de Lamego, Talhão Sul, Junto ao Canal',
-      latitude: -19.2345,
-      longitude: 34.2189,
+      tipoSolo: TipoSolo.ARGILOSO,
+      localizacao: 'Posto de Lamego, Talhão Sul (Milho Doce)',
+      latitude: -19.2667,
+      longitude: 34.2167,
       agricultorId: agriKulima.id,
     },
   });
-  console.log(`   [OK] Contas KulimaTech criadas com sucesso.`);
+
+  const parcela2 = await prisma.parcela.upsert({
+    where: { id: 'parcela-talhao-hortalicas' },
+    update: {
+      nome: 'Talhão das Hortaliças',
+      areaHectares: 1.2,
+      tipoSolo: TipoSolo.ARGILOSO,
+      localizacao: 'Posto de Lamego (Tomate & Feijão)',
+      agricultorId: agriKulima.id,
+    },
+    create: {
+      id: 'parcela-talhao-hortalicas',
+      nome: 'Talhão das Hortaliças',
+      areaHectares: 1.2,
+      tipoSolo: TipoSolo.ARGILOSO,
+      localizacao: 'Posto de Lamego (Tomate & Feijão)',
+      latitude: -19.2680,
+      longitude: 34.2150,
+      agricultorId: agriKulima.id,
+    },
+  });
+
+  const parcela3 = await prisma.parcela.upsert({
+    where: { id: 'parcela-baixa' },
+    update: {
+      nome: 'Parcela da Baixa',
+      areaHectares: 0.8,
+      tipoSolo: TipoSolo.ARGILOSO,
+      localizacao: 'Posto de Lamego (Arroz de Sequeiro)',
+      agricultorId: agriKulima.id,
+    },
+    create: {
+      id: 'parcela-baixa',
+      nome: 'Parcela da Baixa',
+      areaHectares: 0.8,
+      tipoSolo: TipoSolo.ARGILOSO,
+      localizacao: 'Posto de Lamego (Arroz de Sequeiro)',
+      latitude: -19.2695,
+      longitude: 34.2130,
+      agricultorId: agriKulima.id,
+    },
+  });
+
+  // Leituras correspondentes: Machamba 60%, Hortaliças 42%, Baixa 75%
+  await prisma.leituraSolo.createMany({
+    data: [
+      {
+        parcelaId: parcela1.id,
+        humidade: 60.0,
+        temperatura: 25.5,
+        statusHumidade: 'OPTIMA',
+        observacoes: 'Humidade em faixa óptima para o milho doce',
+        validadoPorTecnico: true,
+        tecnicoValidadorId: techKulima.id,
+        dataLeitura: new Date(),
+      },
+      {
+        parcelaId: parcela2.id,
+        humidade: 42.0,
+        temperatura: 26.0,
+        statusHumidade: 'BAIXA',
+        observacoes: 'Nível baixo de retenção hídrica nas hortaliças',
+        validadoPorTecnico: true,
+        tecnicoValidadorId: techKulima.id,
+        dataLeitura: new Date(),
+      },
+      {
+        parcelaId: parcela3.id,
+        humidade: 75.0,
+        temperatura: 24.8,
+        statusHumidade: 'HUMIDO',
+        observacoes: 'Parcela com solo húmido após irrigação de arroz',
+        validadoPorTecnico: true,
+        tecnicoValidadorId: techKulima.id,
+        dataLeitura: new Date(),
+      },
+    ],
+    skipDuplicates: true,
+  });
+
+  // Histórico de 7 dias com média de 58.4%
+  const historicoValores = [42.0, 48.0, 55.0, 62.0, 58.0, 65.0, 68.0];
+  const hoje = new Date();
+  for (let i = 0; i < historicoValores.length; i++) {
+    const dataPassada = new Date(hoje);
+    dataPassada.setDate(hoje.getDate() - (6 - i));
+    await prisma.leituraSolo.create({
+      data: {
+        parcelaId: parcela1.id,
+        humidade: historicoValores[i],
+        temperatura: 24.0 + (i * 0.5),
+        statusHumidade: historicoValores[i] >= 40 && historicoValores[i] <= 75 ? 'OPTIMA' : 'BAIXA',
+        observacoes: `Leitura diária de solo Dia ${i + 1}`,
+        validadoPorTecnico: true,
+        tecnicoValidadorId: techKulima.id,
+        dataLeitura: dataPassada,
+      },
+    });
+  }
+
+  console.log(`   [OK] Contas KulimaTech e parcelas oficiais da monografia criadas.`);
 
   // 6. Catalogo de Culturas Prioritarias do SDAE Nhamatanda
   console.log('\n6. Povoando Catalogo de Culturas...');

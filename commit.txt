@@ -1,12 +1,18 @@
-feat(comunicacao): implementar modulo de comunicacao direta e alertas agronomicos
+refactor: alinhamento integral com a monografia, padronizacao de tokens de cor e guia de testes
 
-- Adicionar endpoints de API REST para gestao de mensagens (/api/mensagens) e alertas (/api/alertas, /api/alertas/[id]) com controlo de acesso RBAC
-- Criar schemas Zod de validacao rigorosa e contratos de tipos DTO para comunicacao e notificacoes
-- Implementar servico comunicacaoService para integracao entre o frontend e a API
-- Integrar interface do chat de mensagens com suporte a sincronizacao em tempo real (polling curto e foco de janela)
-- Implementar painel de alertas com filtros de criticidade, marcacao de leitura e remocao
-- Atualizar barra lateral (AppSidebar) com navegacao contextual para Tecnico, Agricultor e Administrador, com normalizacao de papeis
-- Configurar disparo automatico de alerta para leituras com humidade critica
-- Adicionar suite completa de testes automatizados de backend em scripts/verify-comunicacao.mjs
-- Criar script automatizado replace-imunda-kulimatech.js e realizar a renomeacao global do projeto para KulimaTech
-- Atualizar package.json, package-lock.json, scripts de teste, seed e documentacao tecnica com o novo nome oficial
+- Alinhamento rigoroso das telas do sistema com o Capitulo IV (Figuras 11 a 16) da monografia KulimaTech (UniZambeze 2026, Marcelo Tesai Faife):
+  * Figura 11: Portal Institucional com indicacao formal da parceria UniZambeze e SDAE Nhamatanda.
+  * Figuras 12 e 13: Fluxos de autenticacao e registo com vinculacao territorial aos postos de Nhamatanda-Sede, Tica e Lamego.
+  * Figura 14: Painel da Exploracao do Agricultor Familiar (Mateus Fernando Tivane) com curva de humidade de 7 dias, faixa de referencia de 40% a 75%, 3 indicadores hidricos, Ciclo Agronomico 2026, talhoes da exploracao, dados agroclimaticos locais e registo rapido.
+  * Figura 15: Painel de Supervisao do Extensionista SDAE (Eng. Antonio Langa) com 4 KPIs da carteira tecnica, validacao rapida de humidade com botao Ver Parcelas e relacao de produtores acompanhados.
+  * Figura 16: Painel Consolidado do Administrador Distrital (Alberto Nhantumbo) com 4 indicadores distritais, carteiras tecnicas com navegacao Ver Parcelas e Catalogo Mestre de Culturas Prioritarias.
+
+- Eliminacao integral de cores hardcoded no codigo-fonte:
+  * Substituicao de valores hexadecimais arbitrarios pelas classes semanticas padronizadas em tailwind.config.ts e src/theme/colors (primary, secondary, accent, surface, muted).
+  * Refatoracao de componentes da landing page, parcelas, leituras, comunicacao e paineis.
+  * Correcao de propriedades de dimensionamento em botoes e badges no dashboard.
+
+- Atualizacao e profissionalizacao do guia de homologacao (doc/guia-testes-frontend.md):
+  * Reestruturacao sem utilizacao de emojis com enquadramento academico e operacional.
+  * Roteiro passo a passo para validacao dos requisitos funcionais RF01 a RF08 e das telas oficiais.
+  * Descricao dos scripts automatizados de homologacao com 100% de cobertura (33 de 33 testes aprovados).

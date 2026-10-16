@@ -1,10 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { AppSidebar } from './AppSidebar';
 import { Header } from './Header';
 import { Footer } from './Footer';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { usePollingNotification } from '@/hooks/usePollingNotification';
 import { STORAGE_KEYS } from '@/utils/constants';
 import { AuthUser } from '@/types/auth';
 import { useAuth } from '@/features/auth/hooks/useAuth';
@@ -27,7 +29,9 @@ export function DashboardLayout({
   onSelectNavId,
   user: userProp,
 }: DashboardLayoutProps) {
+  const router = useRouter();
   const { user: authUser } = useAuth();
+  const { unreadCount } = usePollingNotification();
 
   const user = userProp || (authUser ? {
     name: authUser.nome,
@@ -51,6 +55,7 @@ export function DashboardLayout({
         isCollapsed={isCollapsed}
         onToggleCollapse={() => setIsCollapsed((prev) => !prev)}
         user={user}
+        unreadAlertsCount={unreadCount}
       />
 
       {/* Conteúdo Principal + Header + Footer */}
@@ -58,6 +63,8 @@ export function DashboardLayout({
         <Header
           onToggleSidebar={() => setIsMobileOpen((prev) => !prev)}
           user={user}
+          unreadNotificationsCount={unreadCount}
+          onNotificationsClick={() => router.push('/mensagens/alertas')}
         />
 
         <main className="flex-1 p-4 sm:p-6 md:p-8 lg:p-10 max-w-7xl w-full mx-auto space-y-8">

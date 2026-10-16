@@ -14,8 +14,12 @@ import { parcelaService } from '@/features/parcelas/services/parcelaService';
 import { ParcelaDetalhe, TipoSolo } from '@/features/parcelas/types';
 import { ParcelaForm } from '@/features/parcelas/components/ParcelaForm';
 import { ParcelaDeleteDialog } from '@/features/parcelas/components/ParcelaDeleteDialog';
-import { EmitirRecomendacaoModal } from '@/features/culturas/components/EmitirRecomendacaoModal';
-import { recomendacaoService } from '@/features/culturas/services/recomendacaoService';
+import {
+  RecomendacaoFormModal,
+  RecomendacaoCard,
+  recomendacaoService,
+  StatusRecomendacao,
+} from '@/features/culturas';
 import {
   MapPin,
   User,
@@ -187,8 +191,8 @@ export default function ParcelaDetalhePage() {
       {/* Modo de Edição Inline ou Exibição de Detalhes */}
       {isEditing ? (
         <div className="max-w-3xl mx-auto">
-          <Card variant="surface" className="border border-[#8eb69b]/40">
-            <h3 className="text-lg font-bold text-primary mb-4 border-b border-[#8eb69b]/30 pb-2">
+          <Card variant="surface" className="border border-muted/40">
+            <h3 className="text-lg font-bold text-primary mb-4 border-b border-muted/30 pb-2">
               Editar Dados da Parcela
             </h3>
             <ParcelaForm
@@ -251,7 +255,7 @@ export default function ParcelaDetalhePage() {
               </div>
 
               {/* Produtor Responsável */}
-              <div className="space-y-2 bg-[#e6efe8]/60 p-4 rounded-2xl border border-[#8eb69b]/30">
+              <div className="space-y-2 bg-muted/15 p-4 rounded-2xl border border-muted/30">
                 <span className="text-xs font-bold uppercase tracking-wider text-primary/70">
                   Produtor Responsável
                 </span>
@@ -296,7 +300,7 @@ export default function ParcelaDetalhePage() {
                   {parcela.leiturasRecentes.map((leitura) => (
                     <div
                       key={leitura.id}
-                      className="p-3.5 rounded-xl border border-[#8eb69b]/30 bg-[#e6efe8]/40 flex items-center justify-between"
+                      className="p-3.5 rounded-xl border border-muted/30 bg-muted/15 flex items-center justify-between"
                     >
                       <div>
                         <div className="flex items-center gap-2">
@@ -351,54 +355,44 @@ export default function ParcelaDetalhePage() {
                 )}
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  {parcela.recomendacoesRecentes.map((rec) => (
-                    <div
-                      key={rec.id}
-                      className="p-3.5 rounded-xl border border-secondary/20 bg-surface flex flex-col gap-2"
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-secondary">
-                          {rec.tecnico.nome}
-                        </span>
-                        <Badge variant="accent" size="sm">
-                          {rec.status}
-                        </Badge>
-                      </div>
-
-                      <p className="text-xs font-medium text-primary italic">
-                        "{rec.parecer}"
-                      </p>
-
-                      <div className="flex items-center justify-between pt-1 border-t border-secondary/10 text-[11px] text-primary/60">
-                        <span>Cultura: {rec.cultura?.nome || 'Geral'}</span>
-                        <div className="flex items-center gap-2">
-                          <span>{new Date(rec.dataEmissao).toLocaleDateString('pt-MZ')}</span>
-                          {user?.role === 'AGRICULTOR' && rec.status === 'PENDENTE' && (
-                            <button
-                              type="button"
-                              disabled={updatingRecId === rec.id}
-                              onClick={async () => {
-                                setUpdatingRecId(rec.id);
-                                try {
-                                  await recomendacaoService.updateStatus(rec.id, { status: 'APLICADA' });
-                                  fetchParcela();
-                                } catch (e) {
-                                  console.error(e);
-                                } finally {
-                                  setUpdatingRecId(null);
-                                }
-                              }}
-                              className="px-2 py-0.5 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-[10px] transition-colors"
-                            >
-                              {updatingRecId === rec.id ? 'A guardar...' : 'Marcar Aplicada'}
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                {parcela.recomendacoesRecentes.length === 0 ? (
+                  <div className="text-center py-6 text-primary/60 text-xs italic">
+                    Nenhuma recomendação técnica registada para esta parcela.
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {parcela.recomendacoesRecentes.map((rec) => (
+                      <RecomendacaoCard
+                        key={rec.id}
+                        recomendacao={{
+                          ...rec,
+                          status: (rec.status as StatusRecomendacao) || 'PENDENTE',
+                          parcelaId: parcela.id,
+                          tecnicoId: '',
+                          culturaId: null,
+                          createdAt: rec.dataEmissao,
+                          updatedAt: rec.dataEmissao,
+                          tecnico: { id: '', nome: rec.tecnico.nome },
+                          parcela: {
+                            id: parcela.id,
+                            nome: parcela.nome,
+                            areaHectares: parcela.areaHectares,
+                            tipoSolo: parcela.tipoSolo,
+                          },
+                        }}
+                        userRole={user?.role}
+                        onMarcarAplicada={async (id) => {
+                          await recomendacaoService.updateStatus(id, { status: 'APLICADA' });
+                          fetchParcela();
+                        }}
+                        onArquivar={async (id) => {
+                          await recomendacaoService.updateStatus(id, { status: 'ARQUIVADA' });
+                          fetchParcela();
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -415,7 +409,7 @@ export default function ParcelaDetalhePage() {
       />
 
       {/* Modal de Emissão de Recomendação Técnica */}
-      <EmitirRecomendacaoModal
+      <RecomendacaoFormModal
         isOpen={isRecomendacaoModalOpen}
         onClose={() => setIsRecomendacaoModalOpen(false)}
         parcelaId={parcela.id}

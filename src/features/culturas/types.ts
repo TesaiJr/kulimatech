@@ -30,6 +30,10 @@ export interface CulturaListItem {
   cicloDias: number | null;
   epocaPlantio: string | null;
   cuidados: string | null;
+  _count?: {
+    recomendacoes?: number;
+    pragas?: number;
+  };
 }
 
 export interface CreateCulturaInput {
@@ -69,8 +73,8 @@ export interface Recomendacao {
   cultura?: {
     id: string;
     nome: string;
-    humidadeMin: number;
-    humidadeMax: number;
+    humidadeMin?: number;
+    humidadeMax?: number;
   } | null;
   parcela?: {
     id: string;
@@ -102,4 +106,13 @@ export interface GetRecomendacoesFilters {
   parcelaId?: string;
   status?: StatusRecomendacao;
   culturaId?: string;
+  search?: string;
 }
+
+export interface RecomendacaoStats {
+  total: number;
+  pendentes: number;
+  aplicadas: number;
+  arquivadas: number;
+}
+

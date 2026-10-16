@@ -42,7 +42,7 @@ export function HeroSection() {
   return (
     <section
       id="hero"
-      className="relative w-full min-h-[90vh] lg:min-h-[94vh] flex items-center overflow-hidden bg-black text-white selection:bg-[#95C623] selection:text-[#002626]"
+      className="relative w-full min-h-[90vh] lg:min-h-[94vh] flex items-center overflow-hidden bg-black text-white selection:bg-accent selection:text-primary"
     >
       {/* ========================================================================= */}
       {/* 1. FUNDO FOTOGRÁFICO FULL-BLEED (TRANSIÇÃO SUAVE DE 2.0S ENTRE 3 IMAGENS) */}
@@ -77,12 +77,12 @@ export function HeroSection() {
         <div className="max-w-3xl space-y-6 sm:space-y-8">
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-6xl xl:text-7xl font-black text-white tracking-tight leading-[1.08] drop-shadow-2xl">
             Apoio à Decisão Agrícola para o Distrito de{' '}
-            <span className="text-[#95C623] underline decoration-[#95C623]/60 underline-offset-8">
+            <span className="text-accent underline decoration-accent/60 underline-offset-8">
               Nhamatanda
             </span>
           </h1>
 
-          <p className="text-base sm:text-lg lg:text-xl text-[#FEFAE0]/90 leading-relaxed font-normal max-w-2xl drop-shadow-lg">
+          <p className="text-base sm:text-lg lg:text-xl text-surface/90 leading-relaxed font-normal max-w-2xl drop-shadow-lg">
             Plataforma distrital que conecta agricultores familiares e técnicos de extensão agrária do
             SDAE, combinando monitorização contínua da humidade do solo com recomendações técnicas para
             calibrar a rega e proteger as culturas em Sofala.
@@ -92,7 +92,7 @@ export function HeroSection() {
             <Link href="/auth" className="inline-block">
               <button
                 type="button"
-                className="min-h-[50px] px-8 py-3 rounded-md bg-[#95C623] hover:bg-white text-[#002626] font-extrabold text-base flex items-center gap-3 transition-all duration-200 shadow-xl active:scale-[0.98] group"
+                className="min-h-[50px] px-8 py-3 rounded-md bg-accent hover:bg-white text-primary font-extrabold text-base flex items-center gap-3 transition-all duration-200 shadow-xl active:scale-[0.98] group"
               >
                 <span>Aceder ao Sistema</span>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" />
@@ -114,7 +114,7 @@ export function HeroSection() {
               type="button"
               onClick={() => setCurrentSlide(idx)}
               className={`h-1.5 rounded-sm transition-all duration-500 focus:outline-none ${
-                idx === currentSlide ? 'w-6 bg-[#95C623]' : 'w-2 bg-white/40 hover:bg-white/75'
+                idx === currentSlide ? 'w-6 bg-accent' : 'w-2 bg-white/40 hover:bg-white/75'
               }`}
               aria-label={`Ir para imagem ${idx + 1}`}
             />

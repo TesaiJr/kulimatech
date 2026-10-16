@@ -43,7 +43,7 @@ export interface LeituraResumo {
 export interface RecomendacaoResumo {
   id: string;
   parecer: string;
-  status: string;
+  status: 'PENDENTE' | 'APLICADA' | 'ARQUIVADA' | string;
   dataEmissao: Date | string;
   tecnico: {
     id: string;

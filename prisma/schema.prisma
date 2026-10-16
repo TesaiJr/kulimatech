@@ -89,6 +89,10 @@ model User {
   agricultoresAcompanhados TecnicoAgricultor[] @relation("TecnicoVinculo")
   tecnicosResponsaveis     TecnicoAgricultor[] @relation("AgricultorVinculo")
 
+  // Validacao e resolucao tecnica
+  leiturasValidadas     LeituraSolo[]     @relation("TecnicoValidador")
+  ocorrenciasResolvidas OcorrenciaPraga[] @relation("TecnicoResolutor")
+
   @@index([email])
   @@index([role, status])
 }
@@ -130,17 +134,27 @@ model Parcela {
 
 /// Registos de leitura de humidade e condicoes do solo da parcela
 model LeituraSolo {
-  id             String   @id @default(cuid())
-  parcelaId      String
-  parcela        Parcela  @relation(fields: [parcelaId], references: [id], onDelete: Cascade)
-  humidade       Float    // Valor medido em percentual (0 a 100)
-  temperatura    Float?   // Temperatura medida (opcional)
-  statusHumidade String?  // "CRITICA", "BAIXA", "OPTIMA", "EXCESSIVA"
-  observacoes    String?
-  dataLeitura    DateTime @default(now())
-  createdAt      DateTime @default(now())
+  id                  String    @id @default(cuid())
+  parcelaId           String
+  parcela             Parcela   @relation(fields: [parcelaId], references: [id], onDelete: Cascade)
+  humidade            Float     // Valor medido em percentual (0 a 100)
+  temperatura         Float?    // Temperatura medida (opcional)
+  statusHumidade      String?   // "CRITICA", "BAIXA", "OPTIMA", "EXCESSIVA"
+  observacoes         String?
+  dataLeitura         DateTime  @default(now())
+
+  // Validacao tecnica agronómica
+  validadoPorTecnico  Boolean   @default(false)
+  tecnicoValidadorId  String?
+  tecnicoValidador    User?     @relation("TecnicoValidador", fields: [tecnicoValidadorId], references: [id], onDelete: SetNull)
+  dataValidacao       DateTime?
+  observacoesTecnicas String?
+
+  createdAt           DateTime  @default(now())
 
   @@index([parcelaId, dataLeitura])
+  @@index([validadoPorTecnico])
+  @@index([tecnicoValidadorId])
 }
 
 /// Catalogo de referencia de culturas agricolas
@@ -158,6 +172,7 @@ model Cultura {
   updatedAt      DateTime @updatedAt
 
   recomendacoes Recomendacao[]
+  pragas        Praga[]
 }
 
 /// Recomendacao tecnica emitida por um Tecnico para uma parcela
@@ -188,33 +203,45 @@ model Praga {
   sintomas         String          // Sintomas visiveis na planta/folhas
   metodosCombate   String          // Medidas culturais, biologicas e quimicas
   severidadePadrao SeveridadePraga @default(MEDIA)
+
+  // Vinculo com cultura especifica
+  culturaId        String?
+  cultura          Cultura?        @relation(fields: [culturaId], references: [id], onDelete: SetNull)
+
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
 
-  ocorrencias OcorrenciaPraga[]
+  ocorrencias      OcorrenciaPraga[]
+
+  @@index([culturaId])
 }
 
 /// Reporte de ocorrencia de praga numa parcela especifica
 model OcorrenciaPraga {
-  id             String           @id @default(cuid())
-  parcelaId      String
-  parcela        Parcela          @relation(fields: [parcelaId], references: [id], onDelete: Cascade)
-  pragaId        String?
-  praga          Praga?           @relation(fields: [pragaId], references: [id], onDelete: SetNull)
-  agricultorId   String
-  agricultor     User             @relation(fields: [agricultorId], references: [id], onDelete: Cascade)
-  descricao      String
-  severidade     SeveridadePraga  @default(MEDIA)
-  status         StatusOcorrencia @default(ABERTA)
-  fotoUrl        String?
-  dataReporte    DateTime         @default(now())
-  parecerTecnico String?
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
+  id                 String           @id @default(cuid())
+  parcelaId          String
+  parcela            Parcela          @relation(fields: [parcelaId], references: [id], onDelete: Cascade)
+  pragaId            String?
+  praga              Praga?           @relation(fields: [pragaId], references: [id], onDelete: SetNull)
+  agricultorId       String
+  agricultor         User             @relation(fields: [agricultorId], references: [id], onDelete: Cascade)
+  descricao          String
+  severidade         SeveridadePraga  @default(MEDIA)
+  status             StatusOcorrencia @default(ABERTA)
+  fotoUrl            String?
+  dataReporte        DateTime         @default(now())
+  parecerTecnico     String?
+  acaoRecomendada    String?
+  tecnicoResolutorId String?
+  tecnicoResolutor   User?            @relation("TecnicoResolutor", fields: [tecnicoResolutorId], references: [id], onDelete: SetNull)
+  dataResolucao      DateTime?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
 
   @@index([parcelaId])
   @@index([agricultorId])
   @@index([status])
+  @@index([tecnicoResolutorId])
 }
 
 /// Mensagens trocadas diretamente entre Tecnico e Agricultor

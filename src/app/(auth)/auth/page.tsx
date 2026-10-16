@@ -364,8 +364,8 @@ function AuthContent() {
 
         <div className="relative z-10 flex items-center justify-between">
           <Link href="/" className="inline-flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-full bg-white/95 text-[#002626] flex items-center justify-center shadow-lg shadow-black/20 group-hover:scale-105 transition-transform duration-200">
-              <Sprout className="w-5 h-5 text-[#0E4749] stroke-[2.5]" />
+            <div className="w-10 h-10 rounded-full bg-white/95 text-primary flex items-center justify-center shadow-lg shadow-black/20 group-hover:scale-105 transition-transform duration-200">
+              <Sprout className="w-5 h-5 text-secondary stroke-[2.5]" />
             </div>
             <div>
               <span className="text-xl font-bold tracking-tight text-white drop-shadow">KulimaTech</span>
@@ -375,7 +375,7 @@ function AuthContent() {
             </div>
           </Link>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-white/90 text-xs">
-            <Sparkles className="w-3.5 h-3.5 text-[#95C623]" />
+            <Sparkles className="w-3.5 h-3.5 text-accent" />
             <span>Rede Agrária de Nhamatanda</span>
           </div>
         </div>
@@ -386,7 +386,7 @@ function AuthContent() {
               &ldquo;{currentQuote.quote}&rdquo;
             </p>
             <div>
-              <h4 className="font-bold text-sm sm:text-base text-[#FEFAE0]">{currentQuote.author}</h4>
+              <h4 className="font-bold text-sm sm:text-base text-surface">{currentQuote.author}</h4>
               <p className="text-xs text-white/70">{currentQuote.role}</p>
             </div>
           </div>
@@ -422,15 +422,15 @@ function AuthContent() {
         <div className="space-y-6">
           <div className="flex items-center justify-between lg:justify-end">
             <Link href="/" className="lg:hidden inline-flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-[#0E4749] text-white flex items-center justify-center">
+              <div className="w-8 h-8 rounded-full bg-secondary text-white flex items-center justify-center">
                 <Sprout className="w-4 h-4 stroke-[2.5]" />
               </div>
-              <span className="font-bold text-lg text-[#002626]">KulimaTech</span>
+              <span className="font-bold text-lg text-primary">KulimaTech</span>
             </Link>
 
             <Link
               href="/"
-              className="text-xs font-semibold text-[#0E4749] hover:underline flex items-center gap-1"
+              className="text-xs font-semibold text-secondary hover:underline flex items-center gap-1"
             >
               ← Voltar ao Início
             </Link>
@@ -444,7 +444,7 @@ function AuthContent() {
                 onClick={() => switchMode('login')}
                 className={`flex-1 py-2.5 px-4 rounded-xl text-xs font-bold transition-all duration-200 ${
                   mode === 'login'
-                    ? 'bg-white text-[#002626] shadow-sm'
+                    ? 'bg-white text-primary shadow-sm'
                     : 'text-slate-500 hover:text-slate-800'
                 }`}
               >
@@ -455,7 +455,7 @@ function AuthContent() {
                 onClick={() => switchMode('register')}
                 className={`flex-1 py-2.5 px-4 rounded-xl text-xs font-bold transition-all duration-200 ${
                   mode === 'register'
-                    ? 'bg-white text-[#002626] shadow-sm'
+                    ? 'bg-white text-primary shadow-sm'
                     : 'text-slate-500 hover:text-slate-800'
                 }`}
               >
@@ -470,7 +470,7 @@ function AuthContent() {
           {mode === 'login' && (
             <div className="space-y-6">
               <div className="space-y-1">
-                <h1 className="text-2xl font-black text-[#002626] tracking-tight">
+                <h1 className="text-2xl font-black text-primary tracking-tight">
                   Bem-vindo de volta!
                 </h1>
                 <p className="text-xs text-slate-500 leading-relaxed">
@@ -478,6 +478,13 @@ function AuthContent() {
                 </p>
               </div>
 
+
+              {searchParams.get('sessionExpired') === 'true' && (
+                <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs flex items-center gap-2 shadow-xs">
+                  <ShieldAlert className="w-4 h-4 flex-shrink-0 text-amber-600" />
+                  <span>A sua sessão expirou por inatividade ou segurança. Por favor, inicie sessão novamente para continuar.</span>
+                </div>
+              )}
 
               {(loginValidationError || loginApiError) && (
                 <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2">
@@ -488,7 +495,7 @@ function AuthContent() {
 
               <form onSubmit={handleLoginSubmit} className="space-y-4">
                 <div className="space-y-1.5">
-                  <label htmlFor="login-email" className="block text-xs font-bold uppercase tracking-wider text-[#0E4749]">
+                  <label htmlFor="login-email" className="block text-xs font-bold uppercase tracking-wider text-secondary">
                     Endereço de E-mail
                   </label>
                   <div className="relative">
@@ -502,20 +509,20 @@ function AuthContent() {
                       value={loginEmail}
                       onChange={(e) => setLoginEmail(e.target.value)}
                       placeholder="utilizador@kulimatech.gov.mz"
-                      className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-slate-200 text-[#002626] placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-[#95C623] focus:border-[#0E4749] transition-all shadow-sm"
+                      className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-slate-200 text-primary placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-secondary transition-all shadow-sm"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <label htmlFor="login-password" className="block text-xs font-bold uppercase tracking-wider text-[#0E4749]">
+                    <label htmlFor="login-password" className="block text-xs font-bold uppercase tracking-wider text-secondary">
                       Palavra-passe
                     </label>
                     <button
                       type="button"
                       onClick={() => switchMode('recover')}
-                      className="text-xs font-semibold text-[#0E4749] hover:underline"
+                      className="text-xs font-semibold text-secondary hover:underline"
                     >
                       Esqueceu a senha?
                     </button>
@@ -531,7 +538,7 @@ function AuthContent() {
                       value={loginPassword}
                       onChange={(e) => setLoginPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-white border border-slate-200 text-[#002626] placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-[#95C623] focus:border-[#0E4749] transition-all shadow-sm"
+                      className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-white border border-slate-200 text-primary placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-secondary transition-all shadow-sm"
                     />
                     <button
                       type="button"
@@ -546,7 +553,7 @@ function AuthContent() {
                 <button
                   type="submit"
                   disabled={isLoginLoading}
-                  className="w-full py-3 px-4 rounded-xl font-bold text-sm bg-[#002626] text-white hover:bg-[#0E4749] focus:outline-none focus:ring-2 focus:ring-[#95C623] transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-60"
+                  className="w-full py-3 px-4 rounded-xl font-bold text-sm bg-primary text-white hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-accent transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-60"
                 >
                   {isLoginLoading ? (
                     <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -569,21 +576,21 @@ function AuthContent() {
               {regSuccessEmail ? (
                 /* Card Interativo: Validação por OTP ou Link */
                 <div className="p-6 sm:p-7 rounded-3xl bg-slate-50 border border-slate-200 text-center space-y-5 shadow-sm">
-                  <div className="w-14 h-14 rounded-full bg-[#0E4749]/10 text-[#0E4749] flex items-center justify-center mx-auto shadow-sm">
+                  <div className="w-14 h-14 rounded-full bg-secondary/10 text-secondary flex items-center justify-center mx-auto shadow-sm">
                     <KeyRound className="w-7 h-7 stroke-[2.2]" />
                   </div>
 
                   <div className="space-y-1">
-                    <h3 className="text-xl font-black text-[#002626]">Insira o Código de Confirmação</h3>
+                    <h3 className="text-xl font-black text-primary">Insira o Código de Confirmação</h3>
                     <p className="text-xs text-slate-600 leading-relaxed">
-                      Enviámos uma mensagem com código de validação para <strong className="text-[#0E4749]">{regSuccessEmail}</strong>.
+                      Enviámos uma mensagem com código de validação para <strong className="text-secondary">{regSuccessEmail}</strong>.
                     </p>
                   </div>
 
                   {/* Informação prática de suporte móvel */}
                   <div className="p-3.5 rounded-2xl bg-white border border-slate-200/80 text-left text-xs text-slate-600 space-y-1.5 shadow-xs">
-                    <p className="font-bold text-[#002626] flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5 text-[#95C623]" />
+                    <p className="font-bold text-primary flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-accent" />
                       <span>Leu o e-mail no telemóvel?</span>
                     </p>
                     <p className="text-[11px] leading-relaxed text-slate-500">
@@ -608,7 +615,7 @@ function AuthContent() {
                   {/* Formulário do Código OTP */}
                   <form onSubmit={handleVerifyOtp} className="space-y-4">
                     <div className="space-y-1.5 text-left">
-                      <label htmlFor="otp-input" className="block text-[11px] font-bold uppercase tracking-wider text-[#0E4749]">
+                      <label htmlFor="otp-input" className="block text-[11px] font-bold uppercase tracking-wider text-secondary">
                         Código de Confirmação (OTP)
                       </label>
                       <input
@@ -619,14 +626,14 @@ function AuthContent() {
                         onChange={(e) => setOtpCode(e.target.value.replace(/\s+/g, ''))}
                         placeholder="Ex: 76654239"
                         maxLength={10}
-                        className="w-full text-center tracking-widest text-lg font-mono font-bold py-3 px-4 rounded-xl bg-white border border-slate-300 text-[#002626] placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-[#95C623] focus:border-[#0E4749]"
+                        className="w-full text-center tracking-widest text-lg font-mono font-bold py-3 px-4 rounded-xl bg-white border border-slate-300 text-primary placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-accent focus:border-secondary"
                       />
                     </div>
 
                     <button
                       type="submit"
                       disabled={otpLoading}
-                      className="w-full py-3 px-4 rounded-xl font-bold text-sm bg-[#002626] text-white hover:bg-[#0E4749] focus:outline-none focus:ring-2 focus:ring-[#95C623] transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-60"
+                      className="w-full py-3 px-4 rounded-xl font-bold text-sm bg-primary text-white hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-accent transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-60"
                     >
                       {otpLoading ? (
                         <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -644,7 +651,7 @@ function AuthContent() {
                       type="button"
                       onClick={handleResendOtp}
                       disabled={otpLoading}
-                      className="font-semibold text-[#0E4749] hover:underline flex items-center gap-1"
+                      className="font-semibold text-secondary hover:underline flex items-center gap-1"
                     >
                       <RefreshCw className={`w-3.5 h-3.5 ${otpLoading ? 'animate-spin' : ''}`} />
                       <span>Reenviar Código</span>
@@ -664,7 +671,7 @@ function AuthContent() {
               ) : (
                 <>
                   <div className="space-y-1">
-                    <h1 className="text-2xl font-black text-[#002626] tracking-tight">
+                    <h1 className="text-2xl font-black text-primary tracking-tight">
                       Crie a sua Conta
                     </h1>
                     <p className="text-xs text-slate-500 leading-relaxed">
@@ -681,7 +688,7 @@ function AuthContent() {
 
                   <form onSubmit={handleRegisterSubmit} className="space-y-3.5">
                     <div className="space-y-1">
-                      <label htmlFor="reg-nome" className="block text-[11px] font-bold uppercase tracking-wider text-[#0E4749]">
+                      <label htmlFor="reg-nome" className="block text-[11px] font-bold uppercase tracking-wider text-secondary">
                         Nome Completo
                       </label>
                       <div className="relative">
@@ -695,13 +702,13 @@ function AuthContent() {
                           value={regNome}
                           onChange={(e) => setRegNome(e.target.value)}
                           placeholder="Ex: Mateus Cossa"
-                          className="w-full pl-9 pr-3 py-2 rounded-xl bg-white border border-slate-200 text-sm focus:ring-2 focus:ring-[#95C623] focus:outline-none"
+                          className="w-full pl-9 pr-3 py-2 rounded-xl bg-white border border-slate-200 text-sm focus:ring-2 focus:ring-accent focus:outline-none"
                         />
                       </div>
                     </div>
 
                     <div className="space-y-1">
-                      <label htmlFor="reg-email" className="block text-[11px] font-bold uppercase tracking-wider text-[#0E4749]">
+                      <label htmlFor="reg-email" className="block text-[11px] font-bold uppercase tracking-wider text-secondary">
                         Endereço de E-mail
                       </label>
                       <div className="relative">
@@ -715,14 +722,14 @@ function AuthContent() {
                           value={regEmail}
                           onChange={(e) => setRegEmail(e.target.value)}
                           placeholder="seu.email@exemplo.com"
-                          className="w-full pl-9 pr-3 py-2 rounded-xl bg-white border border-slate-200 text-sm focus:ring-2 focus:ring-[#95C623] focus:outline-none"
+                          className="w-full pl-9 pr-3 py-2 rounded-xl bg-white border border-slate-200 text-sm focus:ring-2 focus:ring-accent focus:outline-none"
                         />
                       </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-2">
                       <div className="space-y-1">
-                        <label htmlFor="reg-telefone" className="block text-[11px] font-bold uppercase tracking-wider text-[#0E4749]">
+                        <label htmlFor="reg-telefone" className="block text-[11px] font-bold uppercase tracking-wider text-secondary">
                           Contacto Telefónico
                         </label>
                         <div className="relative">
@@ -735,20 +742,20 @@ function AuthContent() {
                             value={regTelefone}
                             onChange={(e) => setRegTelefone(e.target.value)}
                             placeholder="+258 84..."
-                            className="w-full pl-8 pr-2 py-2 rounded-xl bg-white border border-slate-200 text-xs focus:ring-2 focus:ring-[#95C623] focus:outline-none"
+                            className="w-full pl-8 pr-2 py-2 rounded-xl bg-white border border-slate-200 text-xs focus:ring-2 focus:ring-accent focus:outline-none"
                           />
                         </div>
                       </div>
 
                       <div className="space-y-1">
-                        <label htmlFor="reg-zona" className="block text-[11px] font-bold uppercase tracking-wider text-[#0E4749]">
+                        <label htmlFor="reg-zona" className="block text-[11px] font-bold uppercase tracking-wider text-secondary">
                           Zona de Atuação
                         </label>
                         <select
                           id="reg-zona"
                           value={regZona}
                           onChange={(e) => setRegZona(e.target.value)}
-                          className="w-full px-2.5 py-2 rounded-xl bg-white border border-slate-200 text-xs focus:ring-2 focus:ring-[#95C623] focus:outline-none"
+                          className="w-full px-2.5 py-2 rounded-xl bg-white border border-slate-200 text-xs focus:ring-2 focus:ring-accent focus:outline-none"
                         >
                           {NHAMATANDA_ZONAS.map((z) => (
                             <option key={z} value={z}>
@@ -760,7 +767,7 @@ function AuthContent() {
                     </div>
 
                     <div className="space-y-1">
-                      <span className="block text-[11px] font-bold uppercase tracking-wider text-[#0E4749]">
+                      <span className="block text-[11px] font-bold uppercase tracking-wider text-secondary">
                         Perfil de Utilizador
                       </span>
                       <div className="grid grid-cols-2 gap-2">
@@ -769,7 +776,7 @@ function AuthContent() {
                           onClick={() => setRegRole('AGRICULTOR')}
                           className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all ${
                             regRole === 'AGRICULTOR'
-                              ? 'bg-[#002626] text-white border-[#002626]'
+                              ? 'bg-primary text-white border-primary'
                               : 'bg-white text-slate-600 border-slate-200 hover:border-slate-400'
                           }`}
                         >
@@ -780,7 +787,7 @@ function AuthContent() {
                           onClick={() => setRegRole('TECNICO')}
                           className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all ${
                             regRole === 'TECNICO'
-                              ? 'bg-[#0E4749] text-white border-[#0E4749]'
+                              ? 'bg-secondary text-white border-secondary'
                               : 'bg-white text-slate-600 border-slate-200 hover:border-slate-400'
                           }`}
                         >
@@ -791,7 +798,7 @@ function AuthContent() {
 
                     <div className="grid grid-cols-2 gap-2">
                       <div className="space-y-1">
-                        <label htmlFor="reg-password" className="block text-[11px] font-bold uppercase tracking-wider text-[#0E4749]">
+                        <label htmlFor="reg-password" className="block text-[11px] font-bold uppercase tracking-wider text-secondary">
                           Palavra-passe
                         </label>
                         <div className="relative">
@@ -802,7 +809,7 @@ function AuthContent() {
                             value={regPassword}
                             onChange={(e) => setRegPassword(e.target.value)}
                             placeholder="Mín. 6 caracteres"
-                            className="w-full pl-3 pr-8 py-2 rounded-xl bg-white border border-slate-200 text-xs focus:ring-2 focus:ring-[#95C623] focus:outline-none"
+                            className="w-full pl-3 pr-8 py-2 rounded-xl bg-white border border-slate-200 text-xs focus:ring-2 focus:ring-accent focus:outline-none"
                           />
                           <button
                             type="button"
@@ -816,7 +823,7 @@ function AuthContent() {
                       </div>
 
                       <div className="space-y-1">
-                        <label htmlFor="reg-confirm-password" className="block text-[11px] font-bold uppercase tracking-wider text-[#0E4749]">
+                        <label htmlFor="reg-confirm-password" className="block text-[11px] font-bold uppercase tracking-wider text-secondary">
                           Confirmar
                         </label>
                         <div className="relative">
@@ -827,7 +834,7 @@ function AuthContent() {
                             value={regConfirmPassword}
                             onChange={(e) => setRegConfirmPassword(e.target.value)}
                             placeholder="Repita a senha"
-                            className="w-full pl-3 pr-8 py-2 rounded-xl bg-white border border-slate-200 text-xs focus:ring-2 focus:ring-[#95C623] focus:outline-none"
+                            className="w-full pl-3 pr-8 py-2 rounded-xl bg-white border border-slate-200 text-xs focus:ring-2 focus:ring-accent focus:outline-none"
                           />
                           <button
                             type="button"
@@ -846,7 +853,7 @@ function AuthContent() {
                         type="checkbox"
                         checked={regTerms}
                         onChange={(e) => setRegTerms(e.target.checked)}
-                        className="mt-0.5 rounded border-slate-300 text-[#002626] focus:ring-[#95C623]"
+                        className="mt-0.5 rounded border-slate-300 text-primary focus:ring-accent"
                       />
                       <span className="text-[11px] text-slate-500 leading-tight">
                         Concordo com os termos e autorizo o envio do código de confirmação.
@@ -856,7 +863,7 @@ function AuthContent() {
                     <button
                       type="submit"
                       disabled={regLoading}
-                      className="w-full py-3 px-4 rounded-xl font-bold text-sm bg-[#002626] text-white hover:bg-[#0E4749] focus:outline-none focus:ring-2 focus:ring-[#95C623] transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-60"
+                      className="w-full py-3 px-4 rounded-xl font-bold text-sm bg-primary text-white hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-accent transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-60"
                     >
                       {regLoading ? (
                         <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -882,12 +889,12 @@ function AuthContent() {
                 <button
                   type="button"
                   onClick={() => switchMode('login')}
-                  className="text-xs font-semibold text-[#0E4749] hover:underline flex items-center gap-1 mb-2"
+                  className="text-xs font-semibold text-secondary hover:underline flex items-center gap-1 mb-2"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
                   <span>Voltar para Iniciar Sessão</span>
                 </button>
-                <h1 className="text-2xl font-black text-[#002626] tracking-tight">
+                <h1 className="text-2xl font-black text-primary tracking-tight">
                   Recuperar Palavra-passe
                 </h1>
                 <p className="text-xs text-slate-500 leading-relaxed">
@@ -901,9 +908,9 @@ function AuthContent() {
                     <CheckCircle2 className="w-7 h-7" />
                   </div>
                   <div className="space-y-1">
-                    <h3 className="text-lg font-bold text-[#002626]">Link e Código Enviados!</h3>
+                    <h3 className="text-lg font-bold text-primary">Link e Código Enviados!</h3>
                     <p className="text-xs text-slate-600 leading-relaxed">
-                      Enviámos as instruções para <strong className="text-[#0E4749]">{recoverEmail}</strong>.
+                      Enviámos as instruções para <strong className="text-secondary">{recoverEmail}</strong>.
                     </p>
                   </div>
                   {recoverOtp && (
@@ -913,7 +920,7 @@ function AuthContent() {
                           <KeyRound className="w-4 h-4 text-amber-600" />
                           Código OTP:
                         </span>
-                        <span className="font-mono font-black text-sm text-[#002626] bg-white px-2.5 py-0.5 rounded-lg border border-amber-300 tracking-wider">
+                        <span className="font-mono font-black text-sm text-primary bg-white px-2.5 py-0.5 rounded-lg border border-amber-300 tracking-wider">
                           {recoverOtp}
                         </span>
                       </div>
@@ -929,7 +936,7 @@ function AuthContent() {
                   <button
                     type="button"
                     onClick={() => switchMode('reset')}
-                    className="w-full py-2.5 px-4 rounded-xl font-bold text-xs bg-[#002626] text-white hover:bg-[#0E4749] transition-all flex items-center justify-center gap-2"
+                    className="w-full py-2.5 px-4 rounded-xl font-bold text-xs bg-primary text-white hover:bg-secondary transition-all flex items-center justify-center gap-2"
                   >
                     <span>Avançar para Redefinir Senha</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -946,7 +953,7 @@ function AuthContent() {
 
                   <form onSubmit={handleRecoverSubmit} className="space-y-4">
                     <div className="space-y-1.5">
-                      <label htmlFor="recover-email" className="block text-xs font-bold uppercase tracking-wider text-[#0E4749]">
+                      <label htmlFor="recover-email" className="block text-xs font-bold uppercase tracking-wider text-secondary">
                         Endereço de E-mail
                       </label>
                       <div className="relative">
@@ -960,7 +967,7 @@ function AuthContent() {
                           value={recoverEmail}
                           onChange={(e) => setRecoverEmail(e.target.value)}
                           placeholder="seu.email@kulimatech.gov.mz"
-                          className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-slate-200 text-[#002626] placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-[#95C623] focus:border-[#0E4749] transition-all shadow-sm"
+                          className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-slate-200 text-primary placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-secondary transition-all shadow-sm"
                         />
                       </div>
                     </div>
@@ -968,7 +975,7 @@ function AuthContent() {
                     <button
                       type="submit"
                       disabled={recoverLoading}
-                      className="w-full py-3 px-4 rounded-xl font-bold text-sm bg-[#002626] text-white hover:bg-[#0E4749] focus:outline-none focus:ring-2 focus:ring-[#95C623] transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-60"
+                      className="w-full py-3 px-4 rounded-xl font-bold text-sm bg-primary text-white hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-accent transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-60"
                     >
                       {recoverLoading ? (
                         <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -994,12 +1001,12 @@ function AuthContent() {
                 <button
                   type="button"
                   onClick={() => switchMode('login')}
-                  className="text-xs font-semibold text-[#0E4749] hover:underline flex items-center gap-1 mb-2"
+                  className="text-xs font-semibold text-secondary hover:underline flex items-center gap-1 mb-2"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
                   <span>Voltar para Iniciar Sessão</span>
                 </button>
-                <h1 className="text-2xl font-black text-[#002626] tracking-tight">
+                <h1 className="text-2xl font-black text-primary tracking-tight">
                   Definir Nova Palavra-passe
                 </h1>
                 <p className="text-xs text-slate-500 leading-relaxed">
@@ -1013,7 +1020,7 @@ function AuthContent() {
                     <CheckCircle2 className="w-7 h-7" />
                   </div>
                   <div className="space-y-1">
-                    <h3 className="text-lg font-bold text-[#002626]">Palavra-passe Atualizada!</h3>
+                    <h3 className="text-lg font-bold text-primary">Palavra-passe Atualizada!</h3>
                     <p className="text-xs text-slate-600 leading-relaxed">
                       A sua nova palavra-passe foi guardada com sucesso. Já pode aceder à sua conta.
                     </p>
@@ -1021,7 +1028,7 @@ function AuthContent() {
                   <button
                     type="button"
                     onClick={() => switchMode('login')}
-                    className="w-full py-2.5 px-4 rounded-xl font-bold text-xs bg-[#002626] text-white hover:bg-[#0E4749] transition-all"
+                    className="w-full py-2.5 px-4 rounded-xl font-bold text-xs bg-primary text-white hover:bg-secondary transition-all"
                   >
                     Iniciar Sessão Agora
                   </button>
@@ -1038,7 +1045,7 @@ function AuthContent() {
                   <form onSubmit={handleResetSubmit} className="space-y-4">
                     {/* Código de Recuperação OTP */}
                     <div className="space-y-1.5">
-                      <label htmlFor="reset-otp-input" className="block text-xs font-bold uppercase tracking-wider text-[#0E4749]">
+                      <label htmlFor="reset-otp-input" className="block text-xs font-bold uppercase tracking-wider text-secondary">
                         Código de Recuperação (Recebido por E-mail)
                       </label>
                       <div className="relative">
@@ -1051,7 +1058,7 @@ function AuthContent() {
                           value={resetOtpCode}
                           onChange={(e) => setResetOtpCode(e.target.value.replace(/\s+/g, ''))}
                           placeholder="Ex: 76654239"
-                          className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-slate-200 text-sm font-mono focus:ring-2 focus:ring-[#95C623] focus:outline-none"
+                          className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-slate-200 text-sm font-mono focus:ring-2 focus:ring-accent focus:outline-none"
                         />
                       </div>
                       <p className="text-[10px] text-slate-400">
@@ -1060,7 +1067,7 @@ function AuthContent() {
                     </div>
 
                     <div className="space-y-1.5">
-                      <label htmlFor="new-password" className="block text-xs font-bold uppercase tracking-wider text-[#0E4749]">
+                      <label htmlFor="new-password" className="block text-xs font-bold uppercase tracking-wider text-secondary">
                         Nova Palavra-passe
                       </label>
                       <div className="relative">
@@ -1074,7 +1081,7 @@ function AuthContent() {
                           value={resetPassword}
                           onChange={(e) => setResetPassword(e.target.value)}
                           placeholder="Mínimo 6 caracteres"
-                          className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-white border border-slate-200 text-sm focus:ring-2 focus:ring-[#95C623] focus:outline-none"
+                          className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-white border border-slate-200 text-sm focus:ring-2 focus:ring-accent focus:outline-none"
                         />
                         <button
                           type="button"
@@ -1087,7 +1094,7 @@ function AuthContent() {
                     </div>
 
                     <div className="space-y-1.5">
-                      <label htmlFor="confirm-new-password" className="block text-xs font-bold uppercase tracking-wider text-[#0E4749]">
+                      <label htmlFor="confirm-new-password" className="block text-xs font-bold uppercase tracking-wider text-secondary">
                         Confirmar Nova Palavra-passe
                       </label>
                       <div className="relative">
@@ -1101,7 +1108,7 @@ function AuthContent() {
                           value={resetConfirmPassword}
                           onChange={(e) => setResetConfirmPassword(e.target.value)}
                           placeholder="Repita a nova palavra-passe"
-                          className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-white border border-slate-200 text-sm focus:ring-2 focus:ring-[#95C623] focus:outline-none"
+                          className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-white border border-slate-200 text-sm focus:ring-2 focus:ring-accent focus:outline-none"
                         />
                         <button
                           type="button"
@@ -1116,7 +1123,7 @@ function AuthContent() {
                     <button
                       type="submit"
                       disabled={resetLoading}
-                      className="w-full py-3 px-4 rounded-xl font-bold text-sm bg-[#002626] text-white hover:bg-[#0E4749] focus:outline-none focus:ring-2 focus:ring-[#95C623] transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-60"
+                      className="w-full py-3 px-4 rounded-xl font-bold text-sm bg-primary text-white hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-accent transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-60"
                     >
                       {resetLoading ? (
                         <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -1150,7 +1157,7 @@ export default function UnifiedAuthPage() {
     <Suspense
       fallback={
         <div className="min-h-screen flex items-center justify-center bg-slate-50">
-          <div className="w-8 h-8 border-3 border-[#002626]/20 border-t-[#002626] rounded-full animate-spin" />
+          <div className="w-8 h-8 border-3 border-primary/20 border-t-primary rounded-full animate-spin" />
         </div>
       }
     >
