@@ -6,6 +6,7 @@ import { createSuccessResponse } from '@/lib/api/response';
 import { handleApiError, AppError } from '@/lib/api/errors';
 import { UserRole, AlertaTipo } from '@prisma/client';
 import { resolverOcorrenciaSchema } from '@/features/pragas/schemas/pragaSchemas';
+import { chatEvents, CHAT_EVENT_TYPES } from '@/lib/events/chatEvents';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -91,7 +92,7 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
       });
 
       // Disparar notificação para o agricultor
-      await tx.alerta.create({
+      const alerta = await tx.alerta.create({
         data: {
           userId: ocorrencia.agricultorId,
           tipo: AlertaTipo.SISTEMA,
@@ -101,10 +102,16 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
         },
       });
 
-      return atualizada;
+      return { atualizada, alerta };
     });
 
-    return createSuccessResponse(ocorrenciaAtualizada, 200);
+    try {
+      chatEvents.emit(CHAT_EVENT_TYPES.NEW_ALERTA, ocorrenciaAtualizada.alerta);
+    } catch (err) {
+      console.error('[Event Error] Falha ao emitir alerta SSE de resolução:', err);
+    }
+
+    return createSuccessResponse(ocorrenciaAtualizada.atualizada, 200);
   } catch (error) {
     return handleApiError(error);
   }

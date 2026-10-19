@@ -53,20 +53,20 @@ export function Modal({
 
       {/* Modal Dialog */}
       <div
-        className={`relative w-full ${sizeStyles[size]} bg-surface text-primary border border-secondary/30 rounded-3xl shadow-2xl overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-200`}
+        className={`relative w-full ${sizeStyles[size]} max-h-[90vh] flex flex-col bg-surface text-primary border border-secondary/30 rounded-3xl shadow-2xl overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-200`}
         role="dialog"
         aria-modal="true"
       >
         {/* Header */}
         {(title || description) && (
-          <div className="px-6 pt-6 pb-4 border-b border-secondary/10 flex items-start justify-between gap-4">
+          <div className="px-6 pt-6 pb-4 border-b border-secondary/10 flex items-start justify-between gap-4 shrink-0">
             <div>
               {title && <h2 className="text-xl font-bold text-primary">{title}</h2>}
               {description && <p className="text-sm text-primary/70 mt-1">{description}</p>}
             </div>
             <button
               onClick={onClose}
-              className="p-2 text-primary/60 hover:text-primary rounded-full hover:bg-muted/40 transition-colors"
+              className="p-2 text-primary/60 hover:text-primary rounded-full hover:bg-muted/40 transition-colors shrink-0"
               aria-label="Close"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -77,11 +77,11 @@ export function Modal({
         )}
 
         {/* Content Body */}
-        <div className="p-6">{children}</div>
+        <div className="p-6 overflow-y-auto flex-1">{children}</div>
 
         {/* Footer */}
         {footer && (
-          <div className="px-6 py-4 bg-muted/20 border-t border-secondary/10 flex items-center justify-end gap-3">
+          <div className="px-6 py-4 bg-muted/20 border-t border-secondary/10 flex items-center justify-end gap-3 shrink-0">
             {footer}
           </div>
         )}

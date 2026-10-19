@@ -146,10 +146,10 @@ function LeiturasContent() {
               <Button
                 size="sm"
                 onClick={() => setIsFormModalOpen(true)}
-                className="gap-1.5 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white"
+                className="gap-1.5 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
               >
                 <Plus className="w-4 h-4" />
-                Nova Leitura
+                Nova Leitura de Humidade
               </Button>
             </div>
           }

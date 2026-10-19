@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { CreateLeituraDTO } from '../types';
 import { HumidadeGaugeBar } from './HumidadeGaugeBar';
-import { Droplets, Thermometer, FileText, AlertTriangle } from 'lucide-react';
+import { Droplets, Thermometer, FileText, AlertTriangle, Save } from 'lucide-react';
 
 interface ParcelaOption {
   id: string;
@@ -177,21 +177,22 @@ export function LeituraFormModal({
         </div>
 
         {/* Botões do Rodapé */}
-        <div className="flex items-center justify-end gap-2 pt-4 border-t border-gray-100">
+        <div className="sticky bottom-0 bg-white/95 backdrop-blur-sm pt-4 pb-1 border-t border-gray-100 flex items-center justify-end gap-2 mt-4 z-10">
           <button
             type="button"
             onClick={onClose}
             disabled={loading}
-            className="px-4 py-2 text-xs font-bold text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
+            className="px-4 py-2.5 text-xs font-bold text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
           >
             Cancelar
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="inline-flex items-center gap-2 px-5 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-all shadow-sm disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-all shadow-md hover:shadow-lg disabled:opacity-50"
           >
-            {loading ? 'A registar...' : 'Confirmar e Registar'}
+            <Save className="w-4 h-4" />
+            {loading ? 'A guardar...' : 'Guardar Registo de Humidade'}
           </button>
         </div>
       </form>

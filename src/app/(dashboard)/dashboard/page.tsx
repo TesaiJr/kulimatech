@@ -24,6 +24,7 @@ import {
   Sun,
   Calendar,
   CloudSun,
+  Save,
 } from 'lucide-react';
 import { WeatherCard, useMeteorologia } from '@/features/meteorologia';
 import { rawColors } from '@/theme/colors';
@@ -599,11 +600,17 @@ export default function DashboardPage() {
                       type="submit"
                       variant="primary"
                       size="sm"
-                      className="w-full font-bold"
+                      className="w-full font-bold flex items-center justify-center gap-1.5"
                       disabled={submittingLeitura || !dashboardData?.parcelas?.length}
                     >
-                      {submittingLeitura ? 'A Gravar...' : 'Gravar Medição no Sistema'}
+                      <Save className="w-3.5 h-3.5" />
+                      <span>{submittingLeitura ? 'A guardar...' : 'Guardar Registo de Humidade'}</span>
                     </Button>
+                    {!dashboardData?.parcelas?.length && (
+                      <p className="text-[11px] text-amber-600 text-center font-medium mt-1">
+                        Registe uma parcela antes de guardar leituras.
+                      </p>
+                    )}
                   </form>
                 </CardContent>
               </Card>

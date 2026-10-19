@@ -6,6 +6,7 @@ import { createSuccessResponse } from '@/lib/api/response';
 import { handleApiError, AppError } from '@/lib/api/errors';
 import { UserRole, AlertaTipo, StatusOcorrencia } from '@prisma/client';
 import { createOcorrenciaSchema } from '@/features/pragas/schemas/pragaSchemas';
+import { chatEvents, CHAT_EVENT_TYPES } from '@/lib/events/chatEvents';
 
 export async function GET(req: NextRequest) {
   try {
@@ -170,28 +171,55 @@ export async function POST(req: NextRequest) {
         },
       });
 
-      // Disparar Alerta para o extensionista do SDAE vinculado
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const alertasParaEmitir: any[] = [];
+
+      // 1. Se quem reportou foi o Técnico ou Administrador: o AGRICULTOR deve receber o alerta
+      if (authUser.userId !== parcela.agricultorId) {
+        const alertaAgricultor = await tx.alerta.create({
+          data: {
+            userId: parcela.agricultorId,
+            tipo: AlertaTipo.PRAGA_REPORTADA,
+            titulo: `Alerta Fitossanitário: ${parcela.nome}`,
+            mensagem: `O técnico do SDAE registou uma ocorrência de praga/doença na sua parcela "${parcela.nome}". Severidade: ${data.severidade}.`,
+            link: '/pragas/ocorrencias',
+          },
+        });
+        alertasParaEmitir.push(alertaAgricultor);
+      }
+
+      // 2. Se quem reportou foi o Agricultor: o técnico do SDAE vinculado à parcela deve receber o alerta
       const vinculo = await tx.tecnicoAgricultor.findFirst({
         where: { agricultorId: parcela.agricultorId },
         select: { tecnicoId: true },
       });
 
-      if (vinculo) {
-        await tx.alerta.create({
+      if (vinculo && vinculo.tecnicoId !== authUser.userId) {
+        const alertaTecnico = await tx.alerta.create({
           data: {
             userId: vinculo.tecnicoId,
             tipo: AlertaTipo.PRAGA_REPORTADA,
             titulo: `Ocorrência Fitossanitária: ${parcela.nome}`,
-            mensagem: `Novo reporte de praga/doença na parcela ${parcela.nome} (${parcela.agricultor.nome}). Severidade: ${data.severidade}.`,
+            mensagem: `Novo reporte de praga/doença na parcela "${parcela.nome}" (${parcela.agricultor.nome}). Severidade: ${data.severidade}.`,
             link: '/pragas/ocorrencias',
           },
         });
+        alertasParaEmitir.push(alertaTecnico);
       }
 
-      return novaOcorrencia;
+      return { novaOcorrencia, alertasParaEmitir };
     });
 
-    return createSuccessResponse(resultado, 201);
+    // Disparar alertas em tempo real via SSE para os utilizadores destinatários
+    resultado.alertasParaEmitir.forEach((alerta) => {
+      try {
+        chatEvents.emit(CHAT_EVENT_TYPES.NEW_ALERTA, alerta);
+      } catch (err) {
+        console.error('[Event Error] Falha ao emitir alerta SSE:', err);
+      }
+    });
+
+    return createSuccessResponse(resultado.novaOcorrencia, 201);
   } catch (error) {
     return handleApiError(error);
   }
